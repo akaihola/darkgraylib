@@ -1,4 +1,4 @@
-"""Setuptools entry point for Darker"""
+"""Setuptools entry point for Darkgraylib"""
 
 import re
 from typing import Pattern

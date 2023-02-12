@@ -12,7 +12,6 @@ known_third_party = ["pytest"]
 
 [tool.darker]
 src = [
-    "action",
     "src",
 ]
-revision = "origin/master..."
+revision = "origin/main..."
