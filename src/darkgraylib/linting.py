@@ -42,8 +42,8 @@ from typing import (
     Union,
 )
 
-from darker.diff import map_unmodified_lines
-from darker.git import (
+from darkgraylib.diff import map_unmodified_lines
+from darkgraylib.git import (
     STDIN,
     WORKTREE,
     RevisionRange,
@@ -53,8 +53,8 @@ from darker.git import (
     git_rev_parse,
     shlex_join,
 )
-from darker.highlighting import colorize
-from darker.utils import WINDOWS, fix_py37_win_tempdir_permissions
+from darkgraylib.highlighting import colorize
+from darkgraylib.utils import WINDOWS, fix_py37_win_tempdir_permissions
 
 logger = logging.getLogger(__name__)
 

@@ -4,9 +4,9 @@ import logging
 from pathlib import Path
 from typing import Any
 
-from darker.exceptions import MissingPackageError
-from darker.git import EditedLinenumsDiffer
-from darker.utils import TextDocument
+from darkgraylib.exceptions import MissingPackageError
+from darkgraylib.git import EditedLinenumsDiffer
+from darkgraylib.utils import TextDocument
 
 try:
     import flynt

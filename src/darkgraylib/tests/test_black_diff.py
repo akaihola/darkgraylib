@@ -1,4 +1,4 @@
-"""Unit tests for `darker.black_diff`"""
+"""Unit tests for `darkgraylib.black_diff`"""
 
 # pylint: disable=too-many-arguments,use-dict-literal
 
@@ -14,16 +14,16 @@ import regex
 
 from black import Mode, TargetVersion
 
-from darker import black_diff
-from darker.black_diff import (
+from darkgraylib import black_diff
+from darkgraylib.black_diff import (
     BlackConfig,
     filter_python_files,
     read_black_config,
     run_black,
 )
-from darker.config import ConfigurationError
-from darker.tests.helpers import raises_or_matches
-from darker.utils import TextDocument
+from darkgraylib.config import ConfigurationError
+from darkgraylib.tests.helpers import raises_or_matches
+from darkgraylib.utils import TextDocument
 
 if sys.version_info >= (3, 11):
     try:

@@ -1,4 +1,4 @@
-"""Tests for :mod:`darker.import_sorting`"""
+"""Tests for :mod:`darkgraylib.import_sorting`"""
 
 # pylint: disable=unused-argument,protected-access,too-many-arguments,use-dict-literal
 
@@ -8,10 +8,10 @@ from textwrap import dedent
 
 import pytest
 
-import darker.import_sorting
-from darker.git import EditedLinenumsDiffer, RevisionRange
-from darker.tests.helpers import isort_present
-from darker.utils import TextDocument, joinlines
+import darkgraylib.import_sorting
+from darkgraylib.git import EditedLinenumsDiffer, RevisionRange
+from darkgraylib.tests.helpers import isort_present
+from darkgraylib.utils import TextDocument, joinlines
 
 ORIGINAL_SOURCE = ("import sys", "import os", "", "print(42)")
 ISORTED_SOURCE = ("import os", "import sys", "", "print(42)")
@@ -19,15 +19,15 @@ ISORTED_SOURCE = ("import os", "import sys", "", "print(42)")
 
 @pytest.mark.parametrize("present", [True, False])
 def test_import_sorting_importable_with_and_without_isort(present):
-    """Make sure ``import darker.import_sorting`` works with and without ``isort``"""
+    """Make sure ``import darkgraylib.import_sorting`` works with and without ``isort``"""
     try:
         with isort_present(present):
 
             # Import when `isort` has been removed temporarily
-            reload(darker.import_sorting)
+            reload(darkgraylib.import_sorting)
     finally:
         # Re-import after restoring `isort` so other tests won't be affected
-        reload(darker.import_sorting)
+        reload(darkgraylib.import_sorting)
 
 
 @pytest.mark.parametrize("encoding", ["utf-8", "iso-8859-1"])
@@ -55,7 +55,7 @@ def test_apply_isort(git_repo, encoding, newline, content, expect):
     src = Path("test1.py")
     content_ = TextDocument.from_lines(content, encoding=encoding, newline=newline)
 
-    result = darker.import_sorting.apply_isort(
+    result = darkgraylib.import_sorting.apply_isort(
         content_, src, exclude=[], edited_linenums_differ=edited_linenums_differ
     )
 
@@ -89,7 +89,7 @@ def test_apply_isort_exclude(git_repo, encoding, newline, content, exclude, expe
     src = Path("test1.py")
     content_ = TextDocument.from_lines(content, encoding=encoding, newline=newline)
 
-    result = darker.import_sorting.apply_isort(
+    result = darkgraylib.import_sorting.apply_isort(
         content_, src, exclude=exclude, edited_linenums_differ=edited_linenums_differ
     )
 
@@ -154,7 +154,7 @@ def test_isort_config(
     content = "from module import ab, cd, ef, gh, ij, kl, mn, op, qr, st, uv, wx, yz"
     config = str(tmpdir / settings_file) if settings_file else None
 
-    actual = darker.import_sorting.apply_isort(
+    actual = darkgraylib.import_sorting.apply_isort(
         TextDocument.from_str(content),
         Path("test1.py"),
         set(),
@@ -177,7 +177,7 @@ def test_isort_config(
 )
 def test_build_isort_args(src, config, line_length, expect):
     """``_build_isort_args`` returns correct arguments for isort"""
-    result = darker.import_sorting._build_isort_args(src, config, line_length)
+    result = darkgraylib.import_sorting._build_isort_args(src, config, line_length)
 
     if "settings_path" in expect:
         expect["settings_path"] = str(expect["settings_path"].format(cwd=Path.cwd()))
@@ -189,7 +189,7 @@ def test_isort_file_skip_comment():
     # Avoid https://github.com/PyCQA/isort/pull/1833 by splitting the skip string
     content = "# iso" + "rt:skip_file"
 
-    actual = darker.import_sorting.apply_isort(
+    actual = darkgraylib.import_sorting.apply_isort(
         TextDocument.from_str(content),
         Path("test1.py"),
         set(),
@@ -249,7 +249,7 @@ def test_isort_file_skip_comment():
 )
 def test_diff_overlaps_with_edits(edited_linenums, isort_chunks, expect):
     """Overlapping edits and sorting of imports are detected correctly"""
-    result = darker.import_sorting._diff_overlaps_with_edits(
+    result = darkgraylib.import_sorting._diff_overlaps_with_edits(
         edited_linenums, isort_chunks
     )
 

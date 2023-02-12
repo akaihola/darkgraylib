@@ -1,4 +1,4 @@
-"""Tests for `darker.config`"""
+"""Tests for `darkgraylib.config`"""
 
 # pylint: disable=unused-argument,too-many-arguments,use-dict-literal
 
@@ -10,7 +10,7 @@ from textwrap import dedent
 
 import pytest
 
-from darker.config import (
+from darkgraylib.config import (
     ConfigurationError,
     DarkerConfig,
     OutputMode,
@@ -21,7 +21,7 @@ from darker.config import (
     load_config,
     replace_log_level_name,
 )
-from darker.tests.helpers import raises_if_exception
+from darkgraylib.tests.helpers import raises_if_exception
 
 
 @pytest.mark.kwparametrize(

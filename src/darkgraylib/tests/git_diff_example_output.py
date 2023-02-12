@@ -1,4 +1,4 @@
-"""Example content for `darker.tests.test_difflib`"""
+"""Example content for `darkgraylib.tests.test_difflib`"""
 
 from textwrap import dedent
 

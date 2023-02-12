@@ -10,20 +10,20 @@ from difflib import unified_diff
 from pathlib import Path
 from typing import Collection, Generator, List, Optional, Tuple
 
-from darker.black_diff import (
+from darkgraylib.black_diff import (
     BlackConfig,
     filter_python_files,
     read_black_config,
     run_black,
 )
-from darker.chooser import choose_lines
-from darker.command_line import parse_command_line
-from darker.concurrency import get_executor
-from darker.config import Exclusions, OutputMode, dump_config
-from darker.diff import diff_chunks
-from darker.exceptions import DependencyError, MissingPackageError
-from darker.fstring import apply_flynt, flynt
-from darker.git import (
+from darkgraylib.chooser import choose_lines
+from darkgraylib.command_line import parse_command_line
+from darkgraylib.concurrency import get_executor
+from darkgraylib.config import Exclusions, OutputMode, dump_config
+from darkgraylib.diff import diff_chunks
+from darkgraylib.exceptions import DependencyError, MissingPackageError
+from darkgraylib.fstring import apply_flynt, flynt
+from darkgraylib.git import (
     PRE_COMMIT_FROM_TO_REFS,
     STDIN,
     WORKTREE,
@@ -35,11 +35,11 @@ from darker.git import (
     git_get_modified_python_files,
     git_is_repository,
 )
-from darker.help import get_extra_instruction
-from darker.highlighting import colorize, should_use_color
-from darker.import_sorting import apply_isort, isort
-from darker.linting import run_linters
-from darker.utils import (
+from darkgraylib.help import get_extra_instruction
+from darkgraylib.highlighting import colorize, should_use_color
+from darkgraylib.import_sorting import apply_isort, isort
+from darkgraylib.linting import run_linters
+from darkgraylib.utils import (
     GIT_DATEFORMAT,
     DiffChunk,
     TextDocument,
@@ -47,7 +47,7 @@ from darker.utils import (
     get_common_root,
     glob_any,
 )
-from darker.verification import ASTVerifier, BinarySearch, NotEquivalentError
+from darkgraylib.verification import ASTVerifier, BinarySearch, NotEquivalentError
 
 logger = logging.getLogger(__name__)
 

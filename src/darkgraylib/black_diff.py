@@ -20,14 +20,14 @@ Reformatted lines are returned e.g.::
     >>> dst.lines
     ('for i in range(5):', '    print(i)', 'print("done")')
 
-See :mod:`darker.diff` and :mod:`darker.chooser`
+See :mod:`darkgraylib.diff` and :mod:`darkgraylib.chooser`
 for how this result is further processed with:
 
-- :func:`~darker.diff.diff_and_get_opcodes`
+- :func:`~darkgraylib.diff.diff_and_get_opcodes`
   to get a diff of the reformatting
-- :func:`~darker.diff.opcodes_to_chunks`
+- :func:`~darkgraylib.diff.opcodes_to_chunks`
   to split the diff into chunks of original and reformatted content
-- :func:`~darker.chooser.choose_lines`
+- :func:`~darkgraylib.chooser.choose_lines`
   to reconstruct the source code from original and reformatted chunks
   based on whether reformats touch user-edited lines
 
@@ -54,8 +54,8 @@ from black.const import (  # pylint: disable=no-name-in-module
 from black.files import gen_python_files
 from black.report import Report
 
-from darker.config import ConfigurationError
-from darker.utils import TextDocument
+from darkgraylib.config import ConfigurationError
+from darkgraylib.utils import TextDocument
 
 if sys.version_info >= (3, 8):
     from typing import TypedDict

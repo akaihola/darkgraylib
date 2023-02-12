@@ -2,7 +2,7 @@
 
 The :func:`choose_lines` function should be fed with
 a list of line numbers which were edited after the last commit,
-plus output from :func:`darker.black_diff.opcodes_to_chunks`.
+plus output from :func:`darkgraylib.black_diff.opcodes_to_chunks`.
 It reconstructs the Python source code file from chunks
 while choosing either the original or reformatted version of each chunk.
 The original is chosen if no edited line number falls on original chunk lines,
@@ -32,7 +32,7 @@ Example::
 import logging
 from typing import Generator, Iterable, List
 
-from darker.utils import DiffChunk
+from darkgraylib.utils import DiffChunk
 
 logger = logging.getLogger(__name__)
 

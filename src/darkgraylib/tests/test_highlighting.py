@@ -1,4 +1,4 @@
-"""Unit tests for :mod:`darker.highlighting`"""
+"""Unit tests for :mod:`darkgraylib.highlighting`"""
 
 # pylint: disable=too-many-arguments,redefined-outer-name,unused-argument
 # pylint: disable=protected-access
@@ -14,8 +14,8 @@ import pytest
 from _pytest.fixtures import SubRequest
 from pygments.token import Token
 
-from darker.command_line import parse_command_line
-from darker.highlighting import colorize, lexers, should_use_color
+from darkgraylib.command_line import parse_command_line
+from darkgraylib.highlighting import colorize, lexers, should_use_color
 
 RESET = "\x1b[39;49;00m"
 RED = "\x1b[31;01m"
@@ -197,7 +197,7 @@ def env_py_colors(request: SubRequest) -> Generator[Dict[str, str], None, None]:
 def uninstall_pygments() -> Generator[None, None, None]:
     """Fixture for uninstalling ``pygments`` temporarily"""
     mods = sys.modules.copy()
-    del mods["darker.highlighting"]
+    del mods["darkgraylib.highlighting"]
     # cause an ImportError for `import pygments`:
     mods["pygments"] = None  # type: ignore[assignment]
     with patch.dict(sys.modules, mods, clear=True):

@@ -1,10 +1,10 @@
-"""Unit tests for `darker.chooser`"""
+"""Unit tests for `darkgraylib.chooser`"""
 
 # pylint: disable=use-dict-literal
 
 import pytest
 
-from darker.chooser import choose_lines
+from darkgraylib.chooser import choose_lines
 
 
 @pytest.mark.kwparametrize(

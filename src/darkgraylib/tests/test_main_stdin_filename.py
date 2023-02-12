@@ -1,4 +1,4 @@
-"""Tests for `darker.__main__.main` and the ``--stdin-filename`` option"""
+"""Tests for `darkgraylib.__main__.main` and the ``--stdin-filename`` option"""
 
 # pylint: disable=too-many-arguments,use-dict-literal
 
@@ -9,10 +9,10 @@ from unittest.mock import Mock, patch
 import pytest
 import toml
 
-import darker.__main__
-from darker.config import ConfigurationError
-from darker.tests.conftest import GitRepoFixture
-from darker.tests.helpers import raises_if_exception
+import darkgraylib.__main__
+from darkgraylib.config import ConfigurationError
+from darkgraylib.tests.conftest import GitRepoFixture
+from darkgraylib.tests.helpers import raises_if_exception
 
 pytestmark = pytest.mark.usefixtures("find_project_root_cache_clear")
 
@@ -136,7 +136,7 @@ def test_main_stdin_filename(
     expect: int,
     expect_a_py: str,
 ) -> None:
-    """Tests for `darker.__main__.main` and the ``--stdin-filename`` option"""
+    """Tests for `darkgraylib.__main__.main` and the ``--stdin-filename`` option"""
     if config_src is not None:
         configuration = {"tool": {"darker": {"src": config_src}}}
         git_repo.add({"pyproject.toml": toml.dumps(configuration)})
@@ -151,13 +151,13 @@ def test_main_stdin_filename(
     if revision is not None:
         arguments.insert(0, f"--revision={revision}")
     with patch.object(
-        darker.__main__.sys,  # type: ignore[attr-defined]
+        darkgraylib.__main__.sys,  # type: ignore[attr-defined]
         "stdin",
         Mock(buffer=BytesIO(b"modified  = 'stdin'")),
     ), raises_if_exception(expect):
         # end of test setup
 
-        retval = darker.__main__.main(arguments)
+        retval = darkgraylib.__main__.main(arguments)
 
         assert retval == expect
         assert paths["a.py"].read_text() == expect_a_py

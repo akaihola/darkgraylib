@@ -23,9 +23,9 @@ from typing import (
     overload,
 )
 
-from darker.diff import diff_and_get_opcodes, opcodes_to_edit_linenums
-from darker.multiline_strings import get_multiline_string_ranges
-from darker.utils import GIT_DATEFORMAT, TextDocument
+from darkgraylib.diff import diff_and_get_opcodes, opcodes_to_edit_linenums
+from darkgraylib.multiline_strings import get_multiline_string_ranges
+from darkgraylib.utils import GIT_DATEFORMAT, TextDocument
 
 if sys.version_info < (3, 8):
 

@@ -1,4 +1,4 @@
-"""Tests for the ``darker.argparse_helpers`` module"""
+"""Tests for the ``darkgraylib.argparse_helpers`` module"""
 
 # pylint: disable=use-dict-literal
 
@@ -7,8 +7,8 @@ from logging import CRITICAL, DEBUG, ERROR, INFO, NOTSET, WARNING
 
 import pytest
 
-from darker import argparse_helpers
-from darker.tests.helpers import raises_if_exception
+from darkgraylib import argparse_helpers
+from darkgraylib.tests.helpers import raises_if_exception
 
 
 @pytest.mark.kwparametrize(

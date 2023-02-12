@@ -1,6 +1,6 @@
 # pylint: disable=too-many-arguments,too-many-locals,use-dict-literal
 
-"""Unit tests for :mod:`darker.command_line` and :mod:`darker.__main__`"""
+"""Unit tests for :mod:`darkgraylib.command_line` and :mod:`darkgraylib.__main__`"""
 
 import os
 import re
@@ -14,19 +14,19 @@ import pytest
 import toml
 from black import TargetVersion
 
-import darker.help
-from darker import black_diff
-from darker.__main__ import main
-from darker.command_line import make_argument_parser, parse_command_line
-from darker.config import ConfigurationError, Exclusions
-from darker.git import RevisionRange
-from darker.tests.helpers import (
+import darkgraylib.help
+from darkgraylib import black_diff
+from darkgraylib.__main__ import main
+from darkgraylib.command_line import make_argument_parser, parse_command_line
+from darkgraylib.config import ConfigurationError, Exclusions
+from darkgraylib.git import RevisionRange
+from darkgraylib.tests.helpers import (
     filter_dict,
     flynt_present,
     isort_present,
     raises_if_exception,
 )
-from darker.utils import TextDocument, joinlines
+from darkgraylib.utils import TextDocument, joinlines
 
 pytestmark = pytest.mark.usefixtures("find_project_root_cache_clear")
 
@@ -48,7 +48,7 @@ def get_darker_help_output(capsys):
     """Test for ``--help`` option output"""
     # Make sure the description is re-rendered since its content depends on whether
     # isort is installed or not:
-    reload(darker.help)
+    reload(darkgraylib.help)
     with pytest.raises(SystemExit):
         parse_command_line(["--help"])
     return re.sub(r"\s+", " ", capsys.readouterr().out)
@@ -837,7 +837,7 @@ def test_options(git_repo, options, expect):
         {"a.py": "1\n", "b.py": "2\n", "my.cfg": ""}, commit="Initial commit"
     )
     paths["a.py"].write_bytes(b"one\n")
-    with patch('darker.__main__.format_edited_parts') as format_edited_parts:
+    with patch('darkgraylib.__main__.format_edited_parts') as format_edited_parts:
 
         retval = main(options)
 
@@ -875,7 +875,7 @@ def test_main_retval(git_repo, check, changes, lintfail, expect_retval):
     run_linters = Mock(return_value=lintfail)
     check_arg_maybe = ["--check"] if check else []
     with patch.multiple(
-        "darker.__main__",
+        "darkgraylib.__main__",
         format_edited_parts=format_edited_parts,
         modify_file=DEFAULT,
         run_linters=run_linters,

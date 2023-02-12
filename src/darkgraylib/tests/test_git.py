@@ -1,4 +1,4 @@
-"""Unit tests for :mod:`darker.git`"""
+"""Unit tests for :mod:`darkgraylib.git`"""
 
 # pylint: disable=protected-access,redefined-outer-name,too-many-arguments
 # pylint: disable=too-many-lines,use-dict-literal
@@ -14,10 +14,10 @@ from unittest.mock import ANY, Mock, call, patch
 
 import pytest
 
-from darker import git
-from darker.tests.conftest import GitRepoFixture
-from darker.tests.helpers import raises_if_exception, raises_or_matches
-from darker.utils import GIT_DATEFORMAT, TextDocument
+from darkgraylib import git
+from darkgraylib.tests.conftest import GitRepoFixture
+from darkgraylib.tests.helpers import raises_if_exception, raises_or_matches
+from darkgraylib.utils import GIT_DATEFORMAT, TextDocument
 
 
 def test_tmp_path_sanity(tmp_path):
@@ -69,7 +69,7 @@ def test_worktree_symbol():
 
 
 def test_git_get_mtime_at_commit():
-    """darker.git.git_get_mtime_at_commit()"""
+    """darkgraylib.git.git_get_mtime_at_commit()"""
     with patch.object(git, "_git_check_output_lines"):
         git._git_check_output_lines.return_value = ["1609104839"]  # type: ignore
 
@@ -98,7 +98,7 @@ def test_git_get_mtime_at_commit():
     dict(revision="HEAD~2", expect_lines=(), expect_mtime=False),
 )
 def test_git_get_content_at_revision(git_repo, revision, expect_lines, expect_mtime):
-    """darker.git.git_get_content_at_revision()"""
+    """darkgraylib.git.git_get_content_at_revision()"""
     git_repo.add({"my.txt": "original content"}, commit="Initial commit")
     paths = git_repo.add({"my.txt": "modified content"}, commit="Initial commit")
     paths["my.txt"].write_bytes(b"new content")
@@ -237,8 +237,8 @@ def test_git_get_content_at_revision_obtain_file_content(
     revision, expect_git_calls, expect_textdocument_calls
 ):
     """``git_get_content_at_revision`` calls Git or reads files based on revision"""
-    with patch("darker.git.check_output") as check_output, patch(
-        "darker.git.TextDocument"
+    with patch("darkgraylib.git.check_output") as check_output, patch(
+        "darkgraylib.git.TextDocument"
     ) as text_document_class:
         # this dummy value acts both as a dummy Unix timestamp for the file as well as
         # the contents of the file:
@@ -410,7 +410,7 @@ def test_git_check_output_lines(branched_repo, cmd, exit_on_error, expect_templa
         exit_on_error=True,
         expect_exc=SystemExit,
         expect_log=(
-            r"(?:^|\n)ERROR    darker\.git:git\.py:\d+ fatal: "
+            r"(?:^|\n)ERROR    darkgraylib\.git:git\.py:\d+ fatal: "
             r"[pP]ath '/\.file2' does not exist in '{initial}'\n"
         ),
     ),
@@ -667,7 +667,7 @@ def test_git_ls_files_others(git_repo):
     paths=[],
 )
 def test_git_get_modified_python_files(git_repo, modify_paths, paths, expect):
-    """Tests for `darker.git.git_get_modified_python_files()`"""
+    """Tests for `darkgraylib.git.git_get_modified_python_files()`"""
     root = Path(git_repo.root)
     git_repo.add(
         {
@@ -840,7 +840,7 @@ def branched_repo(tmp_path_factory):
 def test_git_get_modified_python_files_revision_range(
     _description, branched_repo, revrange, expect
 ):
-    """Test for :func:`darker.git.git_get_modified_python_files` with revision range"""
+    """Test for :func:`darkgraylib.git.git_get_modified_python_files` with revision range"""
     result = git.git_get_modified_python_files(
         [Path(branched_repo.root)],
         git.RevisionRange.parse_with_common_ancestor(
@@ -1102,7 +1102,7 @@ def test_edited_linenums_differ_revision_vs_lines_multiline_strings(
 
 
 def test_local_gitconfig_ignored_by_gitrepofixture(tmp_path):
-    """Tests that ~/.gitconfig is ignored when running darker's git tests"""
+    """Tests that ~/.gitconfig is ignored when running darkgraylib's git tests"""
     (tmp_path / "HEAD").write_text("ref: refs/heads/main")
 
     # Note: once we decide to drop support for git < 2.28, the HEAD file

@@ -68,8 +68,8 @@ import logging
 from difflib import SequenceMatcher
 from typing import Dict, Generator, List, Sequence, Tuple
 
-from darker.multiline_strings import find_overlap
-from darker.utils import DiffChunk, TextDocument
+from darkgraylib.multiline_strings import find_overlap
+from darkgraylib.utils import DiffChunk, TextDocument
 
 logger = logging.getLogger(__name__)
 

@@ -9,8 +9,8 @@ from typing import Dict, Iterable, List, Union
 import pytest
 from black import find_project_root as black_find_project_root
 
-from darker.git import _git_check_output_lines, git_get_version
-from darker.utils import fix_py37_win_tempdir_permissions
+from darkgraylib.git import _git_check_output_lines, git_get_version
+from darkgraylib.utils import fix_py37_win_tempdir_permissions
 
 
 class GitRepoFixture:
@@ -129,7 +129,7 @@ def git_repo(tmp_path, monkeypatch):
 def find_project_root_cache_clear():
     """Clear LRU caching in :func:`black.find_project_root` before each test
 
-    NOTE: We use `darker.black_compat.find_project_root` to wrap Black's original
+    NOTE: We use `darkgraylib.black_compat.find_project_root` to wrap Black's original
     function since its signature has changed along the way. However, clearing the cache
     needs to be done on the original of course.
 

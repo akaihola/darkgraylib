@@ -5,11 +5,11 @@ import sys
 from pathlib import Path
 from typing import Any, Collection, List, Optional
 
-from darker.black_compat import find_project_root
-from darker.diff import diff_chunks
-from darker.exceptions import IncompatiblePackageError, MissingPackageError
-from darker.git import EditedLinenumsDiffer
-from darker.utils import DiffChunk, TextDocument, glob_any
+from darkgraylib.black_compat import find_project_root
+from darkgraylib.diff import diff_chunks
+from darkgraylib.exceptions import IncompatiblePackageError, MissingPackageError
+from darkgraylib.git import EditedLinenumsDiffer
+from darkgraylib.utils import DiffChunk, TextDocument, glob_any
 
 if sys.version_info >= (3, 8):
     from typing import TypedDict

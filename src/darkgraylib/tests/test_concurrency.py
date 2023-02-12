@@ -1,4 +1,4 @@
-"""Tests for `darker.concurrency`"""
+"""Tests for `darkgraylib.concurrency`"""
 
 # pylint: disable=use-dict-literal
 
@@ -7,7 +7,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from darker import concurrency
+from darkgraylib import concurrency
 
 
 def test_dummy_executor_submit_success():

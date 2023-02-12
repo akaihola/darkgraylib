@@ -10,7 +10,7 @@ from typing import Iterable, List, Optional, Set, cast
 
 import toml
 
-from darker.black_compat import find_project_root
+from darkgraylib.black_compat import find_project_root
 
 if sys.version_info >= (3, 8):
     from typing import TypedDict

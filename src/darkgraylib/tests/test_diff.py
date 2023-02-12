@@ -1,4 +1,4 @@
-"""Unit tests for `darker.diff`"""
+"""Unit tests for `darkgraylib.diff`"""
 
 # pylint: disable=use-dict-literal
 
@@ -7,13 +7,13 @@ from textwrap import dedent
 
 import pytest
 
-from darker.diff import (
+from darkgraylib.diff import (
     diff_and_get_opcodes,
     map_unmodified_lines,
     opcodes_to_chunks,
     opcodes_to_edit_linenums,
 )
-from darker.utils import TextDocument
+from darkgraylib.utils import TextDocument
 
 FUNCTIONS2_PY = dedent(
     """\

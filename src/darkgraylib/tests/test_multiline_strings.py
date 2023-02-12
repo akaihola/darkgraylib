@@ -1,11 +1,11 @@
-"""Tests for `darker.multiline_strings`"""
+"""Tests for `darkgraylib.multiline_strings`"""
 
 # pylint: disable=use-dict-literal
 
 import pytest
 
-from darker import multiline_strings
-from darker.utils import TextDocument
+from darkgraylib import multiline_strings
+from darkgraylib.utils import TextDocument
 
 
 def test_get_multiline_string_ranges():

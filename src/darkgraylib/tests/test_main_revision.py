@@ -1,11 +1,11 @@
-"""Unit tests for the ``--revision`` argument in `darker.main`"""
+"""Unit tests for the ``--revision`` argument in `darkgraylib.main`"""
 
 # pylint: disable=too-many-arguments,use-dict-literal
 
 import pytest
 
-from darker.__main__ import main
-from darker.tests.helpers import raises_if_exception
+from darkgraylib.__main__ import main
+from darkgraylib.tests.helpers import raises_if_exception
 
 # The following test is a bit dense, so some explanation is due.
 #

@@ -1,4 +1,4 @@
-"""Unit tests for `darker.__main__._blacken_and_flynt_single_file`"""
+"""Unit tests for `darkgraylib.__main__._blacken_and_flynt_single_file`"""
 
 # pylint: disable=too-many-arguments,use-dict-literal
 
@@ -7,10 +7,10 @@ from textwrap import dedent
 
 import pytest
 
-from darker.__main__ import _blacken_and_flynt_single_file
-from darker.config import Exclusions
-from darker.git import EditedLinenumsDiffer, RevisionRange
-from darker.utils import TextDocument
+from darkgraylib.__main__ import _blacken_and_flynt_single_file
+from darkgraylib.config import Exclusions
+from darkgraylib.git import EditedLinenumsDiffer, RevisionRange
+from darkgraylib.utils import TextDocument
 
 
 @pytest.mark.kwparametrize(

@@ -5,13 +5,13 @@ from typing import Any, List, Optional, Tuple
 
 from black import TargetVersion
 
-from darker import help as hlp
-from darker.argparse_helpers import (
+from darkgraylib import help as hlp
+from darkgraylib.argparse_helpers import (
     LogLevelAction,
     NewlinePreservingFormatter,
     OptionsForReadmeAction,
 )
-from darker.config import (
+from darkgraylib.config import (
     DarkerConfig,
     OutputMode,
     get_effective_config,
@@ -20,7 +20,7 @@ from darker.config import (
     override_color_with_environment,
     validate_stdin_src,
 )
-from darker.version import __version__
+from darkgraylib.version import __version__
 
 
 def make_argument_parser(require_src: bool) -> ArgumentParser:

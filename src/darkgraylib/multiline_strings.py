@@ -3,7 +3,7 @@
 from tokenize import STRING, tokenize
 from typing import List, Optional, Sequence, Tuple
 
-from darker.utils import TextDocument
+from darkgraylib.utils import TextDocument
 
 
 def get_multiline_string_ranges(content: TextDocument) -> List[Tuple[int, int]]:

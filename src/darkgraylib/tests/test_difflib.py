@@ -2,7 +2,7 @@
 
 from difflib import SequenceMatcher
 
-from darker.tests.git_diff_example_output import (
+from darkgraylib.tests.git_diff_example_output import (
     BLANK_SEP_CHANGED,
     BLANK_SEP_ORIGINAL,
     BLANK_SEP_SANDWICH_CHANGED,
