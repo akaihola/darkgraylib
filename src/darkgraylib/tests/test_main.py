@@ -22,7 +22,11 @@ from darkgraylib.config import Exclusions
 from darkgraylib.exceptions import MissingPackageError
 from darkgraylib.git import WORKTREE, EditedLinenumsDiffer, RevisionRange
 from darkgraylib.tests.helpers import isort_present
-from darkgraylib.tests.test_fstring import FLYNTED_SOURCE, MODIFIED_SOURCE, ORIGINAL_SOURCE
+from darkgraylib.tests.test_fstring import (
+    FLYNTED_SOURCE,
+    MODIFIED_SOURCE,
+    ORIGINAL_SOURCE,
+)
 from darkgraylib.tests.test_highlighting import BLUE, CYAN, RESET, WHITE, YELLOW
 from darkgraylib.utils import TextDocument, joinlines
 from darkgraylib.verification import NotEquivalentError
@@ -63,7 +67,9 @@ def run_isort(git_repo, monkeypatch, caplog, request, find_project_root_cache_cl
     patch_run_black_ctx = patch.object(
         darkgraylib.__main__, "run_black", return_value=TextDocument(blacken_code)
     )
-    with patch_run_black_ctx, patch("darkgraylib.import_sorting.isort_code") as isort_code:
+    with patch_run_black_ctx, patch(
+        "darkgraylib.import_sorting.isort_code"
+    ) as isort_code:
         isort_code.return_value = isorted_code
         darkgraylib.__main__.main(["--isort", "./test1.py", *args])
         return SimpleNamespace(
@@ -322,12 +328,14 @@ def test_format_edited_parts_all_unchanged(git_repo, monkeypatch):
 
 
 def test_format_edited_parts_ast_changed(git_repo, caplog):
-    """``darkgraylib.__main__.format_edited_parts()`` when reformatting changes the AST"""
+    """`darkgraylib.__main__.format_edited_parts` when reformatting changes the AST"""
     caplog.set_level(logging.DEBUG, logger="darkgraylib.__main__")
     paths = git_repo.add({"a.py": "1\n2\n3\n4\n5\n6\n7\n8\n"}, commit="Initial commit")
     paths["a.py"].write_bytes(b"8\n7\n6\n5\n4\n3\n2\n1\n")
     mock_ctx = patch.object(
-        darkgraylib.verification.ASTVerifier, "is_equivalent_to_baseline", return_value=False
+        darkgraylib.verification.ASTVerifier,
+        "is_equivalent_to_baseline",
+        return_value=False,
     )
     with mock_ctx, pytest.raises(NotEquivalentError):
         _ = list(

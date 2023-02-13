@@ -19,7 +19,7 @@ ISORTED_SOURCE = ("import os", "import sys", "", "print(42)")
 
 @pytest.mark.parametrize("present", [True, False])
 def test_import_sorting_importable_with_and_without_isort(present):
-    """Make sure ``import darkgraylib.import_sorting`` works with and without ``isort``"""
+    """Make sure ``import darkgraylib.import_sorting`` works with & without ``isort``"""
     try:
         with isort_present(present):
 

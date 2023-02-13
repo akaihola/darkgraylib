@@ -840,7 +840,7 @@ def branched_repo(tmp_path_factory):
 def test_git_get_modified_python_files_revision_range(
     _description, branched_repo, revrange, expect
 ):
-    """Test for :func:`darkgraylib.git.git_get_modified_python_files` with revision range"""
+    """Test for `darkgraylib.git.git_get_modified_python_files` with revision range"""
     result = git.git_get_modified_python_files(
         [Path(branched_repo.root)],
         git.RevisionRange.parse_with_common_ancestor(
