@@ -35,7 +35,7 @@ else:
     from typing_extensions import TypedDict
 
 
-VERSION_PY_PATH = "src/darker/version.py"
+VERSION_PY_PATH = "src/darkgraylib/version.py"
 
 
 # Below are the regular expression patterns for finding and replacing version and
@@ -60,41 +60,21 @@ VERSION_PY_PATH = "src/darker/version.py"
 
 PATTERNS = {
     VERSION_PY_PATH: {r"^__version__ *= *\"{old_version->new_version}\""},
-    "action.yml": {
-        (
-            r"^    description: \'Version of Darker to use, e\.g\."
-            r' "~={old_version->new_version}"'
-        ),
-        (
-            r"^    description: \'Version of Darker to use, e\.g\."
-            r' "~=.*?", "{old_version->new_version}"'
-        ),
-        r'^    default: "~={old_version->new_version}"',
-        (
-            r"^      uses: akaihola/darker/.github/actions/commit-range"
-            r"@{old_version->new_version}"
-        ),
-    },
     "README.rst": {
-        r"^  pip install --upgrade darker~={old_version->new_version}",
-        r"^  conda install -c conda-forge darker~={old_version->new_version} isort",
-        r"^     (?:   )?rev: {old_version->new_version}",
-        r"^         - uses: akaihola/darker@{old_version->new_version}",
-        r'^             version: "~={old_version->new_version}"',
         r"label=release%20{any_version->next_version}",
         (
-            r"^\.\. \|next-milestone\| image::"
-            r" https://img\.shields\.io/github/milestones/progress/akaihola/darker/"
+            r"^\.\. \|next-milestone\| image:: "
+            r"https://img\.shields\.io/github/milestones/progress/akaihola/darkgraylib/"
             r"{any_milestone->next_milestone}"
         ),
         (
             r"^\.\. _next-milestone:"
-            r" https://github\.com/akaihola/darker/milestone/"
+            r" https://github\.com/akaihola/darkgraylib/milestone/"
             r"{any_milestone->next_milestone}"
         ),
     },
     ".github/ISSUE_TEMPLATE/bug_report.md": {
-        r"^ - Darker version \[e\.g\. {old_version->new_version}\]"
+        r"^ - Darkgraylib version \[e\.g\. {old_version->new_version}\]"
     },
 }
 
