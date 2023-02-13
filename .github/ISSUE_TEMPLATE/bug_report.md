@@ -11,8 +11,9 @@ assignees: ''
 
     NOTE:
 
-    To ask for help using Darker, please use Discussions (see the top of this page).
-    This form is only for reporting bugs.
+    To ask for help using Darker or Graylint, please use Discussions (see the top of
+    the respective repositories).
+    This form is only for reporting bugs to Darkgraylib.
 
 -->
 
@@ -22,8 +23,9 @@ A clear and concise description of what the bug is.
 **To Reproduce**
 Steps to reproduce the behavior:
 1. Clone this repository: '...' (or e.g. commit these files in a new local Git repository: '...')
-2. In a fresh virtualenv, `pip install darker==<version> isort==<version> ... <other packages>`
-3. Run Darker with `darker <options> <paths>`
+2. In a fresh virtualenv,
+   `pip install darker==<version> graylint==<version> isort==<version> ... <other packages>`
+3. Run Darker or Graylint with `darker <options> <paths>` or `graylint <options> <paths>`
 4. See error / wrong behavior
 
 **Expected behavior**
@@ -37,8 +39,7 @@ If applicable, add copy/paste the output or attach a screenshots to help explain
  - Python version [e.g. 3.10.4]
  - Git version [e.g. 2.36.0]
  - Darker version [e.g. 1.7.0]
- - Black version [e.g. 22.3.0]
- - other reformatter and linter versions [e.g. `isort==5.10.1`, `mypy==0.942`
+ - Darkgraylib version [e.g. 0.0.1]
 
 **Additional context**
 Add any other context about the problem here.
