@@ -24,7 +24,7 @@ else:
 class DummyExecutor(Executor):
     """Dummy synchronous executor to use with ``--workers=1``
 
-    This makes it easier to write test cases for `darkgraylib.__main__.main`.
+    This makes it easier to write test cases for `darkgraylib.main.main`.
 
     """
 

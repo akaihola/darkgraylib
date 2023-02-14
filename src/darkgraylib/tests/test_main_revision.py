@@ -4,7 +4,7 @@
 
 import pytest
 
-from darkgraylib.__main__ import main
+from darkgraylib.main import main
 from darkgraylib.tests.helpers import raises_if_exception
 
 # The following test is a bit dense, so some explanation is due.

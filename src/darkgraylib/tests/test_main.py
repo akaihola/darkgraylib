@@ -1,4 +1,4 @@
-"""Unit tests for :mod:`darkgraylib.__main__`"""
+"""Unit tests for :mod:`darkgraylib.main`"""
 
 # pylint: disable=too-many-locals,use-implicit-booleaness-not-comparison,unused-argument
 # pylint: disable=protected-access,redefined-outer-name,too-many-arguments
@@ -15,9 +15,9 @@ from unittest.mock import ANY, Mock, call, patch
 
 import pytest
 
-import darkgraylib.__main__
 import darkgraylib.import_sorting
 import darkgraylib.linting
+import darkgraylib.main
 from darkgraylib.config import Exclusions
 from darkgraylib.exceptions import MissingPackageError
 from darkgraylib.git import WORKTREE, EditedLinenumsDiffer, RevisionRange
@@ -39,10 +39,10 @@ def _replace_diff_timestamps(text, replacement="<timestamp>"):
 def test_isort_option_without_isort(git_repo, caplog):
     """Without isort, provide isort install instructions and error"""
     with isort_present(False), patch.object(
-        darkgraylib.__main__, "isort", None
+        darkgraylib.main, "isort", None
     ), pytest.raises(MissingPackageError) as exc_info:
 
-        darkgraylib.__main__.main(["--isort", "."])
+        darkgraylib.main.main(["--isort", "."])
 
     assert (
         str(exc_info.value)
@@ -65,13 +65,13 @@ def run_isort(git_repo, monkeypatch, caplog, request, find_project_root_cache_cl
     isorted_code = "import os; import sys;"
     blacken_code = "import os\nimport sys\n"
     patch_run_black_ctx = patch.object(
-        darkgraylib.__main__, "run_black", return_value=TextDocument(blacken_code)
+        darkgraylib.main, "run_black", return_value=TextDocument(blacken_code)
     )
     with patch_run_black_ctx, patch(
         "darkgraylib.import_sorting.isort_code"
     ) as isort_code:
         isort_code.return_value = isorted_code
-        darkgraylib.__main__.main(["--isort", "./test1.py", *args])
+        darkgraylib.main.main(["--isort", "./test1.py", *args])
         return SimpleNamespace(
             isort_code=darkgraylib.import_sorting.isort_code, caplog=caplog
         )
@@ -196,14 +196,14 @@ def test_format_edited_parts(
 
     Black reformatting is done even if a file is excluded in Black configuration.
     File exclusion is done in Darker before calling
-    :func:`~darkgraylib.__main__.format_edited_parts`.
+    :func:`~darkgraylib.main.format_edited_parts`.
 
     """
     paths = git_repo.add({"a.py": newline, "b.py": newline}, commit="Initial commit")
     paths["a.py"].write_bytes(newline.join(A_PY).encode("ascii"))
     paths["b.py"].write_bytes(f"print(42 ){newline}".encode("ascii"))
 
-    result = darkgraylib.__main__.format_edited_parts(
+    result = darkgraylib.main.format_edited_parts(
         Path(git_repo.root),
         {Path("a.py")},
         Exclusions(black=black_exclude, isort=isort_exclude, flynt=flynt_exclude),
@@ -282,14 +282,14 @@ def test_format_edited_parts_stdin(git_repo, newline, rev1, rev2, expect):
     )
     stdin = f"print('a.py {rev1}' ){n}#{n}print( 'a.py STDIN'){n}".encode("ascii")
     with patch.object(
-        darkgraylib.__main__.sys,  # type: ignore[attr-defined]
+        darkgraylib.main.sys,  # type: ignore[attr-defined]
         "stdin",
         Mock(buffer=BytesIO(stdin)),
     ):
         # end of test setup
 
         result = list(
-            darkgraylib.__main__.format_edited_parts(
+            darkgraylib.main.format_edited_parts(
                 Path(git_repo.root),
                 {Path("a.py")},
                 Exclusions(black=set(), isort=set()),
@@ -314,7 +314,7 @@ def test_format_edited_parts_all_unchanged(git_repo, monkeypatch):
     paths["b.py"].write_bytes(b'"not"\n"checked"\n')
 
     result = list(
-        darkgraylib.__main__.format_edited_parts(
+        darkgraylib.main.format_edited_parts(
             Path(git_repo.root),
             {Path("a.py"), Path("b.py")},
             Exclusions(),
@@ -328,8 +328,8 @@ def test_format_edited_parts_all_unchanged(git_repo, monkeypatch):
 
 
 def test_format_edited_parts_ast_changed(git_repo, caplog):
-    """`darkgraylib.__main__.format_edited_parts` when reformatting changes the AST"""
-    caplog.set_level(logging.DEBUG, logger="darkgraylib.__main__")
+    """`darkgraylib.main.format_edited_parts` when reformatting changes the AST"""
+    caplog.set_level(logging.DEBUG, logger="darkgraylib.main")
     paths = git_repo.add({"a.py": "1\n2\n3\n4\n5\n6\n7\n8\n"}, commit="Initial commit")
     paths["a.py"].write_bytes(b"8\n7\n6\n5\n4\n3\n2\n1\n")
     mock_ctx = patch.object(
@@ -339,7 +339,7 @@ def test_format_edited_parts_ast_changed(git_repo, caplog):
     )
     with mock_ctx, pytest.raises(NotEquivalentError):
         _ = list(
-            darkgraylib.__main__.format_edited_parts(
+            darkgraylib.main.format_edited_parts(
                 git_repo.root,
                 {Path("a.py")},
                 Exclusions(isort={"**/*"}),
@@ -349,7 +349,7 @@ def test_format_edited_parts_ast_changed(git_repo, caplog):
             )
         )
     a_py = str(paths["a.py"])
-    main = "darkgraylib.__main__:__main__.py"
+    main = "darkgraylib.main:main.py"
     log = [
         line
         for line in re.sub(r":\d+", "", caplog.text).splitlines()
@@ -383,7 +383,7 @@ def test_format_edited_parts_isort_on_already_formatted(git_repo):
     paths = git_repo.add({"a.py": joinlines(before)}, commit="Initial commit")
     paths["a.py"].write_text(joinlines(after))
 
-    result = darkgraylib.__main__.format_edited_parts(
+    result = darkgraylib.main.format_edited_parts(
         git_repo.root,
         {Path("a.py")},
         Exclusions(),
@@ -438,7 +438,7 @@ def test_format_edited_parts_historical(git_repo, rev1, rev2, expect):
     git_repo.add({"a.py": a_py["HEAD"].string}, commit="Modified a.py")
     paths["a.py"].write_text(a_py[":WORKTREE:"].string)
 
-    result = darkgraylib.__main__.format_edited_parts(
+    result = darkgraylib.main.format_edited_parts(
         git_repo.root,
         {Path("a.py")},
         Exclusions(),
@@ -587,7 +587,7 @@ def test_main(
     paths["subdir/a.py"].write_bytes(newline.join(A_PY).encode("ascii"))
     paths["b.py"].write_bytes(f"print(42 ){newline}".encode("ascii"))
 
-    retval = darkgraylib.__main__.main(arguments + [str(pwd / "subdir")])
+    retval = darkgraylib.main.main(arguments + [str(pwd / "subdir")])
 
     stdout = capsys.readouterr().out.replace(str(git_repo.root), "")
     diff_output = stdout.splitlines(False)
@@ -619,9 +619,9 @@ def test_main_in_plain_directory(tmp_path, capsys):
     (subdir_a / "non-python file.txt").write_text("not  reformatted\n")
     (subdir_a / "python file.py").write_text("import  sys, os\nprint('ok')")
     (subdir_c / "another python file.py").write_text("a  =5")
-    with patch.object(darkgraylib.__main__, "run_linters") as run_linters:
+    with patch.object(darkgraylib.main, "run_linters") as run_linters:
 
-        retval = darkgraylib.__main__.main(
+        retval = darkgraylib.main.main(
             ["--diff", "--check", "--isort", "--lint", "echo", str(tmp_path)]
         )
 
@@ -670,7 +670,7 @@ def test_main_encoding(
     expect = [b"# coding: ", encoding, newline, b's = "', text, b'"', newline]
     paths["a.py"].write_bytes(b"".join(edited))
 
-    retval = darkgraylib.__main__.main(["a.py"])
+    retval = darkgraylib.main.main(["a.py"])
 
     result = paths["a.py"].read_bytes()
     assert retval == 0
@@ -681,7 +681,7 @@ def test_main_historical(git_repo):
     """Stop if rev2 isn't the working tree and no ``--diff`` or ``--check`` provided"""
     with pytest.raises(ArgumentError):
 
-        darkgraylib.__main__.main(["--revision=foo..bar", "."])
+        darkgraylib.main.main(["--revision=foo..bar", "."])
 
 
 @pytest.mark.parametrize("arguments", [["--diff"], ["--check"], ["--diff", "--check"]])
@@ -693,7 +693,7 @@ def test_main_historical_ok(git_repo, arguments, src):
     git_repo.add({"README": "second"}, commit="Second commit")
     second = git_repo.get_hash()
 
-    darkgraylib.__main__.main(
+    darkgraylib.main.main(
         arguments
         + [f"--revision={initial}..{second}", src.format(git_repo_root=git_repo.root)]
     )
@@ -715,7 +715,7 @@ def test_main_pre_commit_head(git_repo, monkeypatch):
         ),
     ):
 
-        result = darkgraylib.__main__.main(["--revision=:PRE-COMMIT:", "a.py"])
+        result = darkgraylib.main.main(["--revision=:PRE-COMMIT:", "a.py"])
 
     assert result == 0
 
@@ -739,7 +739,7 @@ def test_main_historical_pre_commit(git_repo, monkeypatch):
         ),
     ):
 
-        darkgraylib.__main__.main(["--revision=:PRE-COMMIT:", "a.py"])
+        darkgraylib.main.main(["--revision=:PRE-COMMIT:", "a.py"])
 
 
 def test_main_vscode_tmpfile(git_repo, capsys):
@@ -750,7 +750,7 @@ def test_main_vscode_tmpfile(git_repo, capsys):
     )
     (git_repo.root / "a.py.hash.tmp").write_text("print ( 'reformat me now' ) \n")
 
-    retval = darkgraylib.__main__.main(["--diff", "a.py.hash.tmp"])
+    retval = darkgraylib.main.main(["--diff", "a.py.hash.tmp"])
 
     assert retval == 0
     outerr = capsys.readouterr()
@@ -769,10 +769,10 @@ def test_main_vscode_tmpfile(git_repo, capsys):
 def test_main_lint_unchanged(git_repo):
     """Linters are run on all ``src`` command line options, modified or not"""
     git_repo.add({"src/a.py": "foo\n", "src/subdir/b.py": "bar\n"}, commit="Initial")
-    with patch.object(darkgraylib.__main__, "run_linters") as run_linters:
+    with patch.object(darkgraylib.main, "run_linters") as run_linters:
         run_linters.return_value = 0
 
-        retval = darkgraylib.__main__.main(["--check", "--lint=mylint", "src"])
+        retval = darkgraylib.main.main(["--check", "--lint=mylint", "src"])
 
     run_linters.assert_called_once_with(
         ["mylint"], Path("src").absolute(), {Path(".")}, ANY, ANY
@@ -783,7 +783,7 @@ def test_main_lint_unchanged(git_repo):
 def test_print_diff(tmp_path, capsys):
     """print_diff() prints Black-style diff output with 5 lines of context"""
     Path(tmp_path / "a.py").write_text("dummy\n", encoding="utf-8")
-    darkgraylib.__main__.print_diff(
+    darkgraylib.main.print_diff(
         Path(tmp_path / "a.py"),
         TextDocument.from_lines(
             [
@@ -867,7 +867,7 @@ def test_maybe_flynt_single_file(git_repo, encoding, newline, exclude, expect):
         MODIFIED_SOURCE, encoding=encoding, newline=newline
     )
 
-    result = darkgraylib.__main__._maybe_flynt_single_file(
+    result = darkgraylib.main._maybe_flynt_single_file(
         src, exclude, edited_linenums_differ, content_
     )
 
@@ -892,7 +892,7 @@ def test_modify_file(tmp_path, new_content, expect):
     """Encoding and newline are respected when writing a text file on disk"""
     path = tmp_path / "test.py"
 
-    darkgraylib.__main__.modify_file(path, new_content)
+    darkgraylib.main.modify_file(path, new_content)
 
     result = path.read_bytes()
     assert result == expect
@@ -924,7 +924,7 @@ def test_modify_file(tmp_path, new_content, expect):
 )
 def test_print_source(new_content, use_color, expect, capsys):
     """Highlight is applied only if specified, final newline is handled correctly."""
-    darkgraylib.__main__.print_source(new_content, use_color=use_color)
+    darkgraylib.main.print_source(new_content, use_color=use_color)
 
     assert capsys.readouterr().out in expect
 
@@ -933,7 +933,7 @@ def test_stdout_path_resolution(git_repo, capsys):
     """When using ``--stdout``, file paths are resolved correctly"""
     git_repo.add({"src/menu.py": "print ( 'foo' )\n"})
 
-    result = darkgraylib.__main__.main(["--stdout", "./src/menu.py"])
+    result = darkgraylib.main.main(["--stdout", "./src/menu.py"])
 
     assert result == 0
     assert capsys.readouterr().out == 'print("foo")\n'

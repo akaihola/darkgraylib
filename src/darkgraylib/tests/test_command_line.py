@@ -1,6 +1,6 @@
 # pylint: disable=too-many-arguments,too-many-locals,use-dict-literal
 
-"""Unit tests for :mod:`darkgraylib.command_line` and :mod:`darkgraylib.__main__`"""
+"""Unit tests for :mod:`darkgraylib.command_line` and :mod:`darkgraylib.main`"""
 
 import os
 import re
@@ -16,10 +16,10 @@ from black import TargetVersion
 
 import darkgraylib.help
 from darkgraylib import black_diff
-from darkgraylib.__main__ import main
 from darkgraylib.command_line import make_argument_parser, parse_command_line
 from darkgraylib.config import ConfigurationError, Exclusions
 from darkgraylib.git import RevisionRange
+from darkgraylib.main import main
 from darkgraylib.tests.helpers import (
     filter_dict,
     flynt_present,
@@ -837,7 +837,7 @@ def test_options(git_repo, options, expect):
         {"a.py": "1\n", "b.py": "2\n", "my.cfg": ""}, commit="Initial commit"
     )
     paths["a.py"].write_bytes(b"one\n")
-    with patch('darkgraylib.__main__.format_edited_parts') as format_edited_parts:
+    with patch("darkgraylib.main.format_edited_parts") as format_edited_parts:
 
         retval = main(options)
 
@@ -875,7 +875,7 @@ def test_main_retval(git_repo, check, changes, lintfail, expect_retval):
     run_linters = Mock(return_value=lintfail)
     check_arg_maybe = ["--check"] if check else []
     with patch.multiple(
-        "darkgraylib.__main__",
+        "darkgraylib.main",
         format_edited_parts=format_edited_parts,
         modify_file=DEFAULT,
         run_linters=run_linters,
