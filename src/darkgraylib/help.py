@@ -54,10 +54,10 @@ REVISION = (
     " commit to the working tree. Tags, branch names, commit hashes, and other"
     " expressions like `HEAD~5` work here. Also a range like `main...HEAD` or `main...`"
     " can be used to compare the best common ancestor. With the magic value"
-    " `:PRE-COMMIT:`, Darker works in pre-commit compatible mode. Darker expects the"
-    " revision range from the `PRE_COMMIT_FROM_REF` and `PRE_COMMIT_TO_REF` environment"
-    " variables. If those are not found, Darker works against `HEAD`. Also see"
-    " `--stdin-filename=` for the `:STDIN:` special value."
+    " `:PRE-COMMIT:`, {application} works in pre-commit compatible mode. {application}"
+    " expects the revision range from the `PRE_COMMIT_FROM_REF` and `PRE_COMMIT_TO_REF`"
+    " environment variables. If those are not found, {application} works against"
+    " `HEAD`. Also see `--stdin-filename=` for the `:STDIN:` special value."
 )
 
 DIFF = (
@@ -79,8 +79,8 @@ STDOUT = (
 )
 
 STDIN_FILENAME = (
-    "The path to the file when passing it through stdin. Useful so Darker can find the"
-    " previous version from Git. Only valid with `--revision=<rev1>..:STDIN:`"
+    "The path to the file when passing it through stdin. Useful so {application} can"
+    " find the previous version from Git. Only valid with `--revision=<rev1>..:STDIN:`"
     " (`HEAD..:STDIN:` being the default if `--stdin-filename` is enabled)."
 )
 
@@ -108,11 +108,6 @@ LINT = (
     " a terminal and or enabled by explicitly (see `--color`)."
 )
 
-CONFIG = (
-    "Ask `black` and `isort` to read configuration from `PATH`. Note that other tools"
-    " like flynt, Mypy, Pylint and Flake8 won't use this configuration file."
-)
-
 VERBOSE = "Show steps taken and summarize modifications"
 QUIET = "Reduce amount of output"
 COLOR = (
@@ -124,7 +119,7 @@ NO_COLOR = (
     " variable PY_COLORS=1"
 )
 
-VERSION = "Show the version of `darker`"
+VERSION = "Show the version of {application}"
 
 SKIP_STRING_NORMALIZATION = "Don't normalize string quotes or prefixes"
 NO_SKIP_STRING_NORMALIZATION = (

@@ -1,9 +1,9 @@
 """Command line parsing for the ``darker`` binary"""
 
 from argparse import SUPPRESS, ArgumentParser, Namespace
-from typing import Any, List, Optional, Tuple
-
-from black import TargetVersion
+from functools import partial
+import sys
+from typing import Any, Callable, List, Optional, Tuple
 
 from darkgraylib import help as hlp
 from darkgraylib.argparse_helpers import (
@@ -12,8 +12,7 @@ from darkgraylib.argparse_helpers import (
     OptionsForReadmeAction,
 )
 from darkgraylib.config import (
-    DarkerConfig,
-    OutputMode,
+    BaseConfig,
     get_effective_config,
     get_modified_config,
     load_config,
@@ -23,32 +22,28 @@ from darkgraylib.config import (
 from darkgraylib.version import __version__
 
 
-def make_argument_parser(require_src: bool) -> ArgumentParser:
+def make_argument_parser(require_src: bool, application: str, description: str, config_help: str) -> ArgumentParser:
     """Create the argument parser object
 
     :param require_src: ``True`` to require at least one path as a positional argument
                         on the command line. ``False`` to not require on.
+    :param application: The name of the application: ``"Darker"``, ``"Graylint"``, etc.
+    :param description: The descriptive text for the application to be shown in
+                        ``--help`` output.
+    :param config_help: The help text for the ``--config`` option.
 
     """
     parser = ArgumentParser(
-        description=hlp.DESCRIPTION, formatter_class=NewlinePreservingFormatter
+        description=description, formatter_class=NewlinePreservingFormatter
     )
     parser.register("action", "log_level", LogLevelAction)
 
-    def add_arg(help_text: Optional[str], *name_or_flags: str, **kwargs: Any) -> None:
-        kwargs["help"] = help_text
-        parser.add_argument(*name_or_flags, **kwargs)
+    add_arg = partial(add_parser_argument, parser)
 
     add_arg(hlp.SRC, "src", nargs="+" if require_src else "*", metavar="PATH")
     add_arg(hlp.REVISION, "-r", "--revision", default="HEAD", metavar="REV")
-    add_arg(hlp.DIFF, "--diff", action="store_true")
-    add_arg(hlp.STDOUT, "-d", "--stdout", action="store_true")
     add_arg(hlp.STDIN_FILENAME, "--stdin-filename", metavar="PATH")
-    add_arg(hlp.CHECK, "--check", action="store_true")
-    add_arg(hlp.FLYNT, "-f", "--flynt", action="store_true")
-    add_arg(hlp.ISORT, "-i", "--isort", action="store_true")
-    add_arg(hlp.LINT, "-L", "--lint", action="append", metavar="CMD", default=[])
-    add_arg(hlp.CONFIG, "-c", "--config", metavar="PATH")
+    add_arg(config_help, "-c", "--config", metavar="PATH")
     add_arg(
         hlp.VERBOSE,
         "-v",
@@ -61,44 +56,6 @@ def make_argument_parser(require_src: bool) -> ArgumentParser:
     add_arg(hlp.COLOR, "--color", action="store_const", dest="color", const=True)
     add_arg(hlp.NO_COLOR, "--no-color", action="store_const", dest="color", const=False)
     add_arg(hlp.VERSION, "--version", action="version", version=__version__)
-    add_arg(
-        hlp.SKIP_STRING_NORMALIZATION,
-        "-S",
-        "--skip-string-normalization",
-        action="store_const",
-        const=True,
-    )
-    add_arg(
-        hlp.NO_SKIP_STRING_NORMALIZATION,
-        "--no-skip-string-normalization",
-        action="store_const",
-        dest="skip_string_normalization",
-        const=False,
-    )
-    add_arg(
-        hlp.SKIP_MAGIC_TRAILING_COMMA,
-        "--skip-magic-trailing-comma",
-        action="store_const",
-        dest="skip_magic_trailing_comma",
-        const=True,
-    )
-    add_arg(
-        hlp.LINE_LENGTH,
-        "-l",
-        "--line-length",
-        type=int,
-        dest="line_length",
-        metavar="LENGTH",
-    )
-    add_arg(
-        hlp.TARGET_VERSION,
-        "-t",
-        "--target-version",
-        type=str,
-        dest="target_version",
-        metavar="VERSION",
-        choices=[v.name.lower() for v in TargetVersion],
-    )
     add_arg(hlp.WORKERS, "-W", "--workers", type=int, dest="workers", default=1)
     # A hidden option for printing command lines option in a format suitable for
     # `README.rst`:
@@ -106,7 +63,26 @@ def make_argument_parser(require_src: bool) -> ArgumentParser:
     return parser
 
 
-def parse_command_line(argv: List[str]) -> Tuple[Namespace, DarkerConfig, DarkerConfig]:
+def add_parser_argument(
+    parser: ArgumentParser, help_text: Optional[str], *name_or_flags: str, **kwargs: Any
+) -> None:
+    """Add an argument to the parser
+
+    :parser: The parser to add the argument to
+    :help_text: The help text for the argument
+    :name_or_flags: The name of the positional argument or the alternative flags for the
+                    option
+    :kwargs: Additional keyword arguments to pass to ``parser.add_argument()``
+
+    """
+    kwargs["help"] = help_text
+    parser.add_argument(*name_or_flags, **kwargs)
+
+
+def parse_command_line(
+    make_argument_parser: Callable[[bool], ArgumentParser], 
+    argv: Optional[List[str]]
+) -> Tuple[Namespace, BaseConfig, BaseConfig]:
     """Return the parsed command line, using defaults from a configuration file
 
     Also return the effective configuration which combines defaults, the configuration
@@ -116,6 +92,11 @@ def parse_command_line(argv: List[str]) -> Tuple[Namespace, DarkerConfig, Darker
     Finally, also return the set of configuration options which differ from defaults.
 
     """
+    if argv is None:
+        argv = sys.argv[1:]
+    else:
+        argv = argv[1:]
+
     # 1. Parse the paths of files/directories to process into `args.src`, and the config
     #    file path into `args.config`.
     parser_for_srcs = make_argument_parser(require_src=False)
@@ -143,10 +124,8 @@ def parse_command_line(argv: List[str]) -> Tuple[Namespace, DarkerConfig, Darker
         parser.set_defaults(**config)
         args = parser.parse_args(argv)
 
-    # 6. Make sure there aren't invalid option combinations after merging configuration
-    #    and command line options.
-    OutputMode.validate_diff_stdout(args.diff, args.stdout)
-    OutputMode.validate_stdout_src(args.stdout, args.src, args.stdin_filename)
+    # Make sure there aren't invalid option combinations after merging configuration and
+    # command line options.
     validate_stdin_src(args.stdin_filename, args.src)
 
     # 7. Also create a parser which uses the original default configuration values.
