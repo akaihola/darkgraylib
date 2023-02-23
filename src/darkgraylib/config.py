@@ -6,7 +6,7 @@ import sys
 from argparse import ArgumentParser, Namespace
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Iterable, List, Optional, Set, cast
+from typing import Iterable, List, Optional, Set, Type, TypeVar, cast
 
 import toml
 
@@ -26,23 +26,19 @@ class TomlArrayLinesEncoder(toml.TomlEncoder):  # type: ignore
         return "[{}\n]".format("".join(f"\n    {self.dump_value(item)}," for item in v))
 
 
-class DarkerConfig(TypedDict, total=False):
-    """Dictionary representing ``[tool.darker]`` from ``pyproject.toml``"""
+class BaseConfig(TypedDict, total=False):
+    """Dictionary representing configuration from ``pyproject.toml``
+
+    These are the configuration options common to both Darker and Graylint.
+
+    """
 
     src: List[str]
     revision: str
-    diff: bool
     stdout: bool
-    check: bool
-    isort: bool
-    lint: List[str]
     config: str
     log_level: int
     color: bool
-    skip_string_normalization: bool
-    skip_magic_trailing_comma: bool
-    line_length: int
-    target_version: str
     workers: int
 
 
@@ -92,17 +88,10 @@ class ConfigurationError(Exception):
     """Exception class for invalid configuration values"""
 
 
-def replace_log_level_name(config: DarkerConfig) -> None:
+def replace_log_level_name(config: BaseConfig) -> None:
     """Replace numeric log level in configuration with the name of the log level"""
     if "log_level" in config:
         config["log_level"] = logging.getLevelName(config["log_level"])
-
-
-def validate_config_output_mode(config: DarkerConfig) -> None:
-    """Make sure both ``diff`` and ``stdout`` aren't enabled in configuration"""
-    OutputMode.validate_diff_stdout(
-        config.get("diff", False), config.get("stdout", False)
-    )
 
 
 def validate_stdin_src(stdin_filename: Optional[str], src: List[str]) -> None:
@@ -116,7 +105,7 @@ def validate_stdin_src(stdin_filename: Optional[str], src: List[str]) -> None:
     )
 
 
-def override_color_with_environment(pyproject_config: DarkerConfig) -> DarkerConfig:
+def override_color_with_environment(pyproject_config: BaseConfig) -> BaseConfig:
     """Override ``color`` if the ``PY_COLORS`` environment variable is '0' or '1'
 
     :param config: The configuration read from ``pyproject.toml``
@@ -134,10 +123,15 @@ def override_color_with_environment(pyproject_config: DarkerConfig) -> DarkerCon
     return config
 
 
-def load_config(path: Optional[str], srcs: Iterable[str]) -> DarkerConfig:
-    """Find and load Darker configuration from a TOML configuration file
+T = TypeVar("T")
 
-    Darker determines the location for the configuration file by trying the following:
+
+def load_config(
+    path: Optional[str], srcs: Iterable[str], section_name: str, config_type: Type[T]
+) -> T:
+    """Find and load configuration from a TOML configuration file
+
+    The location for the configuration file is determined by trying the following:
     - the file path in the `path` argument, given using the ``-c``/``--config`` command
       line option
     - ``pyproject.toml`` inside the directory specified by the `path` argument
@@ -165,24 +159,22 @@ def load_config(path: Optional[str], srcs: Iterable[str]) -> DarkerConfig:
         if not config_path.is_file():
             return {}
     pyproject_toml = toml.load(config_path)
-    config = cast(DarkerConfig, pyproject_toml.get("tool", {}).get("darker", {}) or {})
+    config = cast(T, pyproject_toml.get("tool", {}).get(section_name, {}) or {})
     replace_log_level_name(config)
-    validate_config_output_mode(config)
     return config
 
 
-def get_effective_config(args: Namespace) -> DarkerConfig:
+def get_effective_config(args: Namespace) -> BaseConfig:
     """Return all configuration options"""
-    config = cast(DarkerConfig, vars(args).copy())
+    config = cast(BaseConfig, vars(args).copy())
     replace_log_level_name(config)
-    validate_config_output_mode(config)
     return config
 
 
-def get_modified_config(parser: ArgumentParser, args: Namespace) -> DarkerConfig:
+def get_modified_config(parser: ArgumentParser, args: Namespace) -> BaseConfig:
     """Return configuration options which are set to non-default values"""
     not_default = cast(
-        DarkerConfig,
+        BaseConfig,
         {
             argument: value
             for argument, value in vars(args).items()
@@ -193,10 +185,12 @@ def get_modified_config(parser: ArgumentParser, args: Namespace) -> DarkerConfig
     return not_default
 
 
-def dump_config(config: DarkerConfig) -> str:
-    """Return the configuration in TOML format"""
+def dump_config(config: BaseConfig, section_name: str) -> str:
+    """Return the configuration in TOML format
+    :param section_name:
+    """
     dump = toml.dumps(config, encoder=TomlArrayLinesEncoder())
-    return f"[tool.darker]\n{dump}"
+    return f"[tool.{section_name}]\n{dump}"
 
 
 @dataclass
