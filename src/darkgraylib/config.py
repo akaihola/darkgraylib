@@ -193,6 +193,17 @@ def dump_config(config: BaseConfig, section_name: str) -> str:
     return f"[tool.{section_name}]\n{dump}"
 
 
+def show_config_if_debug(
+    config: BaseConfig, config_nondefault: BaseConfig, log_level: int
+) -> None:
+    if log_level <= logging.DEBUG:
+        print("\n# Effective configuration:\n")
+        print(dump_config(config, "darkgraylib"))
+        print("\n# Configuration options which differ from defaults:\n")
+        print(dump_config(config_nondefault, "darkgraylib"))
+        print("\n")
+
+
 @dataclass
 class Exclusions:
     """File exclusions patterns for pre-processing steps
