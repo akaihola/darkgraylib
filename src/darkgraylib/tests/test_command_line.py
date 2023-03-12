@@ -106,7 +106,9 @@ def test_parse_command_line_config_src(
     dict(argv=["--config", "./pyproject.toml", "."], expect="root..HEAD"),
     dict(argv=["--config", "./subdir/pyproject.toml", "."], expect="subdir..HEAD"),
     dict(argv=["--config", "./pyproject.toml", "subdir/"], expect="root..HEAD"),
-    dict(argv=["--config", "./subdir/pyproject.toml", "subdir/"], expect="subdir..HEAD"),
+    dict(
+        argv=["--config", "./subdir/pyproject.toml", "subdir/"], expect="subdir..HEAD"
+    ),
 )
 def test_parse_command_line_config_location_specified(
     tmp_path,
@@ -120,8 +122,12 @@ def test_parse_command_line_config_location_specified(
     subdir.mkdir()
     root_config = tmp_path / "pyproject.toml"
     subdir_config = subdir / "pyproject.toml"
-    root_config.write_text(toml.dumps({"tool": {"darkgraylib": {"revision": "root..HEAD"}}}))
-    subdir_config.write_text(toml.dumps({"tool": {"darkgraylib": {"revision": "subdir..HEAD"}}}))
+    root_config.write_text(
+        toml.dumps({"tool": {"darkgraylib": {"revision": "root..HEAD"}}})
+    )
+    subdir_config.write_text(
+        toml.dumps({"tool": {"darkgraylib": {"revision": "subdir..HEAD"}}})
+    )
 
     args, effective_cfg, modified_cfg = parse_command_line(
         _make_test_argument_parser,
@@ -311,8 +317,9 @@ def test_parse_command_line(
     with patch.dict(os.environ, environ, clear=True), raises_if_exception(
         expect_value
     ) as expect_exception:
-
-        args, effective_cfg, modified_cfg = parse_command_line(_make_test_argument_parser, argv, "darkgraylib", BaseConfig)
+        args, effective_cfg, modified_cfg = parse_command_line(
+            _make_test_argument_parser, argv, "darkgraylib", BaseConfig
+        )
 
     if not expect_exception:
         arg_name, expect_arg_value = expect_value
