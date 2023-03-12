@@ -520,7 +520,7 @@ def test_get_effective_config(args, expect):
     """``get_effective_config()`` converts command line options correctly"""
     with raises_if_exception(expect):
 
-        result = get_effective_config(args)
+        result = get_effective_config(args, BaseConfig)
 
         assert result == expect
 
@@ -546,7 +546,7 @@ def test_get_modified_config(args, expect):
     parser.add_argument("--int", dest="int", default=42)
     parser.add_argument("--string", default="fourty-two")
 
-    result = get_modified_config(parser, args)
+    result = get_modified_config(parser, args, BaseConfig)
 
     assert result == expect
 
