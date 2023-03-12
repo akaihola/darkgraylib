@@ -12,7 +12,7 @@ import pytest
 
 from darkgraylib.config import (
     ConfigurationError,
-    DarkerConfig,
+    BaseConfig,
     OutputMode,
     TomlArrayLinesEncoder,
     dump_config,
@@ -75,7 +75,7 @@ def test_toml_array_lines_encoder(list_value, expect):
 )
 def test_replace_log_level_name(log_level, expect):
     """``replace_log_level_name()`` converts between log level names and numbers"""
-    config = DarkerConfig() if log_level is None else DarkerConfig(log_level=log_level)
+    config = BaseConfig() if log_level is None else BaseConfig(log_level=log_level)
 
     replace_log_level_name(config)
 
@@ -242,10 +242,6 @@ def test_output_mode_from_args(diff, stdout, expect):
     dict(
         srcs=["full_example/full.py"],
         expect={
-            "check": True,
-            "diff": True,
-            "isort": True,
-            "lint": ["flake8", "mypy", "pylint"],
             "log_level": 10,
             "revision": "main",
             "src": ["src", "tests"],
@@ -441,45 +437,37 @@ def test_load_config(  # pylint: disable=too-many-arguments
 ):
     """``load_config()`` finds and loads configuration based on source file paths"""
     (tmp_path / ".git").mkdir()
-    (tmp_path / "pyproject.toml").write_text('[tool.darker]\nCONFIG_PATH = "."\n')
+    (tmp_path / "pyproject.toml").write_text('[tool.darkgraylib]\nCONFIG_PATH = "."\n')
     (tmp_path / "lvl1/lvl2").mkdir(parents=True)
     (tmp_path / "has_git/.git").mkdir(parents=True)
     (tmp_path / "has_git/lvl1").mkdir()
     (tmp_path / "has_pyp/lvl1").mkdir(parents=True)
     (tmp_path / "has_pyp/pyproject.toml").write_text(
-        '[tool.darker]\nCONFIG_PATH = "has_pyp"\n'
+        '[tool.darkgraylib]\nCONFIG_PATH = "has_pyp"\n'
     )
     (tmp_path / "full_example").mkdir()
     (tmp_path / "full_example/pyproject.toml").write_text(
         dedent(
             """
-            [tool.darker]
+            [tool.darkgraylib]
             src = [
                 "src",
                 "tests",
             ]
             revision = "main"
-            diff = true
-            check = true
-            isort = true
-            lint = [
-                "flake8",
-                "mypy",
-                "pylint",
-            ]
             log_level = "DEBUG"
             """
         )
     )
     (tmp_path / "stdout_example").mkdir()
     (tmp_path / "stdout_example/pyproject.toml").write_text(
-        "[tool.darker]\nstdout = true\n"
+        "[tool.darkgraylib]\nstdout = true\n"
     )
     (tmp_path / "c").mkdir()
-    (tmp_path / "c" / "pyproject.toml").write_text("[tool.darker]\nPYP_TOML = 1\n")
+    (tmp_path / "c" / "pyproject.toml").write_text("[tool.darkgraylib]\nPYP_TOML = 1\n")
     monkeypatch.chdir(tmp_path / cwd)
 
-    result = load_config(confpath, srcs)
+    result = load_config(confpath, srcs, "darkgraylib", BaseConfig)
 
     assert result == expect
 
@@ -516,7 +504,7 @@ def test_load_config_explicit_path_errors(tmp_path, monkeypatch, path, expect):
     (tmp_path / "empty").mkdir()
     with pytest.raises(ConfigurationError, match=re.escape(expect)):
 
-        _ = load_config(path, ["."])
+        _ = load_config(path, ["."], "darkgraylib", BaseConfig)
 
 
 @pytest.mark.kwparametrize(
@@ -527,7 +515,6 @@ def test_load_config_explicit_path_errors(tmp_path, monkeypatch, path, expect):
         args=Namespace(two="options", log_level=20),
         expect={"two": "options", "log_level": "INFO"},
     ),
-    dict(args=Namespace(diff=True, stdout=True), expect=ConfigurationError),
 )
 def test_get_effective_config(args, expect):
     """``get_effective_config()`` converts command line options correctly"""
@@ -565,15 +552,15 @@ def test_get_modified_config(args, expect):
 
 
 @pytest.mark.kwparametrize(
-    dict(config={}, expect="[tool.darker]\n"),
-    dict(config={"str": "value"}, expect='[tool.darker]\nstr = "value"\n'),
-    dict(config={"int": 42}, expect="[tool.darker]\nint = 42\n"),
-    dict(config={"float": 4.2}, expect="[tool.darker]\nfloat = 4.2\n"),
+    dict(config={}, expect="[tool.darkgraylib]\n"),
+    dict(config={"str": "value"}, expect='[tool.darkgraylib]\nstr = "value"\n'),
+    dict(config={"int": 42}, expect="[tool.darkgraylib]\nint = 42\n"),
+    dict(config={"float": 4.2}, expect="[tool.darkgraylib]\nfloat = 4.2\n"),
     dict(
         config={"list": ["foo", "bar"]},
         expect=dedent(
             """\
-            [tool.darker]
+            [tool.darkgraylib]
             list = [
                 "foo",
                 "bar",
@@ -585,29 +572,16 @@ def test_get_modified_config(args, expect):
         config={
             "src": ["main.py"],
             "revision": "master",
-            "diff": False,
-            "stdout": False,
-            "check": False,
-            "isort": False,
-            "lint": [],
             "config": None,
             "log_level": "DEBUG",
-            "skip_string_normalization": None,
-            "line_length": None,
         },
         expect=dedent(
             """\
-            [tool.darker]
+            [tool.darkgraylib]
             src = [
                 "main.py",
             ]
             revision = "master"
-            diff = false
-            stdout = false
-            check = false
-            isort = false
-            lint = [
-            ]
             log_level = "DEBUG"
             """
         ),
@@ -615,6 +589,6 @@ def test_get_modified_config(args, expect):
 )
 def test_dump_config(config, expect):
     """``dump_config()`` outputs configuration correctly in the TOML format"""
-    result = dump_config(config)
+    result = dump_config(config, "darkgraylib")
 
     assert result == expect
