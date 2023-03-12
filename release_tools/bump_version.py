@@ -98,7 +98,8 @@ def bump_version(  # pylint: disable=too-many-locals
         path = Path(path_str)
         content = path.read_text(encoding="utf-8")
         for pattern_template in pattern_templates:
-            # example: pattern_template == r"darker/{any_milestone->next_milestone}"
+            # example:
+            # pattern_template == r"darkgraylib/{any_milestone->next_milestone}"
             template_match = CAPTURE_RE.search(pattern_template)
             if not template_match:
                 raise NoMatch("Can't find `{CAPTURE_RE}` in `{pattern_template}`")
@@ -109,7 +110,7 @@ def bump_version(  # pylint: disable=too-many-locals
             pattern = replace_spans(
                 [template_match.span()], f"({current_pattern})", pattern_template
             )
-            # example: pattern = r"darker/(14)"
+            # example: pattern = r"darkgraylib/(14)"
             content = replace_group_1(pattern, replacement, content, path=path_str)
         if dry_run:
             print(f"\n######## {path_str} ########\n")
@@ -262,7 +263,7 @@ def get_milestone_numbers(token: Optional[str]) -> Dict[Version, str]:
 
     """
     milestones = requests.get(
-        "https://api.github.com/repos/akaihola/darker/milestones",
+        "https://api.github.com/repos/akaihola/darkgraylib/milestones",
         headers={"Authorization": f"Bearer {token}"} if token else {},
         timeout=10,
     ).json()
