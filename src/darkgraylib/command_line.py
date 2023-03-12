@@ -1,8 +1,8 @@
 """Command line parsing for the ``darker`` binary"""
 
+import sys
 from argparse import SUPPRESS, ArgumentParser, Namespace
 from functools import partial
-import sys
 from typing import Any, Callable, List, Optional, Tuple, Type, TypeVar
 
 from darkgraylib import help as hlp
@@ -12,7 +12,6 @@ from darkgraylib.argparse_helpers import (
     OptionsForReadmeAction,
 )
 from darkgraylib.config import (
-    BaseConfig,
     get_effective_config,
     get_modified_config,
     load_config,
