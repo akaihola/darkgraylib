@@ -3,7 +3,7 @@
 import sys
 from argparse import SUPPRESS, ArgumentParser, Namespace
 from functools import partial
-from typing import Any, Callable, List, Optional, Tuple, Type, TypeVar
+from typing import Any, List, Optional, Tuple, Type, TypeVar, Protocol
 
 from darkgraylib import help as hlp
 from darkgraylib.argparse_helpers import (
@@ -12,6 +12,7 @@ from darkgraylib.argparse_helpers import (
     OptionsForReadmeAction,
 )
 from darkgraylib.config import (
+    BaseConfig,
     get_effective_config,
     get_modified_config,
     load_config,
@@ -80,11 +81,18 @@ def add_parser_argument(
     parser.add_argument(*name_or_flags, **kwargs)
 
 
-T = TypeVar("T")
+T = TypeVar("T", bound=BaseConfig)
+
+
+class ArgumentParserFactory(Protocol):
+    """A function that creates an argument parser object"""
+
+    def __call__(self, require_src: bool) -> ArgumentParser:
+        ...
 
 
 def parse_command_line(
-    make_argument_parser: Callable[[bool], ArgumentParser],
+    make_argument_parser: ArgumentParserFactory,
     argv: Optional[List[str]],
     section_name: str,
     config_type: Type[T],
@@ -149,6 +157,6 @@ def parse_command_line(
     )
     return (
         args,
-        get_effective_config(args),
-        get_modified_config(parser_with_original_defaults, args),
+        get_effective_config(args, config_type),
+        get_modified_config(parser_with_original_defaults, args, config_type),
     )

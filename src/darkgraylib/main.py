@@ -2,7 +2,7 @@
 
 import logging
 from pathlib import Path
-from typing import List, Set, Tuple
+from typing import List, Optional, Set, Tuple
 
 from darkgraylib.utils import TextDocument, get_common_root
 
@@ -11,7 +11,17 @@ logger = logging.getLogger(__name__)
 ProcessedDocument = Tuple[Path, TextDocument, TextDocument]
 
 
-def resolve_paths(stdin_filename: str, src: List[str]) -> Tuple[Set[Path], Path]:
+def resolve_paths(
+    stdin_filename: Optional[str], src: List[str]
+) -> Tuple[Set[Path], Path]:
+    """Resolve paths from the ``src`` and ``--stdin-filename`` command line arguments
+
+    :param stdin_filename: The value of the ``--stdin-filename`` command line argument,
+                           or ``None`` if the option was not given
+    :param src: The value of the ``src`` command line argument
+    :return: A tuple of the resolved paths and the common root directory of the paths
+
+    """
     if stdin_filename is not None:
         paths = {Path(stdin_filename)}
         # `parse_command_line` guarantees that `args.src` is empty
