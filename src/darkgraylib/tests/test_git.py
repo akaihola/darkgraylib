@@ -8,7 +8,6 @@ import re
 from datetime import datetime, timedelta
 from pathlib import Path
 from subprocess import DEVNULL, PIPE, CalledProcessError, check_call  # nosec
-from textwrap import dedent  # nosec
 from typing import List, Union
 from unittest.mock import ANY, Mock, call, patch
 
@@ -1020,85 +1019,6 @@ def test_revisionrange_parse_pre_commit(
         result = git.RevisionRange._parse(":PRE-COMMIT:", stdin_mode)
 
         assert result == (expect_rev1, expect_rev2, expect_use_common_ancestor)
-
-
-edited_linenums_differ_cases = pytest.mark.kwparametrize(
-    dict(context_lines=0, expect=[3, 7]),
-    dict(context_lines=1, expect=[2, 3, 4, 6, 7, 8]),
-    dict(context_lines=2, expect=[1, 2, 3, 4, 5, 6, 7, 8]),
-    dict(context_lines=3, expect=[1, 2, 3, 4, 5, 6, 7, 8]),
-)
-
-
-@edited_linenums_differ_cases
-def test_edited_linenums_differ_compare_revisions(git_repo, context_lines, expect):
-    """Tests for EditedLinenumsDiffer.revision_vs_worktree()"""
-    paths = git_repo.add({"a.py": "1\n2\n3\n4\n5\n6\n7\n8\n"}, commit="Initial commit")
-    paths["a.py"].write_bytes(b"1\n2\nthree\n4\n5\n6\nseven\n8\n")
-    revrange = git.RevisionRange("HEAD", ":WORKTREE:")
-    differ = git.EditedLinenumsDiffer(git_repo.root, revrange)
-
-    linenums = differ.compare_revisions(Path("a.py"), context_lines)
-
-    assert linenums == expect
-
-
-@edited_linenums_differ_cases
-def test_edited_linenums_differ_revision_vs_lines(git_repo, context_lines, expect):
-    """Tests for EditedLinenumsDiffer.revision_vs_lines()"""
-    git_repo.add({"a.py": "1\n2\n3\n4\n5\n6\n7\n8\n"}, commit="Initial commit")
-    content = TextDocument.from_lines(["1", "2", "three", "4", "5", "6", "seven", "8"])
-    revrange = git.RevisionRange("HEAD", ":WORKTREE:")
-    differ = git.EditedLinenumsDiffer(git_repo.root, revrange)
-
-    linenums = differ.revision_vs_lines(Path("a.py"), content, context_lines)
-
-    assert linenums == expect
-
-
-@pytest.mark.kwparametrize(
-    dict(context_lines=0, expect=[1, 3, 4, 5, 6, 8]),
-    dict(context_lines=1, expect=[1, 2, 3, 4, 5, 6, 7, 8]),
-)
-def test_edited_linenums_differ_revision_vs_lines_multiline_strings(
-    git_repo, context_lines, expect
-):
-    """Tests for EditedLinenumsDiffer.revision_vs_lines() with multi-line strings"""
-    git_repo.add(
-        {
-            "a.py": dedent(
-                """\
-                change\n
-                keep\n
-                '''change first,\n
-                keep second\n
-                and third,\n
-                change fourth line of multiline'''\n
-                keep\n
-                change\n
-                """
-            )
-        },
-        commit="Initial commit",
-    )
-    content = TextDocument.from_lines(
-        [
-            "CHANGED",
-            "keep",
-            "'''CHANGED FIRST,",
-            "keep second",
-            "and third,",
-            "CHANGED FOURTH LINE OF MULTILINE'''",
-            "keep",
-            "CHANGED",
-        ]
-    )
-    revrange = git.RevisionRange("HEAD", ":WORKTREE:")
-    differ = git.EditedLinenumsDiffer(git_repo.root, revrange)
-
-    linenums = differ.revision_vs_lines(Path("a.py"), content, context_lines)
-
-    assert linenums == expect
 
 
 def test_local_gitconfig_ignored_by_gitrepofixture(tmp_path):
