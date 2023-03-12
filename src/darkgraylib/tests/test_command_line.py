@@ -4,31 +4,29 @@
 
 import os
 import re
-from argparse import ArgumentError
 from importlib import reload
-from pathlib import Path
-from textwrap import dedent
-from unittest.mock import DEFAULT, Mock, call, patch
+from unittest.mock import patch
 
 import pytest
 import toml
 from black import TargetVersion
 
 import darkgraylib.help
-from darkgraylib import black_diff
 from darkgraylib.command_line import make_argument_parser, parse_command_line
-from darkgraylib.config import ConfigurationError, Exclusions
-from darkgraylib.git import RevisionRange
-from darkgraylib.main import main
-from darkgraylib.tests.helpers import (
-    filter_dict,
-    flynt_present,
-    isort_present,
-    raises_if_exception,
-)
+from darkgraylib.config import BaseConfig, Exclusions
+from darkgraylib.tests.helpers import filter_dict, raises_if_exception
 from darkgraylib.utils import TextDocument, joinlines
 
 pytestmark = pytest.mark.usefixtures("find_project_root_cache_clear")
+
+
+def _make_test_argument_parser(require_src=False):
+    return make_argument_parser(
+        require_src,
+        "Darkgraylib",
+        "dummy description",
+        "config help",
+    )
 
 
 @pytest.mark.kwparametrize(
@@ -36,7 +34,9 @@ pytestmark = pytest.mark.usefixtures("find_project_root_cache_clear")
 )
 def test_make_argument_parser(require_src, expect):
     """Parser from ``make_argument_parser()`` fails if src required but not provided"""
-    parser = make_argument_parser(require_src)
+    parser = make_argument_parser(
+        require_src, "darkgraylib", "dummy description", "dummy config help"
+    )
     with raises_if_exception(expect):
 
         args = parser.parse_args([])
@@ -87,10 +87,15 @@ def test_parse_command_line_config_src(
     """The ``src`` positional argument from config and cmdline is handled correctly"""
     monkeypatch.chdir(tmpdir)
     if config is not None:
-        toml.dump({"tool": {"darker": config}}, tmpdir / "pyproject.toml")
+        toml.dump({"tool": {"darkgraylib": config}}, tmpdir / "pyproject.toml")
     with raises_if_exception(expect):
 
-        args, effective_cfg, modified_cfg = parse_command_line(argv)
+        args, effective_cfg, modified_cfg = parse_command_line(
+            _make_test_argument_parser,
+            argv,
+            "darkgraylib",
+            BaseConfig,
+        )
 
         assert filter_dict(args.__dict__, "src") == expect
         assert filter_dict(dict(effective_cfg), "src") == expect
@@ -98,12 +103,12 @@ def test_parse_command_line_config_src(
 
 
 @pytest.mark.kwparametrize(
-    dict(argv=["."], expect="pylint"),
-    dict(argv=["./subdir/"], expect="flake8"),
-    dict(argv=["--config", "./pyproject.toml", "."], expect="pylint"),
-    dict(argv=["--config", "./subdir/pyproject.toml", "."], expect="flake8"),
-    dict(argv=["--config", "./pyproject.toml", "subdir/"], expect="pylint"),
-    dict(argv=["--config", "./subdir/pyproject.toml", "subdir/"], expect="flake8"),
+    dict(argv=["."], expect="root..HEAD"),
+    dict(argv=["./subdir/"], expect="subdir..HEAD"),
+    dict(argv=["--config", "./pyproject.toml", "."], expect="root..HEAD"),
+    dict(argv=["--config", "./subdir/pyproject.toml", "."], expect="subdir..HEAD"),
+    dict(argv=["--config", "./pyproject.toml", "subdir/"], expect="root..HEAD"),
+    dict(argv=["--config", "./subdir/pyproject.toml", "subdir/"], expect="subdir..HEAD"),
 )
 def test_parse_command_line_config_location_specified(
     tmp_path,
@@ -117,14 +122,19 @@ def test_parse_command_line_config_location_specified(
     subdir.mkdir()
     root_config = tmp_path / "pyproject.toml"
     subdir_config = subdir / "pyproject.toml"
-    root_config.write_text(toml.dumps({"tool": {"darker": {"lint": "pylint"}}}))
-    subdir_config.write_text(toml.dumps({"tool": {"darker": {"lint": "flake8"}}}))
+    root_config.write_text(toml.dumps({"tool": {"darkgraylib": {"revision": "root..HEAD"}}}))
+    subdir_config.write_text(toml.dumps({"tool": {"darkgraylib": {"revision": "subdir..HEAD"}}}))
 
-    args, effective_cfg, modified_cfg = parse_command_line(argv)
+    args, effective_cfg, modified_cfg = parse_command_line(
+        _make_test_argument_parser,
+        argv,
+        "darkgraylib",
+        BaseConfig,
+    )
 
-    assert args.lint == expect
-    assert effective_cfg["lint"] == expect
-    assert modified_cfg["lint"] == expect
+    assert args.revision == expect
+    assert effective_cfg["revision"] == expect
+    assert modified_cfg["revision"] == expect
 
 
 @pytest.mark.kwparametrize(
@@ -151,84 +161,6 @@ def test_parse_command_line_config_location_specified(
         expect_value=("revision", "HEAD"),
         expect_config=("revision", "HEAD"),
         expect_modified=("revision", ...),
-    ),
-    dict(
-        argv=["."],
-        expect_value=("diff", False),
-        expect_config=("diff", False),
-        expect_modified=("diff", ...),
-    ),
-    dict(
-        argv=["--diff", "."],
-        expect_value=("diff", True),
-        expect_config=("diff", True),
-        expect_modified=("diff", True),
-    ),
-    dict(
-        argv=["."],
-        expect_value=("stdout", False),
-        expect_config=("stdout", False),
-        expect_modified=("stdout", ...),
-    ),
-    dict(
-        argv=["--stdout", "dummy.py"],
-        expect_value=("stdout", True),
-        expect_config=("stdout", True),
-        expect_modified=("stdout", True),
-    ),
-    dict(
-        argv=["--diff", "--stdout", "dummy.py"],
-        expect_value=ConfigurationError,
-        expect_config=ConfigurationError,
-        expect_modified=ConfigurationError,
-    ),
-    dict(
-        argv=["."],
-        expect_value=("check", False),
-        expect_config=("check", False),
-        expect_modified=("check", ...),
-    ),
-    dict(
-        argv=["--check", "."],
-        expect_value=("check", True),
-        expect_config=("check", True),
-        expect_modified=("check", True),
-    ),
-    dict(
-        argv=["."],
-        expect_value=("isort", False),
-        expect_config=("isort", False),
-        expect_modified=("isort", ...),
-    ),
-    dict(
-        argv=["-i", "."],
-        expect_value=("isort", True),
-        expect_config=("isort", True),
-        expect_modified=("isort", True),
-    ),
-    dict(
-        argv=["--isort", "."],
-        expect_value=("isort", True),
-        expect_config=("isort", True),
-        expect_modified=("isort", True),
-    ),
-    dict(
-        argv=["."],
-        expect_value=("lint", []),
-        expect_config=("lint", []),
-        expect_modified=("lint", ...),
-    ),
-    dict(
-        argv=["-L", "pylint", "."],
-        expect_value=("lint", ["pylint"]),
-        expect_config=("lint", ["pylint"]),
-        expect_modified=("lint", ["pylint"]),
-    ),
-    dict(
-        argv=["--lint", "flake8", "-L", "mypy", "."],
-        expect_value=("lint", ["flake8", "mypy"]),
-        expect_config=("lint", ["flake8", "mypy"]),
-        expect_modified=("lint", ["flake8", "mypy"]),
     ),
     dict(
         argv=["."],
@@ -354,84 +286,6 @@ def test_parse_command_line_config_location_specified(
         expect_modified=("color", False),
     ),
     dict(
-        argv=["."],
-        expect_value=("skip_string_normalization", None),
-        expect_config=("skip_string_normalization", None),
-        expect_modified=("skip_string_normalization", ...),
-    ),
-    dict(
-        argv=["-S", "."],
-        expect_value=("skip_string_normalization", True),
-        expect_config=("skip_string_normalization", True),
-        expect_modified=("skip_string_normalization", True),
-    ),
-    dict(
-        argv=["--skip-string-normalization", "."],
-        expect_value=("skip_string_normalization", True),
-        expect_config=("skip_string_normalization", True),
-        expect_modified=("skip_string_normalization", True),
-    ),
-    dict(
-        argv=["--no-skip-string-normalization", "."],
-        expect_value=("skip_string_normalization", False),
-        expect_config=("skip_string_normalization", False),
-        expect_modified=("skip_string_normalization", False),
-    ),
-    dict(
-        argv=["--skip-magic-trailing-comma", "."],
-        expect_value=("skip_magic_trailing_comma", True),
-        expect_config=("skip_magic_trailing_comma", True),
-        expect_modified=("skip_magic_trailing_comma", True),
-    ),
-    dict(
-        argv=["."],
-        expect_value=("line_length", None),
-        expect_config=("line_length", None),
-        expect_modified=("line_length", ...),
-    ),
-    dict(
-        argv=["-l=88", "."],
-        expect_value=("line_length", 88),
-        expect_config=("line_length", 88),
-        expect_modified=("line_length", 88),
-    ),
-    dict(
-        argv=["--line-length", "99", "."],
-        expect_value=("line_length", 99),
-        expect_config=("line_length", 99),
-        expect_modified=("line_length", 99),
-    ),
-    dict(
-        argv=["--target-version", "py37", "."],
-        expect_value=("target_version", "py37"),
-        expect_config=("target_version", "py37"),
-        expect_modified=("target_version", "py37"),
-    ),
-    dict(
-        argv=["--target-version", "py39", "."],
-        expect_value=("target_version", "py39"),
-        expect_config=("target_version", "py39"),
-        expect_modified=("target_version", "py39"),
-    ),
-    dict(
-        argv=["--target-version", "py37", "--target-version", "py39", "."],
-        expect_value=("target_version", "py39"),
-        expect_config=("target_version", "py39"),
-        expect_modified=("target_version", "py39"),
-    ),
-    dict(
-        argv=["--target-version", "py39", "--target-version", "py37", "."],
-        expect_value=("target_version", "py37"),
-        expect_config=("target_version", "py37"),
-        expect_modified=("target_version", "py37"),
-    ),
-    dict(
-        argv=["--target-version", "py39,py37", "."],
-        expect_value=SystemExit,
-        expect_config=None,
-        expect_modified=None,
-    ),
-    dict(
         # this is accepted as a path, but would later fail if a file or directory with
         # that funky name doesn't exist
         argv=["--suspicious path"],
@@ -460,7 +314,7 @@ def test_parse_command_line(
         expect_value
     ) as expect_exception:
 
-        args, effective_cfg, modified_cfg = parse_command_line(argv)
+        args, effective_cfg, modified_cfg = parse_command_line(_make_test_argument_parser, argv, "darkgraylib", BaseConfig)
 
     if not expect_exception:
         arg_name, expect_arg_value = expect_value
@@ -479,437 +333,3 @@ def test_parse_command_line(
             assert (
                 modified_cfg[modified_option] == expect_modified_value  # type: ignore
             )
-
-
-def test_help_description_without_isort_package(capsys):
-    """``darker --help`` description shows how to add ``isort`` if it's not present"""
-    with isort_present(False):
-
-        assert (
-            "Please run `pip install darker[isort]` to enable sorting of import "
-            "definitions" in get_darker_help_output(capsys)
-        )
-
-
-def test_help_isort_option_without_isort_package(capsys):
-    """``--isort`` option help text shows how to install `isort`` if it's not present"""
-    with isort_present(False):
-
-        assert (
-            "Please run `pip install darker[isort]` to enable usage of this option."
-            in get_darker_help_output(capsys)
-        )
-
-
-def test_help_with_isort_package(capsys):
-    """``darker --help`` omits ``isort`` installation instructions if it is installed"""
-    with isort_present(True):
-
-        assert (
-            "Please run `pip install darker[isort]` to enable "
-            not in get_darker_help_output(capsys)
-        )
-
-
-def test_help_description_without_flynt_package(capsys):
-    """``darker --help`` description shows how to add ``flynt`` if it's not present"""
-    with flynt_present(False):
-
-        assert (
-            "Please run `pip install darker[flynt]` to enable converting old literal "
-            "string formatting to f-strings" in get_darker_help_output(capsys)
-        )
-
-
-def test_help_flynt_option_without_flynt_package(capsys):
-    """``--flynt`` option help text shows how to install `flynt`` if it's not present"""
-    with flynt_present(False):
-
-        assert (
-            "Please run `pip install darker[flynt]` to enable usage of this option."
-            in get_darker_help_output(capsys)
-        )
-
-
-def test_help_with_flynt_package(capsys):
-    """``darker --help`` omits ``flynt`` installation instructions if it is installed"""
-    with flynt_present(True):
-
-        assert (
-            "Please run `pip install darker[flynt]` to enable "
-            not in get_darker_help_output(capsys)
-        )
-
-
-@pytest.mark.kwparametrize(
-    dict(options=[], expect=call()),
-    dict(
-        options=["-c", "black.cfg"],
-        expect=call(
-            line_length=81,
-            string_normalization=True,
-            target_versions={TargetVersion.PY38},
-        ),
-    ),
-    dict(
-        options=["--config", "black.cfg"],
-        expect=call(
-            line_length=81,
-            string_normalization=True,
-            target_versions={TargetVersion.PY38},
-        ),
-    ),
-    dict(options=["-S"], expect=call(string_normalization=False)),
-    dict(
-        options=["--skip-string-normalization"], expect=call(string_normalization=False)
-    ),
-    dict(options=["-l", "90"], expect=call(line_length=90)),
-    dict(options=["--line-length", "90"], expect=call(line_length=90)),
-    dict(
-        options=["-c", "black.cfg", "-S"],
-        expect=call(
-            line_length=81,
-            string_normalization=False,
-            target_versions={TargetVersion.PY38},
-        ),
-    ),
-    dict(
-        options=["-c", "black.cfg", "-l", "90"],
-        expect=call(
-            line_length=90,
-            string_normalization=True,
-            target_versions={TargetVersion.PY38},
-        ),
-    ),
-    dict(
-        options=["-l", "90", "-S"],
-        expect=call(line_length=90, string_normalization=False),
-    ),
-    dict(
-        options=["-c", "black.cfg", "-l", "90", "-S"],
-        expect=call(
-            line_length=90,
-            string_normalization=False,
-            target_versions={TargetVersion.PY38},
-        ),
-    ),
-    dict(options=["-t", "py39"], expect=call(target_versions={TargetVersion.PY39})),
-    dict(
-        options=["--target-version", "py39"],
-        expect=call(target_versions={TargetVersion.PY39}),
-    ),
-    dict(
-        options=["-c", "black.cfg", "-S"],
-        expect=call(
-            line_length=81,
-            string_normalization=False,
-            target_versions={TargetVersion.PY38},
-        ),
-    ),
-    dict(
-        options=["-c", "black.cfg", "-t", "py39"],
-        expect=call(
-            line_length=81,
-            string_normalization=True,
-            target_versions={TargetVersion.PY39},
-        ),
-    ),
-    dict(
-        options=["-t", "py39", "-S"],
-        expect=call(string_normalization=False, target_versions={TargetVersion.PY39}),
-    ),
-    dict(
-        options=["-c", "black.cfg", "-t", "py39", "-S"],
-        expect=call(
-            line_length=81,
-            string_normalization=False,
-            target_versions={TargetVersion.PY39},
-        ),
-    ),
-)
-def test_black_options(monkeypatch, tmpdir, git_repo, options, expect):
-    """Black options from the command line are passed correctly to Black"""
-    monkeypatch.chdir(tmpdir)
-    (tmpdir / "pyproject.toml").write("[tool.black]\n")
-    (tmpdir / "black.cfg").write(
-        dedent(
-            """
-            [tool.black]
-            line-length = 81
-            skip-string-normalization = false
-            target-version = 'py38'
-            """
-        )
-    )
-    added_files = git_repo.add(
-        {"main.py": 'print("Hello World!")\n'}, commit="Initial commit"
-    )
-    added_files["main.py"].write_bytes(b'print ("Hello World!")\n')
-    with patch.object(black_diff, "Mode", wraps=black_diff.Mode) as file_mode_class:
-
-        main(options + [str(path) for path in added_files.values()])
-
-    _, expect_args, expect_kwargs = expect
-    file_mode_class.assert_called_once_with(*expect_args, **expect_kwargs)
-
-
-@pytest.mark.kwparametrize(
-    dict(config=[], options=[], expect=call()),
-    dict(
-        config=[],
-        options=["--skip-string-normalization"],
-        expect=call(string_normalization=False),
-    ),
-    dict(
-        config=[],
-        options=["--no-skip-string-normalization"],
-        expect=call(string_normalization=True),
-    ),
-    dict(
-        config=["skip_string_normalization = false"],
-        options=[],
-        expect=call(string_normalization=True),
-    ),
-    dict(
-        config=["skip_string_normalization = false"],
-        options=["--skip-string-normalization"],
-        expect=call(string_normalization=False),
-    ),
-    dict(
-        config=["skip_string_normalization = false"],
-        options=["--no-skip-string-normalization"],
-        expect=call(string_normalization=True),
-    ),
-    dict(
-        config=["skip_string_normalization = true"],
-        options=[],
-        expect=call(string_normalization=False),
-    ),
-    dict(
-        config=["skip_string_normalization = true"],
-        options=["--skip-string-normalization"],
-        expect=call(string_normalization=False),
-    ),
-    dict(
-        config=["skip_string_normalization = true"],
-        options=["--no-skip-string-normalization"],
-        expect=call(string_normalization=True),
-    ),
-    dict(
-        config=[],
-        options=["--skip-magic-trailing-comma"],
-        expect=call(magic_trailing_comma=False),
-    ),
-    dict(
-        config=["skip_magic_trailing_comma = false"],
-        options=[],
-        expect=call(magic_trailing_comma=True),
-    ),
-    dict(
-        config=["skip_magic_trailing_comma = true"],
-        options=[],
-        expect=call(magic_trailing_comma=False),
-    ),
-    dict(
-        config=[],
-        options=["--target-version", "py39"],
-        expect=call(target_versions={TargetVersion.PY39}),
-    ),
-    dict(
-        config=["target-version = 'py39'"],
-        options=[],
-        expect=call(target_versions={TargetVersion.PY39}),
-    ),
-    dict(
-        config=["target_version = ['py39']"],
-        options=[],
-        expect=call(target_versions={TargetVersion.PY39}),
-    ),
-    dict(
-        config=["target-version = 'py38'"],
-        options=["--target-version", "py39"],
-        expect=call(target_versions={TargetVersion.PY39}),
-    ),
-    dict(
-        config=["target-version = ['py38']"],
-        options=["-t", "py39"],
-        expect=call(target_versions={TargetVersion.PY39}),
-    ),
-)
-def test_black_config_file_and_options(git_repo, config, options, expect):
-    """Black configuration file and command line options are combined correctly"""
-    added_files = git_repo.add(
-        {"main.py": "foo", "pyproject.toml": joinlines(["[tool.black]"] + config)},
-        commit="Initial commit",
-    )
-    added_files["main.py"].write_bytes(b"a = [1, 2,]")
-    mode_class_mock = Mock(wraps=black_diff.Mode)
-    # Speed up tests by mocking `format_str` to skip running Black
-    format_str = Mock(return_value="a = [1, 2,]")
-    with patch.multiple(black_diff, Mode=mode_class_mock, format_str=format_str):
-
-        main(options + [str(path) for path in added_files.values()])
-
-    assert mode_class_mock.call_args_list == [expect]
-
-
-@pytest.mark.kwparametrize(
-    dict(
-        options=["a.py"],
-        # Expected arguments to the `format_edited_parts()` call.
-        # `Path("git_root")` will be replaced with the temporary Git repository root:
-        expect=(
-            Path("git_root"),
-            {Path("a.py")},
-            Exclusions(isort={"**/*"}, flynt={"**/*"}),
-            RevisionRange("HEAD", ":WORKTREE:"),
-            {},
-        ),
-    ),
-    dict(
-        options=["--isort", "a.py"],
-        expect=(
-            Path("git_root"),
-            {Path("a.py")},
-            Exclusions(flynt={"**/*"}),
-            RevisionRange("HEAD", ":WORKTREE:"),
-            {},
-        ),
-    ),
-    dict(
-        options=["--config", "my.cfg", "a.py"],
-        expect=(
-            Path("git_root"),
-            {Path("a.py")},
-            Exclusions(isort={"**/*"}, flynt={"**/*"}),
-            RevisionRange("HEAD", ":WORKTREE:"),
-            {"config": "my.cfg"},
-        ),
-    ),
-    dict(
-        options=["--line-length", "90", "a.py"],
-        expect=(
-            Path("git_root"),
-            {Path("a.py")},
-            Exclusions(isort={"**/*"}, flynt={"**/*"}),
-            RevisionRange("HEAD", ":WORKTREE:"),
-            {"line_length": 90},
-        ),
-    ),
-    dict(
-        options=["--skip-string-normalization", "a.py"],
-        expect=(
-            Path("git_root"),
-            {Path("a.py")},
-            Exclusions(isort={"**/*"}, flynt={"**/*"}),
-            RevisionRange("HEAD", ":WORKTREE:"),
-            {"skip_string_normalization": True},
-        ),
-    ),
-    dict(
-        options=["--diff", "a.py"],
-        expect=(
-            Path("git_root"),
-            {Path("a.py")},
-            Exclusions(isort={"**/*"}, flynt={"**/*"}),
-            RevisionRange("HEAD", ":WORKTREE:"),
-            {},
-        ),
-    ),
-    dict(
-        options=["--target-version", "py39", "a.py"],
-        expect=(
-            Path("git_root"),
-            {Path("a.py")},
-            Exclusions(isort={"**/*"}, flynt={"**/*"}),
-            RevisionRange("HEAD", ":WORKTREE:"),
-            {"target_version": {"py39"}},
-        ),
-    ),
-)
-def test_options(git_repo, options, expect):
-    """The main engine is called with correct parameters based on the command line
-
-    Executed in a clean directory so Darker's own ``pyproject.toml`` doesn't interfere.
-
-    """
-    paths = git_repo.add(
-        {"a.py": "1\n", "b.py": "2\n", "my.cfg": ""}, commit="Initial commit"
-    )
-    paths["a.py"].write_bytes(b"one\n")
-    with patch("darkgraylib.main.format_edited_parts") as format_edited_parts:
-
-        retval = main(options)
-
-    expect = (Path(git_repo.root), expect[1]) + expect[2:]
-    format_edited_parts.assert_called_once_with(
-        *expect, report_unmodified=False, workers=1
-    )
-    assert retval == 0
-
-
-@pytest.mark.kwparametrize(
-    dict(check=False, changes=False, lintfail=False),
-    dict(check=False, changes=False, lintfail=True, expect_retval=1),
-    dict(check=False, changes=True, lintfail=False),
-    dict(check=False, changes=True, lintfail=True, expect_retval=1),
-    dict(check=True, changes=False, lintfail=False),
-    dict(check=True, changes=True, lintfail=True, expect_retval=1),
-    expect_retval=0,
-)
-def test_main_retval(git_repo, check, changes, lintfail, expect_retval):
-    """main() return value is correct based on --check, reformatting and linters"""
-    git_repo.add({"a.py": ""}, commit="Initial commit")
-    format_edited_parts = Mock()
-    format_edited_parts.return_value = (
-        [
-            (
-                Path("/dummy.py"),
-                TextDocument.from_lines(["old"]),
-                TextDocument.from_lines(["new"]),
-            )
-        ]
-        if changes
-        else []
-    )
-    run_linters = Mock(return_value=lintfail)
-    check_arg_maybe = ["--check"] if check else []
-    with patch.multiple(
-        "darkgraylib.main",
-        format_edited_parts=format_edited_parts,
-        modify_file=DEFAULT,
-        run_linters=run_linters,
-    ):
-
-        retval = main(check_arg_maybe + ["a.py"])
-
-    assert retval == expect_retval
-
-
-def test_main_missing_in_worktree(git_repo):
-    """An ``ArgumentError`` is raised if given file is not found on disk"""
-    paths = git_repo.add({"a.py": ""}, commit="Add a.py")
-    paths["a.py"].unlink()
-
-    with pytest.raises(
-        ArgumentError,
-        match=re.escape(
-            "argument PATH: Error: Path(s) 'a.py' do not exist in the working tree"
-        ),
-    ):
-
-        main(["a.py"])
-
-
-def test_main_missing_in_revision(git_repo):
-    """An ``ArgumentError`` is raised if given file didn't exist in rev2"""
-    paths = git_repo.add({"a.py": ""}, commit="Add a.py")
-    git_repo.add({"a.py": None}, commit="Delete a.py")
-    paths["a.py"].touch()
-
-    with pytest.raises(
-        ArgumentError,
-        match=re.escape("argument PATH: Error: Path(s) 'a.py' do not exist in HEAD"),
-    ):
-
-        main(["--diff", "--revision", "..HEAD", "a.py"])
