@@ -15,7 +15,9 @@ from _pytest.fixtures import SubRequest
 from pygments.token import Token
 
 from darkgraylib.command_line import parse_command_line
+from darkgraylib.config import BaseConfig
 from darkgraylib.highlighting import colorize, lexers, should_use_color
+from darkgraylib.tests.test_command_line import _make_test_argument_parser
 
 RESET = "\x1b[39;49;00m"
 RED = "\x1b[31;01m"
@@ -76,26 +78,27 @@ def pyproject_toml_color(
 
     Without the ``color =`` option::
 
-        [tool.darker]
+        [tool.darkgraylib]
 
     With color turned off::
 
-        [tool.darker]
+        [tool.darkgraylib]
         color = false
 
     With color turned on::
 
-        [tool.darker]
+        [tool.darkgraylib]
         color = true
 
     :param request: The Pytest ``request`` object
     :param module_tmp_path: A temporary directory created by Pytest
+    :param section_name: The name of the configuration section (under ``tool``)
     :yield: The ``color =`` option line in ``pyproject.toml``, or an empty string
 
     """
     pyproject_toml_path = module_tmp_path / "pyproject.toml"
     with pyproject_toml_path.open("w") as pyproject_toml:
-        print(f"[tool.darker]\n{request.param}\n", file=pyproject_toml)
+        print(f"[tool.darkgraylib]\n{request.param}\n", file=pyproject_toml)
 
     yield request.param
 
@@ -238,7 +241,9 @@ def config_from_env_and_argv(
         (module_tmp_path / "pyproject.toml").read_bytes(),
     )
     if cache_key not in config_cache:
-        _, config, _ = parse_command_line(argv)
+        _, config, _ = parse_command_line(
+            _make_test_argument_parser, argv, "darkgraylib", BaseConfig
+        )
         config_cache[cache_key] = config["color"]
     yield config_cache[cache_key]
 
