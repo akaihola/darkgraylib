@@ -3,7 +3,7 @@
 from argparse import SUPPRESS, ArgumentParser, Namespace
 from functools import partial
 import sys
-from typing import Any, Callable, List, Optional, Tuple
+from typing import Any, Callable, List, Optional, Tuple, Type, TypeVar
 
 from darkgraylib import help as hlp
 from darkgraylib.argparse_helpers import (
@@ -22,7 +22,9 @@ from darkgraylib.config import (
 from darkgraylib.version import __version__
 
 
-def make_argument_parser(require_src: bool, application: str, description: str, config_help: str) -> ArgumentParser:
+def make_argument_parser(
+    require_src: bool, application: str, description: str, config_help: str
+) -> ArgumentParser:
     """Create the argument parser object
 
     :param require_src: ``True`` to require at least one path as a positional argument
@@ -79,10 +81,15 @@ def add_parser_argument(
     parser.add_argument(*name_or_flags, **kwargs)
 
 
+T = TypeVar("T")
+
+
 def parse_command_line(
-    make_argument_parser: Callable[[bool], ArgumentParser], 
-    argv: Optional[List[str]]
-) -> Tuple[Namespace, BaseConfig, BaseConfig]:
+    make_argument_parser: Callable[[bool], ArgumentParser],
+    argv: Optional[List[str]],
+    section_name: str,
+    config_type: Type[T],
+) -> Tuple[Namespace, T, T]:
     """Return the parsed command line, using defaults from a configuration file
 
     Also return the effective configuration which combines defaults, the configuration
@@ -91,11 +98,18 @@ def parse_command_line(
 
     Finally, also return the set of configuration options which differ from defaults.
 
+    :make_argument_parser: A function that creates an argument parser object.
+    :param argv: Command line arguments to parse (excluding the path of the script). If
+                 ``None``, use ``sys.argv``.
+    :config_type: The type of the configuration object to be returned. For Darker, this
+                  should be ``DarkerConfig``, for Graylint ``GraylintConfig``.
+    :section_name: The name of the section in the configuration file to read
+    :return: A tuple of the parsed command line, the effective configuration, and the
+             set of modified configuration options from the defaults.
+
     """
     if argv is None:
         argv = sys.argv[1:]
-    else:
-        argv = argv[1:]
 
     # 1. Parse the paths of files/directories to process into `args.src`, and the config
     #    file path into `args.config`.
@@ -105,7 +119,7 @@ def parse_command_line(
     # 2. Locate `pyproject.toml` based on the `-c`/`--config` command line option, or
     #    if it's not provided, based on the paths to process, or in the current
     #    directory if no paths were given. Load Darker configuration from it.
-    pyproject_config = load_config(args.config, args.src)
+    pyproject_config = load_config(args.config, args.src, section_name, config_type)
 
     # 3. The PY_COLORS, NO_COLOR and FORCE_COLOR environment variables override the
     #    `--color` command line option.
