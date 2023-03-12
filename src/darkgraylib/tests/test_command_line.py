@@ -48,7 +48,9 @@ def get_darker_help_output(capsys):
     # isort is installed or not:
     reload(darkgraylib.help)
     with pytest.raises(SystemExit):
-        parse_command_line(["--help"])
+        parse_command_line(
+            _make_test_argument_parser(), ["--help"], "darkgraylib", BaseConfig
+        )
     return re.sub(r"\s+", " ", capsys.readouterr().out)
 
 

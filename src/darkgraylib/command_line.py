@@ -43,8 +43,18 @@ def make_argument_parser(
     add_arg = partial(add_parser_argument, parser)
 
     add_arg(hlp.SRC, "src", nargs="+" if require_src else "*", metavar="PATH")
-    add_arg(hlp.REVISION, "-r", "--revision", default="HEAD", metavar="REV")
-    add_arg(hlp.STDIN_FILENAME, "--stdin-filename", metavar="PATH")
+    add_arg(
+        hlp.REVISION.format(application=application),
+        "-r",
+        "--revision",
+        default="HEAD",
+        metavar="REV",
+    )
+    add_arg(
+        hlp.STDIN_FILENAME.format(application=application),
+        "--stdin-filename",
+        metavar="PATH",
+    )
     add_arg(config_help, "-c", "--config", metavar="PATH")
     add_arg(
         hlp.VERBOSE,
@@ -57,7 +67,12 @@ def make_argument_parser(
     add_arg(hlp.QUIET, "-q", "--quiet", action="log_level", dest="log_level", const=10)
     add_arg(hlp.COLOR, "--color", action="store_const", dest="color", const=True)
     add_arg(hlp.NO_COLOR, "--no-color", action="store_const", dest="color", const=False)
-    add_arg(hlp.VERSION, "--version", action="version", version=__version__)
+    add_arg(
+        hlp.VERSION.format(application=application),
+        "--version",
+        action="version",
+        version=__version__,
+    )
     add_arg(hlp.WORKERS, "-W", "--workers", type=int, dest="workers", default=1)
     # A hidden option for printing command lines option in a format suitable for
     # `README.rst`:
@@ -84,7 +99,7 @@ def add_parser_argument(
 T = TypeVar("T", bound=BaseConfig)
 
 
-class ArgumentParserFactory(Protocol):
+class ArgumentParserFactory(Protocol):  # pylint: disable=too-few-public-methods
     """A function that creates an argument parser object"""
 
     def __call__(self, require_src: bool) -> ArgumentParser:
@@ -92,7 +107,7 @@ class ArgumentParserFactory(Protocol):
 
 
 def parse_command_line(
-    make_argument_parser: ArgumentParserFactory,
+    argument_parser_factory: ArgumentParserFactory,
     argv: Optional[List[str]],
     section_name: str,
     config_type: Type[T],
@@ -105,12 +120,13 @@ def parse_command_line(
 
     Finally, also return the set of configuration options which differ from defaults.
 
-    :make_argument_parser: A function that creates an argument parser object.
+    :param argument_parser_factory: A function that creates an argument parser object.
     :param argv: Command line arguments to parse (excluding the path of the script). If
                  ``None``, use ``sys.argv``.
-    :config_type: The type of the configuration object to be returned. For Darker, this
-                  should be ``DarkerConfig``, for Graylint ``GraylintConfig``.
-    :section_name: The name of the section in the configuration file to read
+    :param section_name: The name of the section in the configuration file to read
+    :param config_type: The type of the configuration object to be returned. For Darker,
+                        this should be ``DarkerConfig``, for Graylint
+                        ``GraylintConfig``.
     :return: A tuple of the parsed command line, the effective configuration, and the
              set of modified configuration options from the defaults.
 
@@ -120,7 +136,7 @@ def parse_command_line(
 
     # 1. Parse the paths of files/directories to process into `args.src`, and the config
     #    file path into `args.config`.
-    parser_for_srcs = make_argument_parser(require_src=False)
+    parser_for_srcs = argument_parser_factory(require_src=False)
     args = parser_for_srcs.parse_args(argv)
 
     # 2. Locate `pyproject.toml` based on the `-c`/`--config` command line option, or
@@ -141,7 +157,7 @@ def parse_command_line(
     # 5. Make sure an error for missing file/directory paths is thrown if we're not
     #    running in stdin mode and no file/directory is configured in `pyproject.toml`.
     if args.stdin_filename is None and not config.get("src"):
-        parser = make_argument_parser(require_src=True)
+        parser = argument_parser_factory(require_src=True)
         parser.set_defaults(**config)
         args = parser.parse_args(argv)
 
@@ -152,7 +168,7 @@ def parse_command_line(
     # 7. Also create a parser which uses the original default configuration values.
     #    This is used to find out differences between the effective configuration and
     #    default configuration values, and print them out in verbose mode.
-    parser_with_original_defaults = make_argument_parser(
+    parser_with_original_defaults = argument_parser_factory(
         require_src=args.stdin_filename is None
     )
     return (

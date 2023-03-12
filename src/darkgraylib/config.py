@@ -127,7 +127,10 @@ T = TypeVar("T", bound=BaseConfig)
 
 
 def load_config(
-    path: Optional[str], srcs: Iterable[str], section_name: str, config_type: Type[T]
+    path: Optional[str],
+    srcs: Iterable[str],
+    section_name: str,
+    config_type: Type[T],  # pylint: disable=unused-argument
 ) -> T:
     """Find and load configuration from a TOML configuration file
 
@@ -164,7 +167,9 @@ def load_config(
     return config
 
 
-def get_effective_config(args: Namespace, config_type: Type[T]) -> T:
+def get_effective_config(
+    args: Namespace, config_type: Type[T]  # pylint: disable=unused-argument
+) -> T:
     """Return all configuration options
 
     :param args: The command line arguments
@@ -178,7 +183,9 @@ def get_effective_config(args: Namespace, config_type: Type[T]) -> T:
 
 
 def get_modified_config(
-    parser: ArgumentParser, args: Namespace, config_type: Type[T]
+    parser: ArgumentParser,
+    args: Namespace,
+    config_type: Type[T],  # pylint: disable=unused-argument
 ) -> T:
     """Return configuration options which are set to non-default values
 
@@ -211,6 +218,13 @@ def dump_config(config: BaseConfig, section_name: str) -> str:
 def show_config_if_debug(
     config: BaseConfig, config_nondefault: BaseConfig, log_level: int
 ) -> None:
+    """Show the configuration if the log level is DEBUG or lower
+
+    :param config: The configuration options
+    :param config_nondefault: Options which are set to non-default values
+    :param log_level: The log level
+
+    """
     if log_level <= logging.DEBUG:
         print("\n# Effective configuration:\n")
         print(dump_config(config, "darkgraylib"))
