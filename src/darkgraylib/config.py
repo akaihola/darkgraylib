@@ -123,14 +123,11 @@ def override_color_with_environment(pyproject_config: BaseConfig) -> BaseConfig:
     return config
 
 
-T = TypeVar("T", bound=BaseConfig)
-
-
 def load_config(
     path: Optional[str],
     srcs: Iterable[str],
     section_name: str,
-    config_type: Type[T],  # pylint: disable=unused-argument
+    config_type: Type[T],
 ) -> T:
     """Find and load configuration from a TOML configuration file
 
@@ -144,6 +141,11 @@ def load_config(
     :param path: The file or directory specified using the ``-c``/``--config`` command
                  line option, or `None` if the option was omitted.
     :param srcs: File(s) and directory/directories to be processed by Darker.
+    :param section_name: The name of the section in the configuration file. For Darker,
+                         this is ``"darker"`` and for Graylint, this is ``"graylint"``.
+    :param config_type: The class representing the configuration options. For Darker,
+                        this is ``darker.config.DarkerConfig`` and for Graylint, this
+                        is ``graylint.config.GraylintConfig``.
 
     """
     if path:
@@ -162,7 +164,11 @@ def load_config(
         if not config_path.is_file():
             return cast(T, {})
     pyproject_toml = toml.load(config_path)
-    config = cast(T, pyproject_toml.get("tool", {}).get(section_name, {}) or {})
+    tool_darker_config = convert_hyphens_to_underscores(
+        pyproject_toml.get("tool", {}).get(section_name, {}) or {}
+    )
+    validate_config_keys(tool_darker_config, section_name, config_type)
+    config = cast(T, tool_darker_config)
     replace_log_level_name(config)
     return config
 
