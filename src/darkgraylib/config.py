@@ -217,7 +217,9 @@ def dump_config(config: BaseConfig, section_name: str) -> str:
     """Return the configuration in TOML format
     :param section_name:
     """
-    dump = toml.dumps(config, encoder=TomlArrayLinesEncoder())
+    dump = toml.dumps(
+        convert_underscores_to_hyphens(config), encoder=TomlArrayLinesEncoder()
+    )
     return f"[tool.{section_name}]\n{dump}"
 
 
