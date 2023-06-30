@@ -42,6 +42,52 @@ class ConfigurationError(Exception):
     """Exception class for invalid configuration values"""
 
 
+def convert_config_characters(
+    config: UnvalidatedConfig, pattern: str, replacement: str
+) -> UnvalidatedConfig:
+    """Convert a character in config keys to a different character"""
+    return {key.replace(pattern, replacement): value for key, value in config.items()}
+
+
+def convert_hyphens_to_underscores(config: UnvalidatedConfig) -> UnvalidatedConfig:
+    """Convert hyphenated config keys to underscored keys"""
+    return convert_config_characters(config, "-", "_")
+
+
+def convert_underscores_to_hyphens(config: BaseConfig) -> UnvalidatedConfig:
+    """Convert underscores in config keys to hyphens"""
+    return convert_config_characters(cast(UnvalidatedConfig, config), "_", "-")
+
+
+T = TypeVar("T", bound=BaseConfig)
+
+
+def validate_config_keys(
+    config: UnvalidatedConfig,
+    section_name: str,
+    config_type: Type[T],  # pylint: disable=unused-argument
+) -> None:
+    """Raise an exception if any keys in the configuration are invalid.
+
+    :param config: The configuration read from ``pyproject.toml``
+    :param section_name: The name of the section in the configuration file. For Darker,
+                         this is ``"darker"`` and for Graylint, this is ``"graylint"``.
+    :param config_type: The class representing the configuration options. For Darker,
+                        this is ``darker.config.DarkerConfig`` and for Graylint, this
+                        is ``graylint.config.GraylintConfig``.
+    :raises ConfigurationError: Raised if unknown options are present
+
+    """
+    if set(config).issubset(config_type.__annotations__):
+        return
+    unknown_keys = ", ".join(
+        sorted(set(config).difference(config_type.__annotations__))
+    )
+    raise ConfigurationError(
+        f"Invalid [tool.{section_name}] keys in pyproject.toml: {unknown_keys}"
+    )
+
+
 def replace_log_level_name(config: BaseConfig) -> None:
     """Replace numeric log level in configuration with the name of the log level"""
     if "log_level" in config:
