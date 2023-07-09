@@ -12,6 +12,7 @@ Fixed
 - Use ``git worktree`` instead of ``git clone`` and ``git checkout`` to set up a
   temporary working tree for running linters for a baseline in the ``rev1`` revision of
   the repository.
+- Include the ``py.typed`` typing marker in distributions.
 
 
 Darker 0.1.0 to 1.7.0
