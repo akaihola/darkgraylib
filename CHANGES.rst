@@ -18,6 +18,7 @@ Fixed
 - Include the ``py.typed`` typing marker in distributions.
 - Fix tests path in Bandit configuration for CI.
 - Python 3.12 compatibility in multi-line string scanning.
+- Upgrade ``install-nix-action`` to version 22 in CI to fix an issue with macOS.
 
 
 Darker 0.1.0 to 1.7.0
