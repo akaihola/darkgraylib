@@ -14,7 +14,7 @@ from unittest.mock import ANY, Mock, call, patch
 import pytest
 
 from darkgraylib import git
-from darkgraylib.tests.conftest import GitRepoFixture
+from darkgraylib.tests.plugin import GitRepoFixture
 from darkgraylib.tests.helpers import raises_if_exception, raises_or_matches
 from darkgraylib.utils import GIT_DATEFORMAT, TextDocument
 
