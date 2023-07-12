@@ -6,6 +6,7 @@ These features will be included in the next release:
 Added
 -----
 - Copied the code base from Darker 1.7.0.
+- Provide ``git_repo`` as a Pytest plugin.
 
 Fixed
 -----
