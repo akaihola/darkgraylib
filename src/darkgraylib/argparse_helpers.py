@@ -44,7 +44,7 @@ class OptionsForReadmeAction(Action):
     def __init__(
         self, option_strings: List[str], dest: str = SUPPRESS, help: str = None
     ):  # pylint: disable=redefined-builtin
-        super().__init__(option_strings, dest, 0)
+        super().__init__(option_strings, dest, 0, help=help)
 
     def __call__(
         self,
