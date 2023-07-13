@@ -4,6 +4,8 @@ import logging
 import re
 import sys
 from argparse import SUPPRESS, Action, ArgumentParser, HelpFormatter, Namespace
+from difflib import ndiff
+from pathlib import Path
 from textwrap import fill
 from typing import Any, List, Optional, Sequence, Union
 
@@ -49,27 +51,82 @@ class OptionsForReadmeAction(Action):
     def __call__(
         self,
         parser: ArgumentParser,
+        namespace: Namespace,  # noqa: ARG002
+        values: Optional[Union[str, Sequence[Any]]],  # noqa: ARG002
+        option_string: Optional[str] = None,  # noqa: ARG002
+    ) -> None:
+        """Print ``--help`` usage documentation in a format suitable for README.rst.
+
+        :param parser: The parser for which to generate usage
+        :param namespace: Ignored
+        :param values: Ignored
+        :param option_string: Ignored
+
+        """
+        usage = generate_options_for_readme(parser)
+        sys.stderr.write(usage)
+        parser.exit()
+
+
+class VerifyReadmeAction(Action):
+    """Implementation of the ``--verify-readme`` argument.
+
+    This argparse action generates optional command line arguments in a format suitable
+    for inclusion in ``README.rst``, compares them to what is already in the file, and
+    prints a diff if they differ.
+
+    """
+
+    # pylint: disable=too-few-public-methods
+
+    def __init__(
+        self, option_strings: List[str], dest: str = SUPPRESS, help: str = None
+    ):  # pylint: disable=redefined-builtin
+        super().__init__(option_strings, dest, 0, help=help)
+
+    def __call__(
+        self,
+        parser: ArgumentParser,
         namespace: Namespace,
         values: Optional[Union[str, Sequence[Any]]],
         option_string: str = None,
     ) -> None:
-        optional_arguments_group = next(
-            group
-            for group in parser._action_groups
-            # The group title for options differs between Python versions
-            if group.title in {"optional arguments", "options"}
-        )
-        actions = []
-        for action in optional_arguments_group._group_actions:
-            if action.dest in {"help", "version", "options_for_readme"}:
-                continue
-            if action.help is not None:
-                action.help = action.help.replace("`", "``")
-            actions.append(action)
-        formatter = HelpFormatter(parser.prog, max_help_position=7, width=88)
-        formatter.add_arguments(actions)
-        sys.stderr.write(formatter.format_help())
-        parser.exit()
+        for section in re.split(r"\n\n+", Path("README.rst").read_text()):
+            lines = section.splitlines(keepends=True)
+            cmds = sum(1 for line in lines if re.match(r"-\w\W|--\w\w+", line))
+            descriptions = sum(1 for line in lines if line.startswith("       "))
+            if cmds and descriptions and cmds + descriptions == len(lines):
+                usage = generate_options_for_readme(parser).splitlines(keepends=True)
+                difference = "".join(ndiff(lines, usage))
+                parser.exit(1 if difference else 0, difference + "\n")
+        else:
+            parser.exit(2, "Could not find --help output in README.rst")
+
+
+def generate_options_for_readme(parser: ArgumentParser) -> str:
+    """Generate ``--help`` usage documentation in a format suitable for ``README.rst``.
+
+    :param parser: The parser for which to generate usage
+    :return: A string containing the usage documentation
+
+    """
+    # pylint: disable=protected-access
+    optional_arguments_group = next(
+        group
+        for group in parser._action_groups  # noqa: SLF001
+        # The group title for options differs between Python versions
+        if group.title in {"optional arguments", "options"}
+    )
+    actions = []
+    for action in optional_arguments_group._group_actions:  # noqa: SLF001
+        if action.dest in {"help", "version", "options_for_readme"}:
+            continue
+        if action.help is not None:
+            action.help = action.help.replace("`", "``")
+        actions.append(action)
+    formatter = HelpFormatter(parser.prog, max_help_position=7, width=88)
+    formatter.add_arguments(actions)
+    return formatter.format_help()
 
 
 class LogLevelAction(Action):  # pylint: disable=too-few-public-methods
