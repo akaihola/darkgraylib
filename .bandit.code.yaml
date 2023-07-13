@@ -5,4 +5,3 @@
 targets: .
 exclude_dirs:
   - ./src/darkgraylib/tests
-  - ./action/tests
