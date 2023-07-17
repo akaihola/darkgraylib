@@ -9,7 +9,7 @@ from darkgraylib import help as hlp
 from darkgraylib.argparse_helpers import (
     LogLevelAction,
     NewlinePreservingFormatter,
-    OptionsForReadmeAction,
+    OptionsForReadmeAction, UpdateReadmeAction, VerifyReadmeAction,
 )
 from darkgraylib.config import (
     BaseConfig,
@@ -77,6 +77,8 @@ def make_argument_parser(
     # A hidden option for printing command lines option in a format suitable for
     # `README.rst`:
     add_arg(SUPPRESS, "--options-for-readme", action=OptionsForReadmeAction)
+    add_arg(SUPPRESS, "--verify-readme", action=VerifyReadmeAction)
+    add_arg(SUPPRESS, "--update-readme", action=UpdateReadmeAction)
     return parser
 
 
