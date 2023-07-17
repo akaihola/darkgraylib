@@ -3,7 +3,7 @@
 import os
 import re
 from pathlib import Path
-from subprocess import check_call
+from subprocess import check_call  # nosec
 from typing import Dict, Iterable, List, Union
 
 import pytest
