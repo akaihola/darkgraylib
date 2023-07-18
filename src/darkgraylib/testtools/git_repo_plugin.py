@@ -13,6 +13,7 @@ from darkgraylib.git import _git_check_output_lines, git_get_version
 
 class GitRepoFixture:
     """Fixture for managing temporary Git repositories"""
+
     def __init__(self, root: Path, env: Dict[str, str]):
         self.root = root
         self.env = env
@@ -109,7 +110,7 @@ class GitRepoFixture:
 
 
 @pytest.fixture
-def git_repo(tmp_path, monkeypatch):
+def git_repo(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> GitRepoFixture:
     """Create a temporary Git repository and change current working directory into it"""
     repository = GitRepoFixture.create_repository(tmp_path)
     monkeypatch.chdir(tmp_path)

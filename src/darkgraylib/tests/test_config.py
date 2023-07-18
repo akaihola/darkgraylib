@@ -21,7 +21,7 @@ from darkgraylib.config import (
     load_config,
     replace_log_level_name,
 )
-from darkgraylib.tests.helpers import raises_if_exception
+from darkgraylib.testtools.helpers import raises_if_exception
 
 
 @pytest.mark.kwparametrize(

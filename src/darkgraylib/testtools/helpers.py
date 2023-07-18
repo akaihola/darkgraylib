@@ -41,7 +41,9 @@ def matching_attrs(obj: BaseException, attrs: List[str]) -> Dict[str, int]:
 
 
 @contextmanager
-def raises_or_matches(expect, match_exc_attrs):
+def raises_or_matches(  # type: ignore[misc]
+    expect: Any, match_exc_attrs: List[str]
+) -> Generator[Any, None, None]:
     """Helper for matching an expected value or an expected raised exception"""
     if isinstance(expect, BaseException):
         with pytest.raises(type(expect)) as exc_info:
@@ -52,7 +54,7 @@ def raises_or_matches(expect, match_exc_attrs):
         assert exception_attributes == expected_attributes
     else:
 
-        def check(result):
+        def check(result: Any) -> None:
             assert result == expect
 
         yield check

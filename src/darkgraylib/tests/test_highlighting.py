@@ -17,7 +17,7 @@ from pygments.token import Token
 from darkgraylib.command_line import parse_command_line
 from darkgraylib.config import BaseConfig
 from darkgraylib.highlighting import colorize, lexers, should_use_color
-from darkgraylib.tests.test_command_line import _make_test_argument_parser
+from test_command_line import _make_test_argument_parser  # type: ignore
 
 RESET = "\x1b[39;49;00m"
 RED = "\x1b[31;01m"

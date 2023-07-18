@@ -13,7 +13,7 @@ import toml
 import darkgraylib.help
 from darkgraylib.command_line import make_argument_parser, parse_command_line
 from darkgraylib.config import BaseConfig
-from darkgraylib.tests.helpers import filter_dict, raises_if_exception
+from darkgraylib.testtools.helpers import filter_dict, raises_if_exception
 
 pytestmark = pytest.mark.usefixtures("find_project_root_cache_clear")
 

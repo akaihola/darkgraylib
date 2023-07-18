@@ -22,7 +22,7 @@ from darkgraylib.black_diff import (
     run_black,
 )
 from darkgraylib.config import ConfigurationError
-from darkgraylib.tests.helpers import raises_or_matches
+from darkgraylib.testtools.helpers import raises_or_matches
 from darkgraylib.utils import TextDocument
 
 if sys.version_info >= (3, 11):
