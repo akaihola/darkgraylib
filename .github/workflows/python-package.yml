@@ -9,6 +9,8 @@ on:  # yamllint disable-line rule:truthy
     branches:
       - main
 
+env:
+  PY_IGNORE_IMPORTMISMATCH: 1
 
 jobs:
 
@@ -70,7 +72,7 @@ jobs:
               python -m venv venv
               source venv/bin/activate
               pip install "${{needs.build-wheel.outputs.wheel-path}}[test]"
-              pytest
+              PY_IGNORE_IMPORTMISMATCH=1 pytest
             ' \
             ./default.nix
 
