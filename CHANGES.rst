@@ -8,6 +8,7 @@ Added
 - Copy the code base from Darker 1.7.0.
 - Provide ``git_repo`` as a Pytest plugin.
 - Configure the ``ruff`` linting tool.
+- Drop support for Python 3.7.
 
 Fixed
 -----

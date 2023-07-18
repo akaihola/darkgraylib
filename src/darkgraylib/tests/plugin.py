@@ -9,7 +9,6 @@ from typing import Dict, Iterable, List, Union
 import pytest
 
 from darkgraylib.git import _git_check_output_lines, git_get_version
-from darkgraylib.utils import fix_py37_win_tempdir_permissions
 
 
 class GitRepoFixture:
@@ -119,6 +118,4 @@ def git_repo(tmp_path, monkeypatch):
     # `GIT_DIR` in case a test should call Git directly:
     monkeypatch.delenv("GIT_DIR", raising=False)
 
-    yield repository
-
-    fix_py37_win_tempdir_permissions(repository.root)
+    return repository
