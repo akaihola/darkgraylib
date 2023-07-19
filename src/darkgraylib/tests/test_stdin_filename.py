@@ -11,9 +11,9 @@ import toml
 from darkgraylib import command_line
 from darkgraylib.config import BaseConfig, ConfigurationError
 from darkgraylib.git import RevisionRange
-from darkgraylib.tests.plugin import GitRepoFixture
-from darkgraylib.tests.helpers import raises_if_exception
-from darkgraylib.tests.test_command_line import _make_test_argument_parser
+from darkgraylib.testtools.git_repo_plugin import GitRepoFixture
+from darkgraylib.testtools.helpers import raises_if_exception
+from test_command_line import _make_test_argument_parser  # type: ignore
 
 pytestmark = pytest.mark.usefixtures("find_project_root_cache_clear")
 

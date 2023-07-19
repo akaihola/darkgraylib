@@ -8,7 +8,7 @@ from logging import CRITICAL, DEBUG, ERROR, INFO, NOTSET, WARNING
 import pytest
 
 from darkgraylib import argparse_helpers
-from darkgraylib.tests.helpers import raises_if_exception
+from darkgraylib.testtools.helpers import raises_if_exception
 
 
 @pytest.mark.kwparametrize(
