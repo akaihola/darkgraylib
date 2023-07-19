@@ -10,6 +10,10 @@ Added
 - Configure the ``ruff`` linting tool.
 - Drop support for Python 3.7.
 
+Removed
+-------
+- Remove the Darker GitHub action.
+
 Fixed
 -----
 - Use ``git worktree`` instead of ``git clone`` and ``git checkout`` to set up a
