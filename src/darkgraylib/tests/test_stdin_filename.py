@@ -103,6 +103,8 @@ pytestmark = pytest.mark.usefixtures("find_project_root_cache_clear")
     ),
     dict(stdin_filename="a.py"),
     dict(stdin_filename="a.py", revision="..:STDIN:"),
+    dict(src=["-"], stdin_filename="a.py"),
+    dict(src=["-"], stdin_filename="a.py", revision="..:STDIN:"),
     dict(
         stdin_filename="a.py",
         revision="..:WORKTREE:",
