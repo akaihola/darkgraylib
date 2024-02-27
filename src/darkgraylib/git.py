@@ -15,6 +15,8 @@ from typing import Dict, Iterator, List, Match, Optional, Tuple, Union, cast, ov
 
 from darkgraylib.utils import GIT_DATEFORMAT, TextDocument
 
+shlex_join = shlex.join
+
 logger = logging.getLogger(__name__)
 
 
@@ -249,15 +251,13 @@ def git_check_output_lines(
 @overload
 def _git_check_output(
     cmd: List[str], cwd: Path, *, exit_on_error: bool = ..., encoding: None = ...
-) -> bytes:
-    ...
+) -> bytes: ...
 
 
 @overload
 def _git_check_output(
     cmd: List[str], cwd: Path, *, exit_on_error: bool = ..., encoding: str
-) -> str:
-    ...
+) -> str: ...
 
 
 def _git_check_output(
