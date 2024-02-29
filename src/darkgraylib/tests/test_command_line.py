@@ -13,7 +13,7 @@ from darkgraylib.testtools.helpers import filter_dict, raises_if_exception
 pytestmark = pytest.mark.usefixtures("find_project_root_cache_clear")
 
 
-def _make_test_argument_parser(require_src=False):
+def make_test_argument_parser(require_src=False):
     return make_argument_parser(
         require_src,
         "Darkgraylib",
@@ -59,7 +59,7 @@ def test_parse_command_line_config_src(
     with raises_if_exception(expect):
 
         args, effective_cfg, modified_cfg = parse_command_line(
-            _make_test_argument_parser,
+            make_test_argument_parser,
             argv,
             "darkgraylib",
             BaseConfig,
@@ -100,7 +100,7 @@ def test_parse_command_line_config_location_specified(
     )
 
     args, effective_cfg, modified_cfg = parse_command_line(
-        _make_test_argument_parser,
+        make_test_argument_parser,
         argv,
         "darkgraylib",
         BaseConfig,
@@ -288,7 +288,7 @@ def test_parse_command_line(
         expect_value
     ) as expect_exception:
         args, effective_cfg, modified_cfg = parse_command_line(
-            _make_test_argument_parser, argv, "darkgraylib", BaseConfig
+            make_test_argument_parser, argv, "darkgraylib", BaseConfig
         )
 
     if not expect_exception:
