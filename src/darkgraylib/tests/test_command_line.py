@@ -6,20 +6,12 @@ from unittest.mock import patch
 import pytest
 import toml
 
-from darkgraylib.command_line import make_argument_parser, parse_command_line
+from darkgraylib.command_line import parse_command_line
 from darkgraylib.config import BaseConfig
 from darkgraylib.testtools.helpers import filter_dict, raises_if_exception
+from darkgraylib.testtools.mock_argument_parser import make_test_argument_parser
 
 pytestmark = pytest.mark.usefixtures("find_project_root_cache_clear")
-
-
-def make_test_argument_parser(require_src=False):
-    return make_argument_parser(
-        require_src,
-        "Darkgraylib",
-        "dummy description",
-        "config help",
-    )
 
 
 @pytest.mark.kwparametrize(
