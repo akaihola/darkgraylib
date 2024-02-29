@@ -20,7 +20,7 @@ jobs:
       wheel-path: ${{ steps.get-darkgraylib-version.outputs.wheel-path }}
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
       - name: Install wheel
         run: python -m pip install wheel
       - name: Build wheel distribution
@@ -102,7 +102,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
       - name: Download wheel uploaded by the build-wheel job
@@ -125,7 +125,7 @@ jobs:
       - build-wheel
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
       - name: Install twine
         run: python -m pip install twine
       - name: Download wheel uploaded by the build-wheel job
