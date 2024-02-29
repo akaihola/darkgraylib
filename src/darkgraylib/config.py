@@ -3,9 +3,8 @@
 import logging
 import os
 from argparse import ArgumentParser, Namespace
-from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Iterable, List, Optional, Set, Type, TypedDict, TypeVar, cast
+from typing import Iterable, List, Optional, Type, TypedDict, TypeVar, cast
 
 import toml
 
@@ -34,48 +33,6 @@ class BaseConfig(TypedDict, total=False):
     log_level: int
     color: bool
     workers: int
-
-
-class OutputMode:
-    """The output mode to use: all file content, just the diff, or no output"""
-
-    NOTHING = "NOTHING"
-    DIFF = "DIFF"
-    CONTENT = "CONTENT"
-
-    @classmethod
-    def from_args(cls, args: Namespace) -> str:
-        """Resolve output mode based on  ``diff`` and ``stdout`` options"""
-        OutputMode.validate_diff_stdout(args.diff, args.stdout)
-        if args.diff:
-            return cls.DIFF
-        if args.stdout:
-            return cls.CONTENT
-        return cls.NOTHING
-
-    @staticmethod
-    def validate_diff_stdout(diff: bool, stdout: bool) -> None:
-        """Raise an exception if ``diff`` and ``stdout`` options are both enabled"""
-        if diff and stdout:
-            raise ConfigurationError(
-                "The `diff` and `stdout` options can't both be enabled"
-            )
-
-    @staticmethod
-    def validate_stdout_src(
-        stdout: bool, src: List[str], stdin_filename: Optional[str]
-    ) -> None:
-        """Raise an exception in ``stdout`` mode if not exactly one input is provided"""
-        if not stdout:
-            return
-        if stdin_filename is None and len(src) == 1 and Path(src[0]).is_file():
-            return
-        if stdin_filename is not None and len(src) == 0:
-            return
-        raise ConfigurationError(
-            "Either --stdin-filename=<path> or exactly one Python source file which"
-            " exists on disk must be provided when using the `stdout` option"
-        )
 
 
 class ConfigurationError(Exception):
@@ -225,25 +182,3 @@ def show_config_if_debug(
         print("\n# Configuration options which differ from defaults:\n")
         print(dump_config(config_nondefault, "darkgraylib"))
         print("\n")
-
-
-@dataclass
-class Exclusions:
-    """File exclusions patterns for pre-processing steps
-
-    For each pre-processor, there is a collection of glob patterns. When running Darker,
-    any files matching at least one of the glob patterns is supposed to be skipped when
-    running the corresponding pre-processor. If the collection of glob patterns is
-    empty, the pre-processor is run for all files.
-
-    The pre-processors whose exclusion lists are currently stored in this data
-    structure are
-    - Black
-    - ``isort``
-    - ``flynt``
-
-    """
-
-    black: Set[str] = field(default_factory=set)
-    isort: Set[str] = field(default_factory=set)
-    flynt: Set[str] = field(default_factory=set)

@@ -1,16 +1,11 @@
-# pylint: disable=too-many-arguments,too-many-locals,use-dict-literal
-
 """Unit tests for :mod:`darkgraylib.command_line` and :mod:`darkgraylib.main`"""
 
 import os
-import re
-from importlib import reload
 from unittest.mock import patch
 
 import pytest
 import toml
 
-import darkgraylib.help
 from darkgraylib.command_line import make_argument_parser, parse_command_line
 from darkgraylib.config import BaseConfig
 from darkgraylib.testtools.helpers import filter_dict, raises_if_exception
@@ -25,33 +20,6 @@ def _make_test_argument_parser(require_src=False):
         "dummy description",
         "config help",
     )
-
-
-@pytest.mark.kwparametrize(
-    dict(require_src=False, expect=[]), dict(require_src=True, expect=SystemExit)
-)
-def test_make_argument_parser(require_src, expect):
-    """Parser from ``make_argument_parser()`` fails if src required but not provided"""
-    parser = make_argument_parser(
-        require_src, "darkgraylib", "dummy description", "dummy config help"
-    )
-    with raises_if_exception(expect):
-
-        args = parser.parse_args([])
-
-        assert args.src == expect
-
-
-def get_darker_help_output(capsys):
-    """Test for ``--help`` option output"""
-    # Make sure the description is re-rendered since its content depends on whether
-    # isort is installed or not:
-    reload(darkgraylib.help)
-    with pytest.raises(SystemExit):
-        parse_command_line(
-            _make_test_argument_parser(), ["--help"], "darkgraylib", BaseConfig
-        )
-    return re.sub(r"\s+", " ", capsys.readouterr().out)
 
 
 @pytest.mark.kwparametrize(
