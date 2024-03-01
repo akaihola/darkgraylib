@@ -10,15 +10,13 @@ from dataclasses import dataclass
 from datetime import datetime
 from functools import lru_cache
 from pathlib import Path
-from subprocess import DEVNULL, PIPE, CalledProcessError, check_output, run  # nosec
+from subprocess import CalledProcessError, PIPE, check_output  # nosec
 from typing import (
     Dict,
-    Iterable,
     Iterator,
     List,
     Match,
     Optional,
-    Set,
     Tuple,
     Union,
     cast,
@@ -77,21 +75,6 @@ def git_rev_parse(revision: str, cwd: Path) -> str:
 
     """
     return _git_check_output_lines(["rev-parse", revision], cwd)[0]
-
-
-def git_is_repository(path: Path) -> bool:
-    """Return ``True`` if ``path`` is inside a Git working tree"""
-    try:
-        lines = _git_check_output_lines(
-            ["rev-parse", "--is-inside-work-tree"], path, exit_on_error=False
-        )
-        return lines[:1] == ["true"]
-    except CalledProcessError as exc_info:
-        if exc_info.returncode != 128 or not exc_info.stderr.startswith(
-            "fatal: not a git repository"
-        ):
-            raise
-        return False
 
 
 def git_get_mtime_at_commit(path: Path, revision: str, cwd: Path) -> str:
@@ -248,33 +231,6 @@ class RevisionRange:
         return cls(rev1 if common_ancestor == rev1_hash else common_ancestor, rev2)
 
 
-def get_path_in_repo(path: Path) -> Path:
-    """Return the relative path to the file in the old revision
-
-    This is usually the same as the relative path on the command line. But in the
-    special case of VSCode temporary files (like ``file.py.12345.tmp``), we actually
-    want to diff against the corresponding ``.py`` file instead.
-
-    """
-    if path.suffixes[-3::2] != [".py", ".tmp"]:
-        # The file name is not like `*.py.<HASH>.tmp`. Return it as such.
-        return path
-    # This is a VSCode temporary file. Drop the hash and the `.tmp` suffix to get the
-    # original file name for retrieving the previous revision to diff against.
-    path_with_hash = path.with_suffix("")
-    return path_with_hash.with_suffix("")
-
-
-def should_reformat_file(path: Path) -> bool:
-    """Return ``True`` if the given path is an existing ``*.py`` file
-
-    :param path: The path to inspect
-    :return: ``False`` if the path doesn't exist or is not a ``.py`` file
-
-    """
-    return path.exists() and get_path_in_repo(path).suffix == ".py"
-
-
 @lru_cache(maxsize=1)
 def _make_git_env() -> Dict[str, str]:
     """Create custom minimal environment variables to use when invoking Git
@@ -346,119 +302,6 @@ def _git_check_output(
         for error_line in exc_info.stderr.splitlines():
             logger.error(error_line)
         sys.exit(123)
-
-
-def _git_exists_in_revision(path: Path, rev2: str, cwd: Path) -> bool:
-    """Return ``True`` if the given path exists in the given Git revision
-
-    :param path: The path of the file or directory to check
-    :param rev2: The Git revision to look at
-    :param cwd: The Git repository root
-    :return: ``True`` if the file or directory exists at the revision, or ``False`` if
-             it doesn't.
-
-    """
-    if (cwd / path).resolve() == cwd.resolve():
-        return True
-    # Surprise: On Windows, `git cat-file` doesn't work with backslash directory
-    # separators in paths. We need to use Posix paths and forward slashes instead.
-    cmd = ["git", "cat-file", "-e", f"{rev2}:{path.as_posix()}"]
-    logger.debug("[%s]$ %s", cwd, " ".join(cmd))
-    result = run(  # nosec
-        cmd,
-        cwd=str(cwd),
-        check=False,
-        stderr=DEVNULL,
-        env=_make_git_env(),
-    )
-    return result.returncode == 0
-
-
-def get_missing_at_revision(paths: Iterable[Path], rev2: str, cwd: Path) -> Set[Path]:
-    """Return paths missing in the given revision
-
-    In case of ``WORKTREE``, just check if the files exist on the filesystem instead of
-    asking Git.
-
-    :param paths: Paths to check
-    :param rev2: The Git revision to look at, or ``WORKTREE`` for the working tree
-    :param cwd: The Git repository root
-    :return: The set of file or directory paths which are missing in the revision
-
-    """
-    if rev2 == WORKTREE:
-        return {path for path in paths if not path.exists()}
-    return {path for path in paths if not _git_exists_in_revision(path, rev2, cwd)}
-
-
-def _git_diff_name_only(
-    rev1: str, rev2: str, relative_paths: Iterable[Path], cwd: Path
-) -> Set[Path]:
-    """Collect names of changed files between commits from Git
-
-    :param rev1: The old commit to compare to
-    :param rev2: The new commit to compare, or the string ``":WORKTREE:"`` to compare
-                 current working tree to ``rev1``
-    :param relative_paths: Relative paths to the files to compare
-    :param cwd: The Git repository root
-    :return: Relative paths of changed files
-
-    """
-    diff_cmd = [
-        "diff",
-        "--name-only",
-        "--relative",
-        rev1,
-        # rev2 is inserted here if not WORKTREE
-        "--",
-        *{path.as_posix() for path in relative_paths},
-    ]
-    if rev2 != WORKTREE:
-        diff_cmd.insert(diff_cmd.index("--"), rev2)
-    lines = _git_check_output_lines(diff_cmd, cwd)
-    return {Path(line) for line in lines}
-
-
-def _git_ls_files_others(relative_paths: Iterable[Path], cwd: Path) -> Set[Path]:
-    """Collect names of untracked non-excluded files from Git
-
-    This will return those files in ``relative_paths`` which are untracked and not
-    excluded by ``.gitignore`` or other Git's exclusion mechanisms.
-
-    :param relative_paths: Relative paths to the files to consider
-    :param cwd: The Git repository root
-    :return: Relative paths of untracked files
-
-    """
-    ls_files_cmd = [
-        "ls-files",
-        "--others",
-        "--exclude-standard",
-        "--",
-        *{path.as_posix() for path in relative_paths},
-    ]
-    lines = _git_check_output_lines(ls_files_cmd, cwd)
-    return {Path(line) for line in lines}
-
-
-def git_get_modified_python_files(
-    paths: Iterable[Path], revrange: RevisionRange, cwd: Path
-) -> Set[Path]:
-    """Ask Git for modified and untracked ``*.py`` files
-
-    - ``git diff --name-only --relative <rev> -- <path(s)>``
-    - ``git ls-files --others --exclude-standard -- <path(s)>``
-
-    :param paths: Relative paths to the files to diff
-    :param revrange: Git revision range to compare
-    :param cwd: The Git repository root
-    :return: File names relative to the Git repository root
-
-    """
-    changed_paths = _git_diff_name_only(revrange.rev1, revrange.rev2, paths, cwd)
-    if revrange.rev2 == WORKTREE:
-        changed_paths.update(_git_ls_files_others(paths, cwd))
-    return {path for path in changed_paths if should_reformat_file(cwd / path)}
 
 
 @contextmanager

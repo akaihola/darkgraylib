@@ -17,7 +17,7 @@ from pygments.token import Token
 from darkgraylib.command_line import parse_command_line
 from darkgraylib.config import BaseConfig
 from darkgraylib.highlighting import colorize, lexers, should_use_color
-from test_command_line import _make_test_argument_parser  # type: ignore
+from darkgraylib.testtools.mock_argument_parser import make_test_argument_parser
 
 RESET = "\x1b[39;49;00m"
 RED = "\x1b[31;01m"
@@ -242,7 +242,7 @@ def config_from_env_and_argv(
     )
     if cache_key not in config_cache:
         _, config, _ = parse_command_line(
-            _make_test_argument_parser, argv, "darkgraylib", BaseConfig
+            make_test_argument_parser, argv, "darkgraylib", BaseConfig
         )
         config_cache[cache_key] = config["color"]
     yield config_cache[cache_key]

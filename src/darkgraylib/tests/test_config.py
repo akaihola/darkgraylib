@@ -1,11 +1,8 @@
 """Tests for `darkgraylib.config`"""
 
-# pylint: disable=unused-argument,too-many-arguments,use-dict-literal
-
 import os
 import re
 from argparse import ArgumentParser, Namespace
-from pathlib import Path
 from textwrap import dedent
 
 import pytest
@@ -13,13 +10,11 @@ import pytest
 from darkgraylib.config import (
     ConfigurationError,
     BaseConfig,
-    OutputMode,
     TomlArrayLinesEncoder,
     dump_config,
     get_effective_config,
     get_modified_config,
     load_config,
-    replace_log_level_name,
 )
 from darkgraylib.testtools.helpers import raises_if_exception
 
@@ -55,149 +50,6 @@ def test_toml_array_lines_encoder(list_value, expect):
     result = TomlArrayLinesEncoder().dump_list(list_value)
 
     assert result == expect
-
-
-@pytest.mark.kwparametrize(
-    dict(log_level=None, expect={}),
-    dict(log_level=0, expect={"log_level": "NOTSET"}),
-    dict(log_level=10, expect={"log_level": "DEBUG"}),
-    dict(log_level=20, expect={"log_level": "INFO"}),
-    dict(log_level=30, expect={"log_level": "WARNING"}),
-    dict(log_level=40, expect={"log_level": "ERROR"}),
-    dict(log_level=50, expect={"log_level": "CRITICAL"}),
-    dict(log_level="DEBUG", expect={"log_level": 10}),
-    dict(log_level="INFO", expect={"log_level": 20}),
-    dict(log_level="WARNING", expect={"log_level": 30}),
-    dict(log_level="WARN", expect={"log_level": 30}),
-    dict(log_level="ERROR", expect={"log_level": 40}),
-    dict(log_level="CRITICAL", expect={"log_level": 50}),
-    dict(log_level="FOOBAR", expect={"log_level": "Level FOOBAR"}),
-)
-def test_replace_log_level_name(log_level, expect):
-    """``replace_log_level_name()`` converts between log level names and numbers"""
-    config = BaseConfig() if log_level is None else BaseConfig(log_level=log_level)
-
-    replace_log_level_name(config)
-
-    result = {k: v for k, v in config.items() if k == "log_level"}
-    assert result == expect
-
-
-@pytest.mark.kwparametrize(
-    dict(diff=False, stdout=False, expect=None),
-    dict(diff=False, stdout=True, expect=None),
-    dict(diff=True, stdout=False, expect=None),
-    dict(diff=True, stdout=True, expect=ConfigurationError),
-)
-def test_output_mode_validate_diff_stdout(diff, stdout, expect):
-    """Validation fails only if ``--diff`` and ``--stdout`` are both enabled"""
-    with raises_if_exception(expect):
-        OutputMode.validate_diff_stdout(diff, stdout)
-
-
-@pytest.mark.kwparametrize(
-    dict(stdout=False),
-    dict(stdout=False, src=["first.py"]),
-    dict(stdout=False, src=["first.py", "second.py"]),
-    dict(stdout=False, src=["first.py", "missing.py"]),
-    dict(stdout=False, src=["missing.py"]),
-    dict(stdout=False, src=["missing.py", "another_missing.py"]),
-    dict(stdout=False, src=["directory"]),
-    dict(stdout=True, expect=ConfigurationError),  # input file missing
-    dict(stdout=True, src=["first.py"]),
-    dict(  # too many input files
-        stdout=True, src=["first.py", "second.py"], expect=ConfigurationError
-    ),
-    dict(  # too many input files (even if all but one missing)
-        stdout=True, src=["first.py", "missing.py"], expect=ConfigurationError
-    ),
-    dict(  # input file doesn't exist
-        stdout=True, src=["missing.py"], expect=ConfigurationError
-    ),
-    dict(  # too many input files (even if all but one missing)
-        stdout=True, src=["missing.py", "another.py"], expect=ConfigurationError
-    ),
-    dict(  # input file required, not a directory
-        stdout=True, src=["directory"], expect=ConfigurationError
-    ),
-    dict(stdout=False, stdin_filename="path.py"),
-    dict(stdout=False, src=["first.py"], stdin_filename="path.py"),
-    dict(stdout=False, src=["first.py", "second.py"], stdin_filename="path.py"),
-    dict(stdout=False, src=["first.py", "missing.py"], stdin_filename="path.py"),
-    dict(stdout=False, src=["missing.py"], stdin_filename="path.py"),
-    dict(
-        stdout=False, src=["missing.py", "another_missing.py"], stdin_filename="path.py"
-    ),
-    dict(stdout=False, src=["directory"], stdin_filename="path.py"),
-    dict(stdout=True, stdin_filename="path.py"),
-    dict(  # too many input files, here from two different command line arguments
-        stdout=True,
-        src=["first.py"],
-        stdin_filename="path.py",
-        expect=ConfigurationError,
-    ),
-    dict(  # too many input files, here from two different command line arguments
-        stdout=True,
-        src=["first.py", "second.py"],
-        stdin_filename="path.py",
-        expect=ConfigurationError,
-    ),
-    dict(  # too many input files, here from two different command line arguments
-        stdout=True,
-        src=["first.py", "missing.py"],
-        stdin_filename="path.py",
-        expect=ConfigurationError,
-    ),
-    dict(  # too many input files (even if positional file is missing)
-        stdout=True,
-        src=["missing.py"],
-        stdin_filename="path.py",
-        expect=ConfigurationError,
-    ),
-    dict(  # too many input files, here from two different command line arguments
-        stdout=True,
-        src=["missing.py", "another.py"],
-        stdin_filename="path.py",
-        expect=ConfigurationError,
-    ),
-    dict(  # too many input files, here from two different command line arguments
-        stdout=True,
-        src=["directory"],
-        stdin_filename="path.py",
-        expect=ConfigurationError,
-    ),
-    src=[],
-    stdin_filename=None,
-    expect=None,
-)
-def test_output_mode_validate_stdout_src(
-    tmp_path, monkeypatch, stdout, src, stdin_filename, expect
-):
-    """Validation fails only if exactly one file isn't provided for ``--stdout``"""
-    monkeypatch.chdir(tmp_path)
-    Path("first.py").touch()
-    Path("second.py").touch()
-    with raises_if_exception(expect):
-
-        OutputMode.validate_stdout_src(stdout, src, stdin_filename)
-
-
-@pytest.mark.kwparametrize(
-    dict(diff=False, stdout=False, expect="NOTHING"),
-    dict(diff=False, stdout=True, expect="CONTENT"),
-    dict(diff=True, stdout=False, expect="DIFF"),
-    dict(diff=True, stdout=True, expect=ConfigurationError),
-)
-def test_output_mode_from_args(diff, stdout, expect):
-    """Correct output mode results from the ``--diff`` and ``stdout`` options"""
-    args = Namespace()
-    args.diff = diff
-    args.stdout = stdout
-    with raises_if_exception(expect):
-
-        result = OutputMode.from_args(args)
-
-        assert result == expect
 
 
 @pytest.mark.kwparametrize(

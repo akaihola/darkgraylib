@@ -1,18 +1,14 @@
 """Miscellaneous utility functions"""
 
 import io
-import logging
 import sys
 import tokenize
 from datetime import datetime
 from itertools import chain
 from pathlib import Path
-from typing import Collection, Iterable, List, Tuple
-
-logger = logging.getLogger(__name__)
+from typing import Iterable, Tuple
 
 TextLines = Tuple[str, ...]
-
 
 WINDOWS = sys.platform.startswith("win")
 GIT_DATEFORMAT = "%Y-%m-%d %H:%M:%S.%f +0000"
@@ -180,21 +176,6 @@ class TextDocument:
 DiffChunk = Tuple[int, TextLines, TextLines]
 
 
-def debug_dump(black_chunks: List[DiffChunk], edited_linenums: List[int]) -> None:
-    """Print debug output. This is used in case of an unexpected failure."""
-    if logger.getEffectiveLevel() > logging.DEBUG:
-        return
-    for offset, old_lines, new_lines in black_chunks:
-        print(80 * "-")
-        for delta, old_line in enumerate(old_lines):
-            linenum = offset + delta
-            edited = "*" if linenum in edited_linenums else " "
-            print(f"{edited}-{linenum:4} {old_line}")
-        for _, new_line in enumerate(new_lines):
-            print(f" +     {new_line}")
-    print(80 * "-")
-
-
 def joinlines(lines: Iterable[str], newline: str = "\n") -> str:
     """Join a list of lines back, adding a linefeed after each line
 
@@ -226,16 +207,3 @@ def get_common_root(paths: Iterable[Path]) -> Path:
         if all(path == first_path for path in other_paths):
             return first_path
     raise ValueError(f"Paths have no common parent Git root: {resolved_paths}")
-
-
-def glob_any(path: Path, patterns: Collection[str]) -> bool:
-    """Return `True` if path matches any of the patterns
-
-    Return `False` if there are no patterns to match.
-
-    :param path: The file path to match
-    :param patterns: The patterns to match against
-    :return: `True` if at least one pattern matches
-
-    """
-    return any(path.glob(pattern) for pattern in patterns)

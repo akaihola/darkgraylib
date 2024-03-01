@@ -1,14 +1,9 @@
 """Common helpers used by `darker.__main__` and `graylint.__main__`"""
 
-import logging
 from pathlib import Path
 from typing import List, Optional, Set, Tuple
 
-from darkgraylib.utils import TextDocument, get_common_root
-
-logger = logging.getLogger(__name__)
-
-ProcessedDocument = Tuple[Path, TextDocument, TextDocument]
+from darkgraylib.utils import get_common_root
 
 
 def resolve_paths(
