@@ -9,6 +9,8 @@ Added
 - Provide ``git_repo`` as a Pytest plugin.
 - Configure the ``ruff`` linting tool.
 - Drop support for Python 3.7.
+- Limit Black to versions before 24.2 until the incompatibility is resolved or Black
+  requirement removed.
 - Allow ``-`` as the single source filename when using the ``--stdin-filename`` option.
   This makes the option compatible with Black.
 
