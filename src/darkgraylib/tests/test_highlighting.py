@@ -17,16 +17,16 @@ from pygments.token import Token
 from darkgraylib.command_line import parse_command_line
 from darkgraylib.config import BaseConfig
 from darkgraylib.highlighting import colorize, lexers, should_use_color
+from darkgraylib.testtools.highlighting_helpers import (
+    BLUE,
+    BR_RED,
+    CYAN,
+    GREEN,
+    RED,
+    RESET,
+    WHITE,
+)
 from darkgraylib.testtools.mock_argument_parser import make_test_argument_parser
-
-RESET = "\x1b[39;49;00m"
-RED = "\x1b[31;01m"
-GREEN = "\x1b[32m"
-YELLOW = "\x1b[33m"
-BLUE = "\x1b[34m"
-CYAN = "\x1b[36m"
-WHITE = "\x1b[37m"
-BR_RED = "\x1b[91m"
 
 
 @pytest.fixture(scope="module")
