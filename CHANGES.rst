@@ -26,6 +26,10 @@ Fixed
 - Python 3.12 compatibility in multi-line string scanning.
 - Upgrade ``install-nix-action`` to version 22 in CI to fix an issue with macOS.
 - Fix tests to run on pushes to ``main`` and pull requests for ``main``.
+- Configuration options spelled with hyphens in ``pyproject.toml``
+  (e.g. ``line-length = 88``) are now supported.
+- In debug log output mode, configuration options are now always spelled with hyphens
+  instead of underscores.
 
 
 Darker 0.1.0 to 1.7.0

@@ -4,7 +4,7 @@ import logging
 import os
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
-from typing import Iterable, List, Optional, Type, TypedDict, TypeVar, cast
+from typing import Dict, Iterable, List, Optional, Type, TypeVar, TypedDict, Union, cast
 
 import toml
 
@@ -17,6 +17,9 @@ class TomlArrayLinesEncoder(toml.TomlEncoder):  # type: ignore
     def dump_list(self, v: Iterable[object]) -> str:
         """Format a list value"""
         return "[{}\n]".format("".join(f"\n    {self.dump_value(item)}," for item in v))
+
+
+UnvalidatedConfig = Dict[str, Union[List[str], str, bool, int]]
 
 
 class BaseConfig(TypedDict, total=False):
@@ -37,6 +40,52 @@ class BaseConfig(TypedDict, total=False):
 
 class ConfigurationError(Exception):
     """Exception class for invalid configuration values"""
+
+
+def convert_config_characters(
+    config: UnvalidatedConfig, pattern: str, replacement: str
+) -> UnvalidatedConfig:
+    """Convert a character in config keys to a different character"""
+    return {key.replace(pattern, replacement): value for key, value in config.items()}
+
+
+def convert_hyphens_to_underscores(config: UnvalidatedConfig) -> UnvalidatedConfig:
+    """Convert hyphenated config keys to underscored keys"""
+    return convert_config_characters(config, "-", "_")
+
+
+def convert_underscores_to_hyphens(config: BaseConfig) -> UnvalidatedConfig:
+    """Convert underscores in config keys to hyphens"""
+    return convert_config_characters(cast(UnvalidatedConfig, config), "_", "-")
+
+
+T = TypeVar("T", bound=BaseConfig)
+
+
+def validate_config_keys(
+    config: UnvalidatedConfig,
+    section_name: str,
+    config_type: Type[T],  # pylint: disable=unused-argument
+) -> None:
+    """Raise an exception if any keys in the configuration are invalid.
+
+    :param config: The configuration read from ``pyproject.toml``
+    :param section_name: The name of the section in the configuration file. For Darker,
+                         this is ``"darker"`` and for Graylint, this is ``"graylint"``.
+    :param config_type: The class representing the configuration options. For Darker,
+                        this is ``darker.config.DarkerConfig`` and for Graylint, this
+                        is ``graylint.config.GraylintConfig``.
+    :raises ConfigurationError: Raised if unknown options are present
+
+    """
+    if set(config).issubset(config_type.__annotations__):
+        return
+    unknown_keys = ", ".join(
+        sorted(set(config).difference(config_type.__annotations__))
+    )
+    raise ConfigurationError(
+        f"Invalid [tool.{section_name}] keys in pyproject.toml: {unknown_keys}"
+    )
 
 
 def replace_log_level_name(config: BaseConfig) -> None:
@@ -74,14 +123,11 @@ def override_color_with_environment(pyproject_config: BaseConfig) -> BaseConfig:
     return config
 
 
-T = TypeVar("T", bound=BaseConfig)
-
-
 def load_config(
     path: Optional[str],
     srcs: Iterable[str],
     section_name: str,
-    config_type: Type[T],  # pylint: disable=unused-argument
+    config_type: Type[T],
 ) -> T:
     """Find and load configuration from a TOML configuration file
 
@@ -95,6 +141,11 @@ def load_config(
     :param path: The file or directory specified using the ``-c``/``--config`` command
                  line option, or `None` if the option was omitted.
     :param srcs: File(s) and directory/directories to be processed by Darker.
+    :param section_name: The name of the section in the configuration file. For Darker,
+                         this is ``"darker"`` and for Graylint, this is ``"graylint"``.
+    :param config_type: The class representing the configuration options. For Darker,
+                        this is ``darker.config.DarkerConfig`` and for Graylint, this
+                        is ``graylint.config.GraylintConfig``.
 
     """
     if path:
@@ -113,7 +164,11 @@ def load_config(
         if not config_path.is_file():
             return cast(T, {})
     pyproject_toml = toml.load(config_path)
-    config = cast(T, pyproject_toml.get("tool", {}).get(section_name, {}) or {})
+    tool_darker_config = convert_hyphens_to_underscores(
+        pyproject_toml.get("tool", {}).get(section_name, {}) or {}
+    )
+    validate_config_keys(tool_darker_config, section_name, config_type)
+    config = cast(T, tool_darker_config)
     replace_log_level_name(config)
     return config
 
@@ -162,7 +217,9 @@ def dump_config(config: BaseConfig, section_name: str) -> str:
     """Return the configuration in TOML format
     :param section_name:
     """
-    dump = toml.dumps(config, encoder=TomlArrayLinesEncoder())
+    dump = toml.dumps(
+        convert_underscores_to_hyphens(config), encoder=TomlArrayLinesEncoder()
+    )
     return f"[tool.{section_name}]\n{dump}"
 
 
