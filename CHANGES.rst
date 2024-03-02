@@ -32,6 +32,8 @@ Fixed
   (e.g. ``line-length = 88``) are now supported.
 - In debug log output mode, configuration options are now always spelled with hyphens
   instead of underscores.
+- ``release_tools/update_contributors.py`` can now handle GitHub usernames with RTL
+  override characters.
 
 
 Darker 0.1.0 to 1.7.0
