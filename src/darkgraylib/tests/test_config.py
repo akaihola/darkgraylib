@@ -18,6 +18,8 @@ from darkgraylib.config import (
 )
 from darkgraylib.testtools.helpers import raises_if_exception
 
+pytestmark = pytest.mark.usefixtures("find_project_root_cache_clear")
+
 
 @pytest.mark.kwparametrize(
     dict(list_value=[], expect="[\n]"),
@@ -350,7 +352,7 @@ class OriginTrackingConfig(BaseConfig):
     expect={"config": "no_pyp"},
 )
 def test_load_config(  # pylint: disable=too-many-arguments
-    find_project_root_cache_clear, tmp_path, monkeypatch, srcs, cwd, confpath, expect
+    tmp_path, monkeypatch, srcs, cwd, confpath, expect
 ):
     """``load_config()`` finds and loads configuration based on source file paths"""
     (tmp_path / ".git").mkdir()
