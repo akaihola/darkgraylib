@@ -2,7 +2,7 @@ import os
 import re
 from datetime import datetime, timedelta
 from pathlib import Path
-from subprocess import PIPE, CalledProcessError
+from subprocess import PIPE, CalledProcessError  # nosec
 from typing import List, Union
 from unittest.mock import ANY, Mock, call, patch
 

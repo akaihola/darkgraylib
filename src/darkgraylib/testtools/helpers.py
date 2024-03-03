@@ -2,20 +2,53 @@
 
 import re
 from contextlib import contextmanager, nullcontext
-from typing import Any, ContextManager, Dict, List, Union
+from typing import Any, Callable, ContextManager, Dict, Iterator, Sequence, Union
 
 import pytest
 from _pytest.python_api import RaisesContext
 
 
-def matching_attrs(obj: BaseException, attrs: List[str]) -> Dict[str, int]:
+def matching_attrs(obj: BaseException, attrs: Sequence[str]) -> Dict[str, int]:
     """Return object attributes whose name matches one in the given list"""
     return {attname: getattr(obj, attname) for attname in dir(obj) if attname in attrs}
 
 
 @contextmanager
-def raises_or_matches(expect, match_exc_attrs):
-    """Helper for matching an expected value or an expected raised exception"""
+def raises_or_matches(  # type: ignore[misc]
+    expect: Any, match_exc_attrs: Sequence[str]
+) -> Iterator[Callable[[Any], bool]]:
+    """Helper for matching an expected value or an expected raised exception.
+
+    Examples::
+
+    >>> with raises_or_matches(ValueError("msg"), ["args"]) as check_:
+    ...     check_(int("foo"))
+    Traceback (most recent call last):
+    AssertionError: assert {'args': ("in... 10: 'foo'",)} == {'args': ('msg',)}
+      Differing items:
+      {'args': ("invalid literal for int() with base 10: 'foo'",)} != {'args': ('msg',)}
+      Use -v to get the full diff
+
+    >>> m = "invalid literal for int() with base 10: 'foo'"
+    >>> with raises_or_matches(ValueError(m), ["args"]) as check_:
+    ...     check_(int("foo"))
+
+    >>> m = "invalid literal for int() with base 10: 'foo'"
+    >>> with raises_or_matches(42, []) as check_:
+    ...     check_(6 * 7)
+    True
+
+    >>> m = "invalid literal for int() with base 10: 'foo'"
+    >>> with raises_or_matches(42, []) as check_:
+    ...     check_(6 * 8)
+    Traceback (most recent call last):
+    AssertionError: assert 48 == 42
+
+    :param expect: The expected value or exception
+    :param match_exc_attrs: The attributes to match in the expected exception
+    :return: A context manager yielding a callback to check the result
+
+    """
     if isinstance(expect, BaseException):
         with pytest.raises(type(expect)) as exc_info:
             # The lambda callback should never get called
@@ -25,8 +58,15 @@ def raises_or_matches(expect, match_exc_attrs):
         assert exception_attributes == expected_attributes
     else:
 
-        def check(result):
+        def check(result: Any) -> bool:
+            """Check if the result matches the expected value.
+
+            :param result: The result to check against the expected value
+            :raises AssertionError: If the result does not match the expected value
+
+            """
             assert result == expect
+            return True
 
         yield check
 

@@ -123,7 +123,7 @@ def git_repo(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> GitRepoFixture:
 
 
 @pytest.fixture(scope="module")
-def branched_repo(tmp_path_factory):
+def branched_repo(tmp_path_factory: pytest.TempPathFactory) -> GitRepoFixture:
     """Create an example Git repository with a master branch and a feature branch
 
     The history created is::
@@ -137,8 +137,8 @@ def branched_repo(tmp_path_factory):
 
     """
     tmpdir = tmp_path_factory.mktemp("branched_repo")
-    git_repo = GitRepoFixture.create_repository(tmpdir)
-    git_repo.add(
+    repo = GitRepoFixture.create_repository(tmpdir)
+    repo.add(
         {
             "del_master.py": "original",
             "del_branch.py": "original",
@@ -152,8 +152,8 @@ def branched_repo(tmp_path_factory):
         },
         commit="Initial commit",
     )
-    branch_point = git_repo.get_hash()
-    git_repo.add(
+    branch_point = repo.get_hash()
+    repo.add(
         {
             "del_master.py": None,
             "add_master.py": "master",
@@ -163,8 +163,8 @@ def branched_repo(tmp_path_factory):
         },
         commit="master",
     )
-    git_repo.create_branch("branch", branch_point)
-    git_repo.add(
+    repo.create_branch("branch", branch_point)
+    repo.add(
         {
             "del_branch.py": None,
             "mod_branch.py": "branch",
@@ -173,10 +173,10 @@ def branched_repo(tmp_path_factory):
         },
         commit="branch",
     )
-    git_repo.add(
+    repo.add(
         {"del_index.py": None, "add_index.py": "index", "mod_index.py": "index"}
     )
-    (git_repo.root / "del_worktree.py").unlink()
-    (git_repo.root / "add_worktree.py").write_bytes(b"worktree")
-    (git_repo.root / "mod_worktree.py").write_bytes(b"worktree")
-    return git_repo
+    (repo.root / "del_worktree.py").unlink()
+    (repo.root / "add_worktree.py").write_bytes(b"worktree")
+    (repo.root / "mod_worktree.py").write_bytes(b"worktree")
+    return repo
