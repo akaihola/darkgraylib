@@ -29,7 +29,6 @@ import click
 import requests
 from packaging.version import Version
 
-
 VERSION_PY_PATH = "src/darkgraylib/version.py"
 
 

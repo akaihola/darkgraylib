@@ -15,6 +15,7 @@ from typing import Dict, Iterator, List, Match, Optional, Tuple, Union, cast, ov
 
 from darkgraylib.utils import GIT_DATEFORMAT, TextDocument
 
+
 logger = logging.getLogger(__name__)
 
 
