@@ -1,4 +1,4 @@
-"""Custom formatter and action for argparse"""
+"""Custom formatter and action for argparse."""
 
 import logging
 import re
