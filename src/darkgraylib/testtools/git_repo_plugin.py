@@ -8,7 +8,7 @@ from typing import Dict, Iterable, List, Union
 
 import pytest
 
-from darkgraylib.git import _git_check_output_lines, git_get_version
+from darkgraylib.git import git_check_output_lines, git_get_version
 
 
 class GitRepoFixture:
@@ -41,7 +41,7 @@ class GitRepoFixture:
 
     def _run_and_get_first_line(self, *args: str) -> str:
         """Helper method to run Git in repo root and return first line of output"""
-        return _git_check_output_lines(list(args), Path(self.root))[0]
+        return git_check_output_lines(list(args), Path(self.root))[0]
 
     def add(
         self, paths_and_contents: Dict[str, Union[str, bytes, None]], commit: str = None
@@ -120,3 +120,63 @@ def git_repo(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> GitRepoFixture:
     monkeypatch.delenv("GIT_DIR", raising=False)
 
     return repository
+
+
+@pytest.fixture(scope="module")
+def branched_repo(tmp_path_factory):
+    """Create an example Git repository with a master branch and a feature branch
+
+    The history created is::
+
+        . worktree
+        . index
+        * branch
+        | * master
+        |/
+        * Initial commit
+
+    """
+    tmpdir = tmp_path_factory.mktemp("branched_repo")
+    git_repo = GitRepoFixture.create_repository(tmpdir)
+    git_repo.add(
+        {
+            "del_master.py": "original",
+            "del_branch.py": "original",
+            "del_index.py": "original",
+            "del_worktree.py": "original",
+            "mod_master.py": "original",
+            "mod_branch.py": "original",
+            "mod_both.py": "original",
+            "mod_same.py": "original",
+            "keep.py": "original",
+        },
+        commit="Initial commit",
+    )
+    branch_point = git_repo.get_hash()
+    git_repo.add(
+        {
+            "del_master.py": None,
+            "add_master.py": "master",
+            "mod_master.py": "master",
+            "mod_both.py": "master",
+            "mod_same.py": "same",
+        },
+        commit="master",
+    )
+    git_repo.create_branch("branch", branch_point)
+    git_repo.add(
+        {
+            "del_branch.py": None,
+            "mod_branch.py": "branch",
+            "mod_both.py": "branch",
+            "mod_same.py": "same",
+        },
+        commit="branch",
+    )
+    git_repo.add(
+        {"del_index.py": None, "add_index.py": "index", "mod_index.py": "index"}
+    )
+    (git_repo.root / "del_worktree.py").unlink()
+    (git_repo.root / "add_worktree.py").write_bytes(b"worktree")
+    (git_repo.root / "mod_worktree.py").write_bytes(b"worktree")
+    return git_repo
