@@ -10,18 +10,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from functools import lru_cache
 from pathlib import Path
-from subprocess import CalledProcessError, PIPE, check_output  # nosec
-from typing import (
-    Dict,
-    Iterator,
-    List,
-    Match,
-    Optional,
-    Tuple,
-    Union,
-    cast,
-    overload,
-)
+from subprocess import PIPE, CalledProcessError, check_output  # nosec
+from typing import Dict, Iterator, List, Match, Optional, Tuple, Union, cast, overload
 
 from darkgraylib.utils import GIT_DATEFORMAT, TextDocument
 
@@ -53,7 +43,7 @@ def git_get_version() -> Tuple[int, ...]:
     :raise: ``RuntimeError`` if unable to parse the Git version
 
     """
-    output_lines = _git_check_output_lines(["--version"], Path("."))
+    output_lines = git_check_output_lines(["--version"], Path("."))
     version_string = output_lines[0].rsplit(None, 1)[-1]
     # The version string might be e.g.
     # - "2.39.0.windows.1"
@@ -74,7 +64,7 @@ def git_rev_parse(revision: str, cwd: Path) -> str:
     :return: The commit hash for ``revision`` as parsed from Git output
 
     """
-    return _git_check_output_lines(["rev-parse", revision], cwd)[0]
+    return git_check_output_lines(["rev-parse", revision], cwd)[0]
 
 
 def git_get_mtime_at_commit(path: Path, revision: str, cwd: Path) -> str:
@@ -86,7 +76,7 @@ def git_get_mtime_at_commit(path: Path, revision: str, cwd: Path) -> str:
 
     """
     cmd = ["log", "-1", "--format=%ct", revision, "--", path.as_posix()]
-    lines = _git_check_output_lines(cmd, cwd)
+    lines = git_check_output_lines(cmd, cwd)
     return datetime.utcfromtimestamp(int(lines[0])).strftime(GIT_DATEFORMAT)
 
 
@@ -226,13 +216,13 @@ class RevisionRange:
         """Find common ancestor for revisions and return a ``RevisionRange`` object"""
         rev2_for_merge_base = "HEAD" if rev2 in [WORKTREE, STDIN] else rev2
         merge_base_cmd = ["merge-base", rev1, rev2_for_merge_base]
-        common_ancestor = _git_check_output_lines(merge_base_cmd, cwd)[0]
-        rev1_hash = _git_check_output_lines(["show", "-s", "--pretty=%H", rev1], cwd)[0]
+        common_ancestor = git_check_output_lines(merge_base_cmd, cwd)[0]
+        rev1_hash = git_check_output_lines(["show", "-s", "--pretty=%H", rev1], cwd)[0]
         return cls(rev1 if common_ancestor == rev1_hash else common_ancestor, rev2)
 
 
 @lru_cache(maxsize=1)
-def _make_git_env() -> Dict[str, str]:
+def make_git_env() -> Dict[str, str]:
     """Create custom minimal environment variables to use when invoking Git
 
     This makes sure that
@@ -244,7 +234,7 @@ def _make_git_env() -> Dict[str, str]:
     return {"LC_ALL": "C", "PATH": os.environ["PATH"]}
 
 
-def _git_check_output_lines(
+def git_check_output_lines(
     cmd: List[str], cwd: Path, exit_on_error: bool = True
 ) -> List[str]:
     """Log command line, run Git, split stdout to lines, exit with 123 on error"""
@@ -285,7 +275,7 @@ def _git_check_output(
             cwd=str(cwd),
             encoding=encoding,
             stderr=PIPE,
-            env=_make_git_env(),
+            env=make_git_env(),
         )
     except CalledProcessError as exc_info:
         if not exit_on_error:
