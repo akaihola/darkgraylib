@@ -1,7 +1,7 @@
 """Configuration and fixtures for the Pytest based test suite"""
 
 import pytest
-from black import find_project_root as black_find_project_root
+from darkgraylib.files import find_project_root as black_find_project_root
 
 
 @pytest.fixture

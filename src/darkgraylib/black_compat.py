@@ -3,7 +3,7 @@
 from pathlib import Path
 from typing import Any, Sequence, Tuple, cast
 
-from black import find_project_root as black_find_project_root
+from darkgraylib.files import find_project_root as black_find_project_root
 
 
 def find_project_root(srcs: Sequence[str]) -> Path:
