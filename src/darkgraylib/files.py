@@ -2,7 +2,7 @@
 
 from functools import lru_cache
 from pathlib import Path
-from typing import Optional, Sequence
+from typing import Sequence
 
 
 @lru_cache
@@ -12,9 +12,7 @@ def _cached_resolve(path: Path) -> Path:
 
 
 @lru_cache
-def find_project_root(
-    srcs: Sequence[str], stdin_filename: Optional[str] = None
-) -> Path:
+def find_project_root(srcs: Sequence[str]) -> Path:
     """Return a directory containing .git, .hg, or pyproject.toml.
 
     That directory will be a common parent of all files and directories
@@ -27,8 +25,6 @@ def find_project_root(
     the second element as a string describing the method by which the
     project root was discovered.
     """
-    if stdin_filename is not None:
-        srcs = tuple(stdin_filename if s == "-" else s for s in srcs)
     if not srcs:
         srcs = [str(_cached_resolve(Path.cwd()))]
 
