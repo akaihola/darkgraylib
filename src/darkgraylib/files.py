@@ -1,17 +1,20 @@
+"""Helper functions for working with files and directories."""
+
 from functools import lru_cache
 from pathlib import Path
-from typing import Optional, Sequence, Tuple
+from typing import Optional, Sequence
 
 
 @lru_cache
 def _cached_resolve(path: Path) -> Path:
+    """Cache calls to `path.resolve()` to avoid redundant system calls."""
     return path.resolve()
 
 
 @lru_cache
 def find_project_root(
     srcs: Sequence[str], stdin_filename: Optional[str] = None
-) -> Tuple[Path, str]:
+) -> Path:
     """Return a directory containing .git, .hg, or pyproject.toml.
 
     That directory will be a common parent of all files and directories
@@ -44,12 +47,12 @@ def find_project_root(
 
     for directory in (common_base, *common_base.parents):
         if (directory / ".git").exists():
-            return directory, ".git directory"
+            return directory
 
         if (directory / ".hg").is_dir():
-            return directory, ".hg directory"
+            return directory
 
         if (directory / "pyproject.toml").is_file():
-            return directory, "pyproject.toml"
+            return directory
 
-    return directory, "file system root"
+    return directory  # pylint: disable=undefined-loop-variable

@@ -8,7 +8,7 @@ from typing import Dict, Iterable, List, Optional, Type, TypeVar, TypedDict, Uni
 
 import toml
 
-from darkgraylib.black_compat import find_project_root
+from darkgraylib.files import find_project_root
 
 
 class TomlArrayLinesEncoder(toml.TomlEncoder):  # type: ignore
