@@ -2,7 +2,7 @@
 
 from functools import lru_cache
 from pathlib import Path
-from typing import Sequence
+from typing import Sequence, Union
 
 
 @lru_cache
@@ -12,7 +12,7 @@ def _cached_resolve(path: Path) -> Path:
 
 
 @lru_cache
-def find_project_root(srcs: Sequence[str]) -> Path:
+def find_project_root(srcs: Sequence[Union[str, Path]]) -> Path:
     """Return a directory containing .git, .hg, or pyproject.toml.
 
     That directory will be a common parent of all files and directories

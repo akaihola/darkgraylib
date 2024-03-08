@@ -3,8 +3,9 @@
 import os
 from contextlib import contextmanager
 from pathlib import Path
-from tempfile import TemporaryDirectory
 from typing import Iterator
+
+import pytest
 
 from darkgraylib import files
 
@@ -20,33 +21,44 @@ def change_directory(path: Path) -> Iterator[None]:
         os.chdir(previous_dir)
 
 
-def test_find_project_root() -> None:
-    with TemporaryDirectory() as workspace:
-        root = Path(workspace)
-        test_dir = root / "test"
-        test_dir.mkdir()
+@pytest.fixture
+def src_root(tmp_path: Path) -> Path:
+    """Create a directory structure for testing `find_project_root`."""
+    test_dir = tmp_path / "test"
+    test_dir.mkdir()
+    src_dir = tmp_path / "src"
+    src_dir.mkdir()
+    (tmp_path / "pyproject.toml").write_text("[tool.black]", encoding="utf-8")
+    (src_dir / "pyproject.toml").write_text("[tool.black]", encoding="utf-8")
+    (src_dir / "foo.py").touch()
+    return tmp_path
 
-        src_dir = root / "src"
-        src_dir.mkdir()
 
-        root_pyproject = root / "pyproject.toml"
-        root_pyproject.write_text("[tool.black]", encoding="utf-8")
-        src_pyproject = src_dir / "pyproject.toml"
-        src_pyproject.write_text("[tool.black]", encoding="utf-8")
-        src_python = src_dir / "foo.py"
-        src_python.touch()
+def test_find_project_root_two_subdirectories_common_root(src_root: Path) -> None:
+    """Test `find_project_root` with two subdirectories."""
+    result = files.find_project_root((src_root / "src", src_root / "test"))
+    assert result == src_root.resolve()
 
-        assert files.find_project_root((src_dir, test_dir)) == root.resolve()
-        assert files.find_project_root((src_dir,)) == src_dir.resolve()
-        assert files.find_project_root((src_python,)) == src_dir.resolve()
 
-        src_sub = src_dir / "sub"
-        src_sub.mkdir()
+def test_find_project_root_one_subdirectory_has_pyproject(src_root: Path) -> None:
+    """Test `find_project_root` with one subdirectory that has a `pyproject.toml`."""
+    result = files.find_project_root((src_root / "src",))
+    assert result == (src_root / "src").resolve()
 
-        # src_sub_pyproject = src_sub / "pyproject.toml"
-        # src_sub_pyproject.touch()  # empty
 
-        src_sub_python = src_sub / "bar.py"
+def test_find_project_root_one_file_nested_pyproject(src_root: Path) -> None:
+    """Test `find_project_root` with `pyproject.toml` in a parent directory."""
+    result = files.find_project_root((src_root / "src" / "foo.py",))
+    assert result == (src_root / "src").resolve()
 
-        # we skip src_sub_pyproject since it is missing the [tool.black] section
-        assert files.find_project_root((src_sub_python,)) == src_dir.resolve()
+
+def test_find_project_root(src_root: Path) -> None:
+    """Test `find_project_root` with `pyproject.toml` in a grandparent directory."""
+    src_sub = src_root / "src" / "sub"
+    src_sub.mkdir()
+    src_sub_python = src_sub / "bar.py"
+
+    result = files.find_project_root((src_sub_python,))
+
+    # we skip src_sub since it has no `pyproject.toml`
+    assert result == (src_root / "src").resolve()
