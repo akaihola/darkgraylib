@@ -1,24 +1,6 @@
-import sys
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, Optional, Sequence, Tuple, Union
-
-
-if sys.version_info >= (3, 11):
-    try:
-        import tomllib
-    except ImportError:
-        # Help users on older alphas
-        if not TYPE_CHECKING:
-            import tomli as tomllib
-else:
-    import tomli as tomllib
-
-
-@lru_cache
-def _load_toml(path: Union[Path, str]) -> Dict[str, Any]:
-    with open(path, "rb") as f:
-        return tomllib.load(f)
+from typing import Optional, Sequence, Tuple
 
 
 @lru_cache
@@ -68,8 +50,6 @@ def find_project_root(
             return directory, ".hg directory"
 
         if (directory / "pyproject.toml").is_file():
-            pyproject_toml = _load_toml(directory / "pyproject.toml")
-            if "black" in pyproject_toml.get("tool", {}):
-                return directory, "pyproject.toml"
+            return directory, "pyproject.toml"
 
     return directory, "file system root"
