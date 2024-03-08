@@ -35,6 +35,8 @@ Fixed
   instead of underscores.
 - ``release_tools/update_contributors.py`` can now handle GitHub usernames with RTL
   override characters.
+- Black 24.2 compatibility by adding our own implementation of
+  `darkgraylib.files.find_project_root`.
 
 
 Darker 0.1.0 to 1.7.0
