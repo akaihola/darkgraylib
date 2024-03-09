@@ -22,9 +22,9 @@
 .. |changelog-badge| image:: https://img.shields.io/badge/-change%20log-purple
    :alt: Change log
 .. _changelog-badge: https://github.com/akaihola/darkgraylib/blob/main/CHANGES.rst
-.. |next-milestone| image:: https://img.shields.io/github/milestones/progress/akaihola/darkgraylib/1?color=red&label=release%200.0.2
+.. |next-milestone| image:: https://img.shields.io/github/milestones/progress/akaihola/darkgraylib/2?color=red&label=release%201.0.1
    :alt: Next milestone
-.. _next-milestone: https://github.com/akaihola/darkgraylib/milestone/1
+.. _next-milestone: https://github.com/akaihola/darkgraylib/milestone/2
 
 
 What?

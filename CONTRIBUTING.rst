@@ -93,21 +93,32 @@ Setting up a development environment
 ====================================
 
 To set up an isolated virtualenv for Darkgraylib, Darker and/or Graylint development,
-run the test suite and lint the code base on a Unix-like system::
+modify code in your own branch, run the test suite and lint modified code on a Unix-like
+system::
 
     git clone git@github.com:akaihola/darkgraylib.git
     python -m venv .venv-darkgraylib
     source .venv-darkgraylib/bin/activate
     cd darkgraylib
-    pip install -e '.[test]' mypy pylint flake8
+    pip install -e '.[test]' darker flake8 mypy pydocstyle pylint ruff
+    git checkout -b my-feature-branch
+    # modify code
+    git commit -m "My feature"
     pytest
-    pylint src
-    mypy .
-    flake8 src
+    darker
 
-Before pushing your commits to a feature branch, it's good to run::
+Darker will fix formatting on modified lines and list any linting errors your changes
+may have introduced compared to the branching point of your feature branch from
+``main``.
 
-    darker --isort -L mypy -L pylint -L flake8 -r main... .
+Darker is configured in ``pyproject.toml`` to do the following on modified lines:
+- reformat using Black
+- sort imports using isort
+- run Flake8
+- run Mypy
+- run Pydocstyle
+- run Pylint
+- run Ruff
 
-This will fix formatting on modified lines and list any linting errors your changes may
-have introduced compared to the branching point of your feature branch from ``master``.
+Those tools have also been configured to match the conventions in the Darkgraylib code
+base.

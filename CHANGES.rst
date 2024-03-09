@@ -5,9 +5,24 @@ These features will be included in the next release:
 
 Added
 -----
+
+Fixed
+-----
+
+
+1.0.0_ - 2024-03-09
+===================
+
+Added
+-----
 - Copy the code base from Darker 1.7.0.
+- Make command line and configuration tooling flexible to provide base command line and
+  configuration parsing and common options, allowing these to be used and extended by
+  Darker and Graylint.
 - Provide ``git_repo`` as a Pytest plugin.
 - Configure the ``ruff`` linting tool.
+- ``--update-readme`` and ``--verify-readme`` command line options to assist in updating
+  and verifying ``--help`` output in the ``README.rst`` file in Darker and Graylint.
 - Drop support for Python 3.7.
 - Limit Black to versions before 24.2 until the incompatibility is resolved or Black
   requirement removed.
@@ -18,14 +33,22 @@ Added
 Removed
 -------
 - Remove the Darker GitHub action.
+- No CI test needed for ``--help`` output.
+- Reformatting logic and command line moved to Darker.
+- Linting support moved to Graylint.
+- Handling of Darker and Graylint specific command line options and configuration moved
+  to the respective packages.
 
 Fixed
 -----
+- Rename the package to ``darkgraylib``.
+- Update imports and configure ``setuptools``, release tools, linters, issue report
+  templates, and CI workflows for the new package name.
+- Rename ``darkgraylib.__main__`` to ``.main``.
 - Use ``git worktree`` instead of ``git clone`` and ``git checkout`` to set up a
   temporary working tree for running linters for a baseline in the ``rev1`` revision of
   the repository.
 - Include the ``py.typed`` typing marker in distributions.
-- Fix tests path in Bandit configuration for CI.
 - Python 3.12 compatibility in multi-line string scanning.
 - Upgrade ``install-nix-action`` to version 22 in CI to fix an issue with macOS.
 - Fix tests to run on pushes to ``main`` and pull requests for ``main``.
@@ -33,11 +56,16 @@ Fixed
   (e.g. ``line-length = 88``) are now supported.
 - In debug log output mode, configuration options are now always spelled with hyphens
   instead of underscores.
-- ``release_tools/update_contributors.py`` can now handle GitHub usernames with RTL
-  override characters.
+- ``release_tools/update_contributors.py`` can now handle
+  - GitHub usernames with RTL override characters
+  - deleted GitHub users
 - Black 24.2 compatibility by adding our own implementation of
-  `darkgraylib.files.find_project_root`.
-- Update `actions/checkout@v3` to `actions/checkout@v4` in CI builds.
+  ``darkgraylib.files.find_project_root``.
+- Updates to GitHub actions in CI builds:
+  - ``actions/checkout`` from ``@v3`` to ``@v4``
+  - ``actions/setup-python`` from ``@v4`` to ``@v5``
+  - ``wearerequired/lint-action`` from ``@v2.1.0`` to ``@v2.3.0``
+- Move test helpers used by both Darker and Graylint to importable modules.
 
 
 Darker 0.1.0 to 1.7.0
