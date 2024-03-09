@@ -37,6 +37,7 @@ Fixed
   override characters.
 - Black 24.2 compatibility by adding our own implementation of
   `darkgraylib.files.find_project_root`.
+- Update `actions/checkout@v3` to `actions/checkout@v4` in CI builds.
 
 
 Darker 0.1.0 to 1.7.0
