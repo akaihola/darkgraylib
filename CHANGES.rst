@@ -5,6 +5,16 @@ These features will be included in the next release:
 
 Added
 -----
+
+Fixed
+-----
+
+
+1.0.0_ - 2024-03-09
+===================
+
+Added
+-----
 - Copy the code base from Darker 1.7.0.
 - Provide ``git_repo`` as a Pytest plugin.
 - Configure the ``ruff`` linting tool.

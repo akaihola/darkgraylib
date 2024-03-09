@@ -38,8 +38,8 @@ If applicable, add copy/paste the output or attach a screenshots to help explain
  - OS: [e.g. Windows / macos / Linux distribution & version]
  - Python version [e.g. 3.10.4]
  - Git version [e.g. 2.36.0]
- - Darker or Graylint version [e.g. 1.7.0]
- - Darkgraylib version [e.g. 0.0.1]
+ - Darker or Graylint version [e.g. 1.7.3]
+ - Darkgraylib version [e.g. 1.0.0]
 
 **Additional context**
 Add any other context about the problem here.
