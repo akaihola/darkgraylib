@@ -1,4 +1,4 @@
-"""Command line parsing for the ``darker`` binary"""
+"""Command line parsing for the ``darker`` and ``graylint`` binaries."""
 
 import sys
 from argparse import SUPPRESS, ArgumentParser, Namespace
@@ -143,7 +143,8 @@ def parse_command_line(
 
     # 2. Locate `pyproject.toml` based on the `-c`/`--config` command line option, or
     #    if it's not provided, based on the paths to process, or in the current
-    #    directory if no paths were given. Load Darker configuration from it.
+    #    directory if no paths were given. Load Darker or Graylint configuration from
+    #    it.
     pyproject_config = load_config(args.config, args.src, section_name, config_type)
 
     # 3. The PY_COLORS, NO_COLOR and FORCE_COLOR environment variables override the

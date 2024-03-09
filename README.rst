@@ -32,7 +32,7 @@ What?
 
 This package is a placeholder for common supporting code for Darker_ and Graylint_.
 
-Such pieces of code will be moved from Darker_ to this new package.
+Such pieces of code have been moved from Darker_ to this new package.
 
 .. _Darker: https://pypi.org/project/darker
 .. _Graylint: https://pypi.org/project/graylint

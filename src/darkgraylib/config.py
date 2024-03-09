@@ -140,7 +140,8 @@ def load_config(
 
     :param path: The file or directory specified using the ``-c``/``--config`` command
                  line option, or `None` if the option was omitted.
-    :param srcs: File(s) and directory/directories to be processed by Darker.
+    :param srcs: File(s) and directory/directories to be processed by Darker or
+                 Graylint.
     :param section_name: The name of the section in the configuration file. For Darker,
                          this is ``"darker"`` and for Graylint, this is ``"graylint"``.
     :param config_type: The class representing the configuration options. For Darker,
@@ -164,11 +165,11 @@ def load_config(
         if not config_path.is_file():
             return cast(T, {})
     pyproject_toml = toml.load(config_path)
-    tool_darker_config = convert_hyphens_to_underscores(
+    pyproject_tool_config = convert_hyphens_to_underscores(
         pyproject_toml.get("tool", {}).get(section_name, {}) or {}
     )
-    validate_config_keys(tool_darker_config, section_name, config_type)
-    config = cast(T, tool_darker_config)
+    validate_config_keys(pyproject_tool_config, section_name, config_type)
+    config = cast(T, pyproject_tool_config)
     replace_log_level_name(config)
     return config
 

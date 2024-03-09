@@ -127,7 +127,9 @@ class RevisionRange:
     on a feature branch, and there have been commits in the main branch after the branch
     point. Without the ability to compare to the branch point, Darker would suggest
     corrections to formatting on lines changes in the main branch even if those lines
-    haven't been touched in the feature branch.
+    haven't been touched in the feature branch. Similarly, Graylint would include
+    linting errors introduced by changes compared to the tip of the main branch, not the
+    branch point.
 
     """
 

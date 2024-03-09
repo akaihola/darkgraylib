@@ -264,7 +264,7 @@ def get_milestone_numbers(token: Optional[str]) -> Dict[Version, str]:
     if not isinstance(milestones, list):
         raise TypeError(f"Expected a JSON list from GitHub API, got {milestones}")
     # Extract milestone numbers from the milestone titles. Titles are expected to be
-    # like "Darker x.y.z" or "Darker x.y.z - additional comment".
+    # like "Darkgraylib x.y.z" or "Darkgraylib x.y.z - additional comment".
     return {
         Version(m["title"].split("-")[0].split()[-1]): str(m["number"])
         for m in milestones
