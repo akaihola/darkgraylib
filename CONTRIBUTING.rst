@@ -1,6 +1,6 @@
-========================
- Contributing to Darker
-========================
+=============================
+ Contributing to Darkgraylib
+=============================
 
 This is a micro project with a small code base, few contributors and hobby maintainership.
 For this reason, please don't expect immediate responses to bug reports and pull requests.
@@ -15,10 +15,12 @@ Bug reports
 
 Please include
 
-- release or Git commit for the version of Darker you're using
-- Python, black and isort versions
-- your command line
-- file to be formatted as an attachment, if possible – also great if squeezed down to a minimal example
+- release or Git commit for the version of Darkgraylib, Darker and/or Graylint you're
+  using
+- Python version
+- your Darker or Graylint command line
+- file to be formatted or linted as an attachment, if possible – also great if squeezed
+  down to a minimal example
 - resulting output or error message
 - expected output
 
@@ -27,7 +29,8 @@ Pull requests
 
 To speed up review and increase odds for the PR to be accepted, please
 
-- keep all code black & isort formatted
+- keep all modified code black & isort formatted (with help from Darker)
+- don't reformat unmodified code
 - include a test case for new or modified code
 - use type hinting
 - make sure the test suite passes
@@ -70,10 +73,10 @@ GitHub Docs.
 3. In the left sidebar, click `Developer settings`_.
 4. In the left sidebar, under **Personal access tokens**, click `Fine-grained tokens`_.
 5. Click `Generate new token`_.
-6. Under **Token name**, enter "``Update Darker contributors``".
+6. Under **Token name**, enter "``Update Darkgraylib contributors``".
 7. Under **Expiration**, select an expiration for the token.
-8. Under **Description**, type "``Allow darker/release_tools/update_contributors.py to
-   retrieve any user's login, full name and link to avatar picture.``"
+8. Under **Description**, type "``Allow darkgraylib/release_tools/update_contributors.py
+   to retrieve any user's login, full name and link to avatar picture.``"
 9. Click **Generate token**.
 10. Copy and save the token (you won't be able to see it again), and use it on the
     ``update_contributors.py`` command line as shown above.
@@ -89,13 +92,13 @@ GitHub Docs.
 Setting up a development environment
 ====================================
 
-To set up an isolated virtualenv for Darker development, run the test suite and lint
-the code base on a Unix-like system::
+To set up an isolated virtualenv for Darkgraylib, Darker and/or Graylint development,
+run the test suite and lint the code base on a Unix-like system::
 
-    git clone git@github.com:akaihola/darker.git
-    python -m venv .venv-darker
-    source .venv-darker/bin/activate
-    cd darker
+    git clone git@github.com:akaihola/darkgraylib.git
+    python -m venv .venv-darkgraylib
+    source .venv-darkgraylib/bin/activate
+    cd darkgraylib
     pip install -e '.[test]' mypy pylint flake8
     pytest
     pylint src
@@ -104,7 +107,7 @@ the code base on a Unix-like system::
 
 Before pushing your commits to a feature branch, it's good to run::
 
-    darker --isort -L mypy -L pylint -L flake8 -r master... .
+    darker --isort -L mypy -L pylint -L flake8 -r main... .
 
 This will fix formatting on modified lines and list any linting errors your changes may
 have introduced compared to the branching point of your feature branch from ``master``.

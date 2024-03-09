@@ -1,4 +1,4 @@
-"""Unit tests for :mod:`darkgraylib.command_line` and :mod:`darkgraylib.main`"""
+"""Unit tests for `darkgraylib.command_line` and `darkgraylib.main`."""
 
 import os
 from unittest.mock import patch
@@ -78,7 +78,7 @@ def test_parse_command_line_config_location_specified(
     argv,
     expect,
 ):
-    """Darker configuration is read from file pointed to using ``-c``/``--config``"""
+    """Configuration is read from file pointed to using ``-c``/``--config``."""
     monkeypatch.chdir(tmp_path)
     subdir = tmp_path / "subdir"
     subdir.mkdir()

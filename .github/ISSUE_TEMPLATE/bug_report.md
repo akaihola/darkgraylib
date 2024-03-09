@@ -11,8 +11,8 @@ assignees: ''
 
     NOTE:
 
-    To ask for help using Darker or Graylint, please use Discussions (see the top of
-    the respective repositories).
+    To ask for help using Darkgraylib, Darker or Graylint, please use Discussions (see
+    the top of the respective repositories).
     This form is only for reporting bugs to Darkgraylib.
 
 -->
@@ -38,7 +38,7 @@ If applicable, add copy/paste the output or attach a screenshots to help explain
  - OS: [e.g. Windows / macos / Linux distribution & version]
  - Python version [e.g. 3.10.4]
  - Git version [e.g. 2.36.0]
- - Darker version [e.g. 1.7.0]
+ - Darker or Graylint version [e.g. 1.7.0]
  - Darkgraylib version [e.g. 0.0.1]
 
 **Additional context**

@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> { } }:
 (
   pkgs.stdenv.mkDerivation {
-    name = "darker-test";
+    name = "darkgraylib-test";
     buildInputs = [ pkgs.python311 pkgs.git ];
   }
 )

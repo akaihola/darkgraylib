@@ -229,7 +229,7 @@ def config_from_env_and_argv(
 
     :param request: The Pytest ``request`` object
     :param module_tmp_path: A temporary directory created by Pytest
-    :yield: The list of arguments for the Darker command line
+    :yield: The list of arguments for the command line
 
     """
     argv = request.param + [str(module_tmp_path / "dummy.py")]
