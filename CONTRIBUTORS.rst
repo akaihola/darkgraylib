@@ -1,6 +1,6 @@
-========================
- Contributors to Darker
-========================
+=============================
+ Contributors to Darkgraylib
+=============================
 
 (in alphabetic order and with GitHub handles)
 
@@ -33,6 +33,7 @@
 - Dustin Spicuzza (@virtuald)
 - DylanYoung (@DylanYoung)
 - Eric Riddoch (@phitoduck)
+- Filipp Samoilov (@samoylovfp)
 - Filippos Giannakos (@philipgian)
 - Fox_white (@foxwhite25)
 - Georges Discry (@gdiscry)
@@ -44,17 +45,17 @@
 - Jasleen Kaur (@jasleen19)
 - Jens Diemer (@jedie)
 - Jens Hedegaard Nielsen (@jenshnielsen)
-- john lee (@leej3)
+- John lee (@leej3)
 - jsuit (@jsuit)
 - Kentaro Wada (@wkentaro)
 - Kevin David (@Asuskf)
 - Krischtopp (@Krischtopp)
 - Leo Torres (@leotrs)
+- M Bussonnier (@Carreau)
 - Magnus N. Malmquist (@magnunm)
 - Mark Davidoff (@markddavidoff)
 - martinRenou (@martinRenou)
 - Mat Clayton (@matclayton)
-- Matthias Bussonnier (@Carreau)
 - Matthijs van der Burgh (@MatthijsBurgh)
 - mayk0gan (@mayk0gan)
 - Min RK (@minrk)
@@ -71,7 +72,6 @@
 - Roberto Polli (@ioggstream)
 - Ronie Martinez (@roniemartinez)
 - Ross Barnowski (@rossbar)
-- samoylovfp (@samoylovfp)
 - Sean Hammond (@sherbie)
 - sfoucek (@simonf-dev)
 - Shantanu (@hauntsaninja)

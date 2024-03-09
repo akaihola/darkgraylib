@@ -99,31 +99,31 @@ def verify() -> None:
                 raise RuntimeError(f"{url} is not a valid GitHub URL")
             path = url[19:]
             contribution_type = contribution_link.attrib["title"]
-            if path.startswith("akaihola/darker/issues?q=author%3A"):
+            if path.startswith("akaihola/darkgraylib/issues?q=author%3A"):
                 verify_contribution_type(url, contribution_type, "Bug reports")
                 link_type = "issues"
-            elif path.startswith("akaihola/darker/commits?author="):
+            elif path.startswith("akaihola/darkgraylib/commits?author="):
                 verify_contribution_type(
                     url, contribution_type, "Code", "Documentation", "Maintenance"
                 )
                 link_type = "commits"
-            elif path.startswith("akaihola/darker/pulls?q=is%3Apr+reviewed-by%3A"):
+            elif path.startswith("akaihola/darkgraylib/pulls?q=is%3Apr+reviewed-by%3A"):
                 verify_contribution_type(
                     url, contribution_type, "Reviewed Pull Requests"
                 )
                 link_type = "pulls-reviewed"
-            elif path.startswith("akaihola/darker/pulls?q=is%3Apr+author%3A"):
+            elif path.startswith("akaihola/darkgraylib/pulls?q=is%3Apr+author%3A"):
                 verify_contribution_type(
                     url, contribution_type, "Code", "Documentation"
                 )
                 link_type = "pulls-author"
-            elif path.startswith("akaihola/darker/search?q="):
+            elif path.startswith("akaihola/darkgraylib/search?q="):
                 verify_contribution_type(
                     url, contribution_type, "Bug reports", "Answering Questions"
                 )
                 link_type = "search"
             elif path.startswith(
-                "conda-forge/staged-recipes/search?q=darker&type=issues&author="
+                "conda-forge/staged-recipes/search?q=darkgraylib&type=issues&author="
             ):
                 verify_contribution_type(url, contribution_type, "Code")
                 link_type = "conda-issues"
@@ -143,20 +143,23 @@ CONTRIBUTION_SYMBOLS = {
     "Maintenance": "🚧",
 }
 CONTRIBUTION_LINKS = {
-    "issues": "akaihola/darker/issues?q=author%3A{username}",
-    "commits": "akaihola/darker/commits?author={username}",
-    "pulls-reviewed": "akaihola/darker/pulls?q=is%3Apr+reviewed-by%3A{username}",
-    "pulls-author": "akaihola/darker/pulls?q=is%3Apr+author%3A{username}",
-    "search": "akaihola/darker/search?q={username}",
-    "search-comments": "akaihola/darker/search?q=commenter%3A{username}&type=issues",
+    "issues": "akaihola/darkgraylib/issues?q=author%3A{username}",
+    "commits": "akaihola/darkgraylib/commits?author={username}",
+    "pulls-reviewed": "akaihola/darkgraylib/pulls?q=is%3Apr+reviewed-by%3A{username}",
+    "pulls-author": "akaihola/darkgraylib/pulls?q=is%3Apr+author%3A{username}",
+    "search": "akaihola/darkgraylib/search?q={username}",
+    "search-comments": (
+        "akaihola/darkgraylib/search?q=commenter%3A{username}&type=issues"
+    ),
     "search-discussions": (
-        "akaihola/darker/discussions?discussions_q=author%3A{username}"
+        "akaihola/darkgraylib/discussions?discussions_q=author%3A{username}"
     ),
     "conda-issues": (
-        "conda-forge/staged-recipes/search?q=darker&type=issues&author={username}"
+        "conda-forge/staged-recipes/search?q=darkgraylib&type=issues&author={username}"
     ),
-    "darker-feedstock-issues": (
-        "conda-forge/darker-feedstock/search?q=darker+author%3A{username}&type=issues"
+    "darkgraylib-feedstock-issues": (
+        "conda-forge/darkgraylib-feedstock/search"
+        "?q=darkgraylib+author%3A{username}&type=issues"
     ),
 }
 
@@ -280,7 +283,7 @@ class GitHubUser(TypedDict):
 @dataclass
 @total_ordering
 class Contributor:
-    """GitHub user information coupled with a list of Darker contributions"""
+    """GitHub user information coupled with a list of Darkgraylib contributions"""
 
     user_id: int
     name: Optional[str]
@@ -340,11 +343,13 @@ def join_github_users_with_contributions(
     users_and_contributions: Dict[str, List[Contribution]],
     session: GitHubSession,
 ) -> List[Contributor]:
-    """Join GitHub user information with their Darker contributions
+    """Join GitHub user information with their Darkgraylib contributions
 
-    :param users_and_contributions: GitHub user logins and their Darker contributions
+    :param users_and_contributions: GitHub user logins and their Darkgraylib
+                                    contributions
     :param session: A GitHub API HTTP session
-    :return: GitHub user information and the user's darker contributions merged together
+    :return: GitHub user information and the user's darkgraylib contributions merged
+             together
 
     """
     users: List[Contributor] = []
@@ -385,7 +390,7 @@ def make_rows(users: List[Contributor], columns: int) -> List[List[Contributor]]
 def render_html(users: List[Contributor]) -> Airium:
     """Convert users and contributions into an HTML table for `README.rst`
 
-    :param users: GitHub user records and the users' contributions to Darker
+    :param users: GitHub user records and the users' contributions to Darkgraylib
     :return: An Airium document describing the HTML table
 
     """
@@ -451,9 +456,9 @@ def write_contributors(text: str) -> None:
     Path("CONTRIBUTORS.rst").write_text(
         dedent(
             """\
-            ========================
-             Contributors to Darker
-            ========================
+            =============================
+             Contributors to Darkgraylib
+            =============================
 
             (in alphabetic order and with GitHub handles)
 
