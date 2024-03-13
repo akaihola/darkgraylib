@@ -73,6 +73,11 @@ class GitRepoFixture:
             self._run("commit", "-m", commit)
         return absolute_paths
 
+    def rename(self, old_name: str, new_name:str , commit: str = None):
+        self._run("mv", old_name, new_name)
+        if commit:
+            self._run("commit", "-m", commit)
+
     def get_hash(self, revision: str = "HEAD") -> str:
         """Return the commit hash at the given revision in the Git repository"""
         return self._run_and_get_first_line("rev-parse", revision)
