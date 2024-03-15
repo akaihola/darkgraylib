@@ -15,14 +15,12 @@ Fixed
 
 Added
 -----
-- Rename method on ``git_repo`` plugin to rename/move files in repo
+- Rename method on ``git_repo`` plugin to rename/move files in repo.
+- Update to Black 24.2.x and isort 5.13.x in pre-commit configuration.
 
 Removed
 -------
 - ``bump_version.py`` is now in the separate ``darkgray-dev-tools`` repository.
-
-Fixed
------
 
 
 1.0.0_ - 2024-03-09
