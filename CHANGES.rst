@@ -7,6 +7,10 @@ Added
 -----
 - Rename method on ``git_repo`` plugin to rename/move files in repo
 
+Removed
+-------
+- ``bump_version.py`` is now in the separate ``darkgray-dev-tools`` repository.
+
 Fixed
 -----
 
