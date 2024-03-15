@@ -5,6 +5,16 @@ These features will be included in the next release:
 
 Added
 -----
+
+Fixed
+-----
+
+
+1.1.0_ - 2024-03-15
+===================
+
+Added
+-----
 - Rename method on ``git_repo`` plugin to rename/move files in repo
 
 Removed
