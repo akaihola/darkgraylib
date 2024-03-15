@@ -8,7 +8,6 @@ Added
 
 Fixed
 -----
-- Install ``darkgray-dev-tools`` from PyPI. They don't allow dependencies from GitHub.
 
 
 1.1.0_ - 2024-03-15
@@ -22,6 +21,10 @@ Added
 Removed
 -------
 - ``bump_version.py`` is now in the separate ``darkgray-dev-tools`` repository.
+
+Fixed
+-----
+- Install ``darkgray-dev-tools`` from PyPI. They don't allow dependencies from GitHub.
 
 
 1.0.0_ - 2024-03-09
