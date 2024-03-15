@@ -73,7 +73,7 @@ class GitRepoFixture:
             self._run("commit", "-m", commit)
         return absolute_paths
 
-    def rename(self, old_name: str, new_name: str, commit: str = None):
+    def rename(self, old_name: str, new_name: str, commit: str = None) -> None:
         """Rename/move files and optionally commit the changes
 
         :param old_name: The file to rename/move
