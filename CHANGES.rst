@@ -8,6 +8,7 @@ Added
 
 Fixed
 -----
+- Install ``darkgray-dev-tools`` from PyPI. They don't allow dependencies from GitHub.
 
 
 1.1.0_ - 2024-03-15
@@ -89,4 +90,6 @@ For changes before the migration of code from Darker to Darkgraylib, see
 
 __ https://github.com/akaihola/darker/blob/master/CHANGES.rst
 
-.. _Unreleased: https://github.com/akaihola/darker/compare/6515b5de...HEAD
+.. _Unreleased: https://github.com/akaihola/darkgraylib/compare/v1.1.0...HEAD
+.. _1.1.0: https://github.com/akaihola/darkgraylib/compare/v1.0.0...v1.1.0
+.. _1.0.0: https://github.com/akaihola/darkgraylib/compare/1.7.0...v1.0.0
