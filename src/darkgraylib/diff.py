@@ -7,8 +7,9 @@ The functions in this module implement
 - turning opcodes into chunks of original and modified text
 
 In our case, we run a diff between original and user-edited source code.
-Another diff is done between user-edited and Black-reformatted source code
-as returned by :func:`black.black_diff.run_black_for_content`.
+Graylint creates a mapping of line numbers between the two versions of the source code.
+Darker uses this module to do another diff between user-edited and Black-reformatted
+source code as returned by `black.black_diff.run_black_for_content`.
 
     >>> src = TextDocument.from_lines(
     ...     [

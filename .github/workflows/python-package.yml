@@ -88,7 +88,7 @@ jobs:
           - '3.11'
           - '3.12'
           - '3.13-dev'
-        constraints: ['black==22.12.0']
+        constraints: ['']
         post_install: ['']
         include:
           - os: ubuntu-latest

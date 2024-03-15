@@ -12,7 +12,6 @@ jobs:
       - uses: actions/setup-python@v5
       - run: |
           pip install -U \
-            black \
             mypy>=0.990 \
             pytest \
             types-requests \

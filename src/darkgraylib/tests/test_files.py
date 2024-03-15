@@ -28,8 +28,8 @@ def src_root(tmp_path: Path) -> Path:
     test_dir.mkdir()
     src_dir = tmp_path / "src"
     src_dir.mkdir()
-    (tmp_path / "pyproject.toml").write_text("[tool.black]", encoding="utf-8")
-    (src_dir / "pyproject.toml").write_text("[tool.black]", encoding="utf-8")
+    (tmp_path / "pyproject.toml").write_text("", encoding="utf-8")
+    (src_dir / "pyproject.toml").write_text("", encoding="utf-8")
     (src_dir / "foo.py").touch()
     return tmp_path
 
