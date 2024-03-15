@@ -5,6 +5,7 @@ These features will be included in the next release:
 
 Added
 -----
+- Rename method on ``git_repo`` plugin to rename/move files in repo
 
 Fixed
 -----
