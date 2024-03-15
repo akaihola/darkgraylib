@@ -77,6 +77,7 @@
 - Shantanu (@hauntsaninja)
 - Simone Gaiarin (@simgunz)
 - Stefaan Lippens (@soxofaan)
+- Sven Steinbauer (@Svenito)
 - Talha Juanid (@talhajunaidd)
 - Thomas Güttler (@guettli)
 - TJ Kolleh (@tkolleh)
