@@ -111,9 +111,9 @@ jobs:
       - name: Install darkgraylib and dependencies from wheel built earlier
         run: pip install "${{needs.build-wheel.outputs.wheel-path}}[test]"
                          ${{ matrix.upgrade }} ${{ matrix.constraints }}
-      - name: Upgrade Black from GitHub if future constraints are used
+      - name: Upgrade dependencies from GitHub if future constraints are used
         # This can't be done in the same Pip invocation as installing
-        # Darkgraylib since Darkgraylib might place an upper limit on Black
+        # Darkgraylib since Darkgraylib might place an upper limit on these
         # during compatibility fixing periods.
         if: matrix.post_install
         run: ${{ matrix.post_install }}
