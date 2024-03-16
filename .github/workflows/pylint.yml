@@ -14,12 +14,10 @@ jobs:
         run: |
           pip install -U \
             airium \
-            black \
             defusedxml \
             pygments \
             pylint \
             pytest>=6.2.0 \
-            regex \
             requests \
             requests-cache \
             ruamel.yaml \

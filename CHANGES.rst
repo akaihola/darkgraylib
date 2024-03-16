@@ -6,6 +6,15 @@ These features will be included in the next release:
 Added
 -----
 - Support for Python 3.12 in the package metadata and the CI build.
+- Run unit tests with the newest Black release, not a fixed version.
+- In the future test, upgrade ``toml`` and ``Pygments`` to repository ``master``.
+- Messages from future test are now generic, not Black-specific.
+- Require ``click`` when running tests.
+
+Removed
+-------
+- Dependency on Black, flynt, isort and regex.
+- Obsolete Mypy configuration options.
 
 Fixed
 -----
