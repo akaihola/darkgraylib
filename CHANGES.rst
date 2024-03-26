@@ -15,6 +15,8 @@ Removed
 -------
 - Dependency on Black, flynt, isort and regex.
 - Obsolete Mypy configuration options.
+- Skip tests on Python 3.13-dev in Windows and macOS. C extension builds are failing,
+  this exclusion is to be removed when Python 3.13 has been removed.
 
 Fixed
 -----
