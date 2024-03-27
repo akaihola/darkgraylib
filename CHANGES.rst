@@ -5,6 +5,16 @@ These features will be included in the next release:
 
 Added
 -----
+
+Fixed
+-----
+
+
+1.1.1_ - 2024-03-27
+===================
+
+Added
+-----
 - Support for Python 3.12 in the package metadata and the CI build.
 - Run unit tests with the newest Black release, not a fixed version.
 - In the future test, upgrade ``toml`` and ``Pygments`` to repository ``master``.
@@ -107,6 +117,7 @@ For changes before the migration of code from Darker to Darkgraylib, see
 
 __ https://github.com/akaihola/darker/blob/master/CHANGES.rst
 
-.. _Unreleased: https://github.com/akaihola/darkgraylib/compare/v1.1.0...HEAD
+.. _Unreleased: https://github.com/akaihola/darkgraylib/compare/v1.1.1...HEAD
+.. _1.1.1: https://github.com/akaihola/darkgraylib/compare/v1.1.0...v1.1.1
 .. _1.1.0: https://github.com/akaihola/darkgraylib/compare/v1.0.0...v1.1.0
 .. _1.0.0: https://github.com/akaihola/darkgraylib/compare/1.7.0...v1.0.0
