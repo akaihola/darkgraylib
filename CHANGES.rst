@@ -20,6 +20,8 @@ Removed
 
 Fixed
 -----
+- In the ``--update-readme`` command, escape pipe symbols (``|``) in the help output
+  placed in the ``README.rst`` file.
 
 
 1.1.0_ - 2024-03-15
