@@ -8,6 +8,11 @@ Added
 - An optional hook to be called after loading the configuration file. Used by Darker to
   show deprecation warnings for configuration options.
 
+Removed
+-------
+The ``release_tools/update_contributors.py`` script was moved to the
+``darkgray-dev-tools`` repository.
+
 Fixed
 -----
 
