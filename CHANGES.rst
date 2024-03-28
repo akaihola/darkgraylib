@@ -10,6 +10,7 @@ Added
 
 Fixed
 -----
+- Badge links in the README on GitHub.
 
 
 1.1.1_ - 2024-03-27
