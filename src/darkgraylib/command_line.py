@@ -5,13 +5,15 @@ from __future__ import annotations
 import sys
 from argparse import SUPPRESS, ArgumentParser, Namespace
 from functools import partial
-from typing import Any, Callable, List, Optional, Protocol, Tuple, Type, TypeVar
+from typing import Any, Callable, Protocol, TypeVar
 
 from darkgraylib import help as hlp
 from darkgraylib.argparse_helpers import (
     LogLevelAction,
     NewlinePreservingFormatter,
-    OptionsForReadmeAction, UpdateReadmeAction, VerifyReadmeAction,
+    OptionsForReadmeAction,
+    UpdateReadmeAction,
+    VerifyReadmeAction,
 )
 from darkgraylib.config import (
     BaseConfig,
@@ -85,7 +87,10 @@ def make_argument_parser(
 
 
 def add_parser_argument(
-    parser: ArgumentParser, help_text: Optional[str], *name_or_flags: str, **kwargs: Any
+    parser: ArgumentParser,
+    help_text: str | None,
+    *name_or_flags: str,
+    **kwargs: Any,  # noqa: ANN401
 ) -> None:
     """Add an argument to the parser
 
@@ -112,11 +117,11 @@ class ArgumentParserFactory(Protocol):  # pylint: disable=too-few-public-methods
 
 def parse_command_line(
     argument_parser_factory: ArgumentParserFactory,
-    argv: Optional[List[str]],
+    argv: list[str] | None,
     section_name: str,
-    config_type: Type[T],
+    config_type: type[T],
     load_config_hook: Callable[[T], None] | None = None,
-) -> Tuple[Namespace, T, T]:
+) -> tuple[Namespace, T, T]:
     """Return the parsed command line, using defaults from a configuration file
 
     Also return the effective configuration which combines defaults, the configuration
