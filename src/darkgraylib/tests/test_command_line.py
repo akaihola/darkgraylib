@@ -1,7 +1,8 @@
 """Unit tests for `darkgraylib.command_line` and `darkgraylib.main`."""
 
 import os
-from unittest.mock import patch
+from pathlib import Path
+from unittest.mock import Mock, patch
 
 import pytest
 import toml
@@ -300,3 +301,17 @@ def test_parse_command_line(
             assert (
                 modified_cfg[modified_option] == expect_modified_value  # type: ignore
             )
+
+
+def test_parse_command_line_load_config_hook_called(tmp_path, monkeypatch):
+    """The load configuration hook is called correctly."""
+    monkeypatch.chdir(tmp_path)
+    with Path("pyproject.toml").open("w") as pyproject:
+        toml.dump({"tool": {"darkgraylib": {"revision": "main"}}}, pyproject)
+    hook_mock = Mock()
+
+    parse_command_line(
+        make_test_argument_parser, ["x.py"], "darkgraylib", BaseConfig, hook_mock,
+    )
+
+    hook_mock.assert_called_once_with({"revision": "main"})

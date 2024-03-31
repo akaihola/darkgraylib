@@ -5,6 +5,8 @@ These features will be included in the next release:
 
 Added
 -----
+- An optional hook to be called after loading the configuration file. Used by Darker to
+  show deprecation warnings for configuration options.
 
 Fixed
 -----
