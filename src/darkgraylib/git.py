@@ -7,7 +7,7 @@ import shlex
 import sys
 from contextlib import contextmanager
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from functools import lru_cache
 from pathlib import Path
 from subprocess import PIPE, CalledProcessError, check_output  # nosec
@@ -78,7 +78,7 @@ def git_get_mtime_at_commit(path: Path, revision: str, cwd: Path) -> str:
     """
     cmd = ["log", "-1", "--format=%ct", revision, "--", path.as_posix()]
     lines = git_check_output_lines(cmd, cwd)
-    return datetime.utcfromtimestamp(int(lines[0])).strftime(GIT_DATEFORMAT)
+    return datetime.fromtimestamp(int(lines[0]), timezone.utc).strftime(GIT_DATEFORMAT)
 
 
 def git_get_content_at_revision(path: Path, revision: str, cwd: Path) -> TextDocument:
