@@ -15,6 +15,7 @@ The ``release_tools/update_contributors.py`` script was moved to the
 
 Fixed
 -----
+- Badge links in the README on GitHub.
 
 
 1.1.1_ - 2024-03-27

@@ -2,29 +2,29 @@
  darkgraylib
 =============
 
-|build-badge|_ |license-badge|_ |pypi-badge|_ |downloads-badge|_ |black-badge|_ |changelog-badge|_
+|build-badge| |license-badge| |pypi-badge| |downloads-badge| |black-badge| |changelog-badge|
 
 .. |build-badge| image:: https://github.com/akaihola/darkgraylib/actions/workflows/python-package.yml/badge.svg
    :alt: main branch build status
-.. _build-badge: https://github.com/akaihola/darkgraylib/actions/workflows/python-package.yml?query=branch%3Amain
+   :target: https://github.com/akaihola/darkgraylib/actions/workflows/python-package.yml?query=branch%3Amain
 .. |license-badge| image:: https://img.shields.io/badge/License-BSD%203--Clause-blue.svg
    :alt: BSD 3 Clause license
-.. _license-badge: https://github.com/akaihola/darkgraylib/blob/main/LICENSE
+   :target: https://github.com/akaihola/darkgraylib/blob/main/LICENSE
 .. |pypi-badge| image:: https://img.shields.io/pypi/v/darkgraylib
    :alt: Latest release on PyPI
-.. _pypi-badge: https://pypi.org/project/darkgraylib/
+   :target: https://pypi.org/project/darkgraylib/
 .. |downloads-badge| image:: https://pepy.tech/badge/darkgraylib
    :alt: Number of downloads
-.. _downloads-badge: https://pepy.tech/project/darkgraylib
+   :target: https://pepy.tech/project/darkgraylib
 .. |black-badge| image:: https://img.shields.io/badge/code%20style-black-000000.svg
    :alt: Source code formatted using Black
-.. _black-badge: https://github.com/psf/black
+   :target: https://github.com/psf/black
 .. |changelog-badge| image:: https://img.shields.io/badge/-change%20log-purple
    :alt: Change log
-.. _changelog-badge: https://github.com/akaihola/darkgraylib/blob/main/CHANGES.rst
+   :target: https://github.com/akaihola/darkgraylib/blob/main/CHANGES.rst
 .. |next-milestone| image:: https://img.shields.io/github/milestones/progress/akaihola/darkgraylib/4?color=red&label=release%201.2.0
    :alt: Next milestone
-.. _next-milestone: https://github.com/akaihola/darkgraylib/milestone/4
+   :target: https://github.com/akaihola/darkgraylib/milestone/4
 
 
 What?
