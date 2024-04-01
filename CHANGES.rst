@@ -16,6 +16,8 @@ The ``release_tools/update_contributors.py`` script was moved to the
 Fixed
 -----
 - Badge links in the README on GitHub.
+- Replace calls to the deprecated `datetime.datetime.utcfromtimestamp` method with
+  `datetime.datetime.fromtimestamp`, passing it the timezone `datetime.timezone.utc`.
 
 
 1.1.1_ - 2024-03-27

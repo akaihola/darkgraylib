@@ -3,7 +3,7 @@
 import io
 import sys
 import tokenize
-from datetime import datetime
+from datetime import datetime, timezone
 from itertools import chain
 from pathlib import Path
 from typing import Iterable, Tuple
@@ -125,7 +125,9 @@ class TextDocument:
         Also store the last modification time of the file.
 
         """
-        mtime = datetime.utcfromtimestamp(path.stat().st_mtime).strftime(GIT_DATEFORMAT)
+        mtime = datetime.fromtimestamp(path.stat().st_mtime, timezone.utc).strftime(
+            GIT_DATEFORMAT
+        )
         with path.open("rb") as srcbuf:
             return cls.from_bytes(srcbuf.read(), mtime)
 
