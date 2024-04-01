@@ -5,13 +5,23 @@ These features will be included in the next release:
 
 Added
 -----
+
+Fixed
+-----
+
+
+1.2.0_ - 2024-04-01
+===================
+
+Added
+-----
 - An optional hook to be called after loading the configuration file. Used by Darker to
   show deprecation warnings for configuration options.
 
 Removed
 -------
-The ``release_tools/update_contributors.py`` script was moved to the
-``darkgray-dev-tools`` repository.
+- The ``release_tools/update_contributors.py`` script was moved to the
+  ``darkgray-dev-tools`` repository.
 
 Fixed
 -----
@@ -127,7 +137,8 @@ For changes before the migration of code from Darker to Darkgraylib, see
 
 __ https://github.com/akaihola/darker/blob/master/CHANGES.rst
 
-.. _Unreleased: https://github.com/akaihola/darkgraylib/compare/v1.1.1...HEAD
+.. _Unreleased: https://github.com/akaihola/darkgraylib/compare/v1.2.0...HEAD
+.. _1.2.0: https://github.com/akaihola/darkgraylib/compare/v1.1.0...v1.2.0
 .. _1.1.1: https://github.com/akaihola/darkgraylib/compare/v1.1.0...v1.1.1
 .. _1.1.0: https://github.com/akaihola/darkgraylib/compare/v1.0.0...v1.1.0
 .. _1.0.0: https://github.com/akaihola/darkgraylib/compare/1.7.0...v1.0.0
