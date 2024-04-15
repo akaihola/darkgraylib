@@ -217,7 +217,15 @@ class RevisionRange:
 
     @classmethod
     def _with_common_ancestor(cls, rev1: str, rev2: str, cwd: Path) -> "RevisionRange":
-        """Find common ancestor for revisions and return a ``RevisionRange`` object"""
+        """Find common ancestor for revisions and return a ``RevisionRange`` object.
+
+        :param rev1: The first revision in the range
+        :param rev2: The second revision in the range
+        :param cwd: The working directory to use when invoking Git. This has to be
+                    either the root of the working tree, or another directory inside it.
+        :return: The range parsed into a `RevisionRange` object
+
+        """
         rev2_for_merge_base = "HEAD" if rev2 in [WORKTREE, STDIN] else rev2
         merge_base_cmd = ["merge-base", rev1, rev2_for_merge_base]
         common_ancestor = git_check_output_lines(merge_base_cmd, cwd)[0]
