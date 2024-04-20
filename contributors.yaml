@@ -1,4 +1,8 @@
 ---
+repositories:
+  - akaihola/darkgraylib
+  - akaihola/darker
+---
 AckslD:
   - {link_type: issues, type: Bug reports}
 Asuskf:
