@@ -8,6 +8,8 @@ Added
 
 Fixed
 -----
+- The ``darker -vv`` and ``graylint -vv`` verbosity options now show the correct section
+  name ``[tool.darker]`` and ``[tool.graylint]`` in the configuration dump.
 
 
 1.2.0_ - 2024-04-01
