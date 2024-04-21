@@ -4,14 +4,18 @@ from __future__ import annotations
 
 import logging
 import os
-from argparse import ArgumentParser, Namespace
 from inspect import currentframe, getmodule
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional, Type, TypedDict, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Dict, Iterable, TypedDict, TypeVar, Union, cast
 
+import click
 import toml
 
 from darkgraylib.files import find_project_root
+
+if TYPE_CHECKING:
+    from argparse import ArgumentParser, Namespace
+    from types import FrameType
 
 
 class TomlArrayLinesEncoder(toml.TomlEncoder):  # type: ignore
@@ -22,7 +26,7 @@ class TomlArrayLinesEncoder(toml.TomlEncoder):  # type: ignore
         return "[{}\n]".format("".join(f"\n    {self.dump_value(item)}," for item in v))
 
 
-UnvalidatedConfig = Dict[str, Union[List[str], str, bool, int]]
+UnvalidatedConfig = Dict[str, Union["list[str]", str, bool, int]]
 
 
 class BaseConfig(TypedDict, total=False):
@@ -32,7 +36,7 @@ class BaseConfig(TypedDict, total=False):
 
     """
 
-    src: List[str]
+    src: list[str]
     revision: str
     stdout: bool
     config: str
@@ -68,7 +72,7 @@ T = TypeVar("T", bound=BaseConfig)
 def validate_config_keys(
     config: UnvalidatedConfig,
     section_name: str,
-    config_type: Type[T],  # pylint: disable=unused-argument
+    config_type: type[T],  # pylint: disable=unused-argument
 ) -> None:
     """Raise an exception if any keys in the configuration are invalid.
 
@@ -97,7 +101,7 @@ def replace_log_level_name(config: BaseConfig) -> None:
         config["log_level"] = logging.getLevelName(config["log_level"])
 
 
-def validate_stdin_src(stdin_filename: Optional[str], src: List[str]) -> None:
+def validate_stdin_src(stdin_filename: str | None, src: list[str]) -> None:
     """Make sure both ``stdin`` mode and paths/directories are specified"""
     if stdin_filename is None:
         return
@@ -127,10 +131,10 @@ def override_color_with_environment(pyproject_config: BaseConfig) -> BaseConfig:
 
 
 def load_config(
-    path: Optional[str],
+    path: str | None,
     srcs: Iterable[str],
     section_name: str,
-    config_type: Type[T],
+    config_type: type[T],
 ) -> T:
     """Find and load configuration from a TOML configuration file
 
@@ -178,7 +182,8 @@ def load_config(
 
 
 def get_effective_config(
-    args: Namespace, config_type: Type[T]  # pylint: disable=unused-argument
+    args: Namespace,
+    config_type: type[T],  # pylint: disable=unused-argument  # noqa: ARG001
 ) -> T:
     """Return all configuration options
 
@@ -195,7 +200,7 @@ def get_effective_config(
 def get_modified_config(
     parser: ArgumentParser,
     args: Namespace,
-    config_type: Type[T],  # pylint: disable=unused-argument
+    config_type: type[T],  # pylint: disable=unused-argument  # noqa: ARG001
 ) -> T:
     """Return configuration options which are set to non-default values
 
@@ -246,15 +251,34 @@ def show_config_if_debug(
                          calling module. This provides backwards compatibility.
 
     """
-    if section_name is None:
-        frame = currentframe()
-        if frame is None:
-            section_name = "UNKNOWN"
-        else:
-            section_name = getmodule(frame.f_back).__name__.split(".")[0]
+    section_name = infer_section_name(section_name, currentframe())
     if log_level <= logging.DEBUG:
-        print("\n# Effective configuration:\n")
-        print(dump_config(config, section_name))
-        print("\n# Configuration options which differ from defaults:\n")
-        print(dump_config(config_nondefault, section_name))
-        print("\n")
+        click.echo("\n# Effective configuration:\n")
+        click.echo(dump_config(config, section_name))
+        click.echo("\n# Configuration options which differ from defaults:\n")
+        click.echo(dump_config(config_nondefault, section_name))
+        click.echo("\n")
+
+
+def infer_section_name(
+    section_name: str | None,
+    current_frame: FrameType | None,
+) -> str:
+    """Infer the section name from the calling module.
+
+    :param section_name: The name of the section in the configuration file. If `None`,
+                         the section name is inferred from the root module of the
+                         calling module. This provides backwards compatibility.
+    :param current_frame: The frame of the calling function. The parent of this frame
+                          should be the module which called that function.
+    :return: The inferred section name
+
+    """
+    if section_name:
+        return section_name
+    if not current_frame:
+        return "UNKNOWN"
+    module = getmodule(current_frame.f_back)
+    if not module:
+        return "UNKNOWN"
+    return module.__name__.split(".")[0]
