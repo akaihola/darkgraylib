@@ -8,6 +8,18 @@ Added
 
 Fixed
 -----
+
+
+1.2.1_ - 2024-04-21
+===================
+
+Added
+-----
+- Icons in the contributors table in ``README.rst`` now link to searches across both
+  Darker and Darkgraylib.
+
+Fixed
+-----
 - The ``darker -vv`` and ``graylint -vv`` verbosity options now show the correct section
   name ``[tool.darker]`` and ``[tool.graylint]`` in the configuration dump.
 
@@ -139,7 +151,8 @@ For changes before the migration of code from Darker to Darkgraylib, see
 
 __ https://github.com/akaihola/darker/blob/master/CHANGES.rst
 
-.. _Unreleased: https://github.com/akaihola/darkgraylib/compare/v1.2.0...HEAD
+.. _Unreleased: https://github.com/akaihola/darkgraylib/compare/v1.2.1...HEAD
+.. _1.2.1: https://github.com/akaihola/darkgraylib/compare/v1.2.0...v1.2.1
 .. _1.2.0: https://github.com/akaihola/darkgraylib/compare/v1.1.0...v1.2.0
 .. _1.1.1: https://github.com/akaihola/darkgraylib/compare/v1.1.0...v1.1.1
 .. _1.1.0: https://github.com/akaihola/darkgraylib/compare/v1.0.0...v1.1.0
