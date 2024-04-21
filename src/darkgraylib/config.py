@@ -1,10 +1,13 @@
 """Load and save configuration in TOML format"""
 
+from __future__ import annotations
+
 import logging
 import os
 from argparse import ArgumentParser, Namespace
+from inspect import currentframe, getmodule
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional, Type, TypeVar, TypedDict, Union, cast
+from typing import Dict, Iterable, List, Optional, Type, TypedDict, TypeVar, Union, cast
 
 import toml
 
@@ -216,7 +219,10 @@ def get_modified_config(
 
 def dump_config(config: BaseConfig, section_name: str) -> str:
     """Return the configuration in TOML format
-    :param section_name:
+
+    :param config: The configuration options
+    :param section_name: The name of the section in the configuration file
+
     """
     dump = toml.dumps(
         convert_underscores_to_hyphens(config), encoder=TomlArrayLinesEncoder()
@@ -225,18 +231,30 @@ def dump_config(config: BaseConfig, section_name: str) -> str:
 
 
 def show_config_if_debug(
-    config: BaseConfig, config_nondefault: BaseConfig, log_level: int
+    config: BaseConfig,
+    config_nondefault: BaseConfig,
+    log_level: int,
+    section_name: str | None = None,
 ) -> None:
     """Show the configuration if the log level is DEBUG or lower
 
     :param config: The configuration options
     :param config_nondefault: Options which are set to non-default values
     :param log_level: The log level
+    :param section_name: The name of the section in the configuration file. If `None`,
+                         the section name is inferred from the root module of the
+                         calling module. This provides backwards compatibility.
 
     """
+    if section_name is None:
+        frame = currentframe()
+        if frame is None:
+            section_name = "UNKNOWN"
+        else:
+            section_name = getmodule(frame.f_back).__name__.split(".")[0]
     if log_level <= logging.DEBUG:
         print("\n# Effective configuration:\n")
-        print(dump_config(config, "darkgraylib"))
+        print(dump_config(config, section_name))
         print("\n# Configuration options which differ from defaults:\n")
-        print(dump_config(config_nondefault, "darkgraylib"))
+        print(dump_config(config_nondefault, section_name))
         print("\n")
