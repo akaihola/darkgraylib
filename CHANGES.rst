@@ -21,6 +21,21 @@ Fixed
   to correctly report their own version when called with the ``--version`` option.
 
 
+1.3.0_ - 2024-mm-dd
+===================
+
+Added
+-----
+- Make the section name argument for the config dump function mandatory.
+
+  **TODO: include `#61`__ in this release**
+
+__ https://github.com/akaihola/darkgraylib/pull/61
+
+Fixed
+-----
+
+
 1.2.1_ - 2024-04-21
 ===================
 
@@ -162,7 +177,8 @@ For changes before the migration of code from Darker to Darkgraylib, see
 
 __ https://github.com/akaihola/darker/blob/master/CHANGES.rst
 
-.. _Unreleased: https://github.com/akaihola/darkgraylib/compare/v1.2.1...HEAD
+.. _Unreleased: https://github.com/akaihola/darkgraylib/compare/v1.3.0...HEAD
+.. _1.3.0: https://github.com/akaihola/darkgraylib/compare/v1.2.1...v1.3.0
 .. _1.2.1: https://github.com/akaihola/darkgraylib/compare/v1.2.0...v1.2.1
 .. _1.2.0: https://github.com/akaihola/darkgraylib/compare/v1.1.0...v1.2.0
 .. _1.1.1: https://github.com/akaihola/darkgraylib/compare/v1.1.0...v1.1.1
