@@ -27,7 +27,11 @@ from darkgraylib.version import __version__
 
 
 def make_argument_parser(
-    require_src: bool, application: str, description: str, config_help: str
+    require_src: bool,
+    application: str,
+    description: str,
+    config_help: str,
+    version: str = __version__,
 ) -> ArgumentParser:
     """Create the argument parser object
 
@@ -75,7 +79,7 @@ def make_argument_parser(
         hlp.VERSION.format(application=application),
         "--version",
         action="version",
-        version=__version__,
+        version=version,
     )
     add_arg(hlp.WORKERS, "-W", "--workers", type=int, dest="workers", default=1)
     # A hidden option for printing command lines option in a format suitable for
