@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import logging
 import os
-from inspect import currentframe, getmodule
 from pathlib import Path
 from typing import TYPE_CHECKING, Dict, Iterable, TypedDict, TypeVar, Union, cast
 
@@ -15,7 +14,6 @@ from darkgraylib.files import find_project_root
 
 if TYPE_CHECKING:
     from argparse import ArgumentParser, Namespace
-    from types import FrameType
 
 
 class TomlArrayLinesEncoder(toml.TomlEncoder):  # type: ignore
@@ -239,46 +237,19 @@ def show_config_if_debug(
     config: BaseConfig,
     config_nondefault: BaseConfig,
     log_level: int,
-    section_name: str | None = None,
+    section_name: str,
 ) -> None:
     """Show the configuration if the log level is DEBUG or lower
 
     :param config: The configuration options
     :param config_nondefault: Options which are set to non-default values
     :param log_level: The log level
-    :param section_name: The name of the section in the configuration file. If `None`,
-                         the section name is inferred from the root module of the
-                         calling module. This provides backwards compatibility.
+    :param section_name: The name of the section in the configuration file.
 
     """
-    section_name = infer_section_name(section_name, currentframe())
     if log_level <= logging.DEBUG:
         click.echo("\n# Effective configuration:\n")
         click.echo(dump_config(config, section_name))
         click.echo("\n# Configuration options which differ from defaults:\n")
         click.echo(dump_config(config_nondefault, section_name))
         click.echo("\n")
-
-
-def infer_section_name(
-    section_name: str | None,
-    current_frame: FrameType | None,
-) -> str:
-    """Infer the section name from the calling module.
-
-    :param section_name: The name of the section in the configuration file. If `None`,
-                         the section name is inferred from the root module of the
-                         calling module. This provides backwards compatibility.
-    :param current_frame: The frame of the calling function. The parent of this frame
-                          should be the module which called that function.
-    :return: The inferred section name
-
-    """
-    if section_name:
-        return section_name
-    if not current_frame:
-        return "UNKNOWN"
-    module = getmodule(current_frame.f_back)
-    if not module:
-        return "UNKNOWN"
-    return module.__name__.split(".")[0]

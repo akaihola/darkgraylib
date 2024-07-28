@@ -6,6 +6,10 @@ These features will be included in the next release:
 Added
 -----
 
+Removed
+-------
+- The config dump section name is now required and is not inferred from the caller.
+
 Fixed
 -----
 
