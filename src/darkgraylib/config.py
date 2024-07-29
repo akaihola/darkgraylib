@@ -7,7 +7,6 @@ import os
 from pathlib import Path
 from typing import TYPE_CHECKING, Dict, Iterable, TypedDict, TypeVar, Union, cast
 
-import click
 import toml
 
 from darkgraylib.files import find_project_root
@@ -248,8 +247,8 @@ def show_config_if_debug(
 
     """
     if log_level <= logging.DEBUG:
-        click.echo("\n# Effective configuration:\n")
-        click.echo(dump_config(config, section_name))
-        click.echo("\n# Configuration options which differ from defaults:\n")
-        click.echo(dump_config(config_nondefault, section_name))
-        click.echo("\n")
+        print("\n# Effective configuration:\n")
+        print(dump_config(config, section_name))
+        print("\n# Configuration options which differ from defaults:\n")
+        print(dump_config(config_nondefault, section_name))
+        print("\n")
