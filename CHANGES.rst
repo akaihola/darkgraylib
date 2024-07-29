@@ -12,6 +12,7 @@ Removed
 
 Fixed
 -----
+- Update ``darkgray-dev-tools`` for Pip >= 24.1 compatibility.
 
 
 1.2.1_ - 2024-04-21
