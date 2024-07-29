@@ -13,6 +13,9 @@ Removed
 Fixed
 -----
 - Update ``darkgray-dev-tools`` for Pip >= 24.1 compatibility.
+- The `~darkgraylib.command_line.make_argument_parser` function now has a ``version``
+  argument which defaults to Darkgraylib's own version. This allows Darker and Graylint
+  to correctly report their own version when called with the ``--version`` option.
 
 
 1.2.1_ - 2024-04-21
