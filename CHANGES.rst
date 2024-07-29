@@ -18,6 +18,7 @@ Added
 
 Fixed
 -----
+- Drop the use of ``click``.
 
 
 1.3.0_ - 2024-07-29
