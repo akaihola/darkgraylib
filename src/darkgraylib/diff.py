@@ -46,7 +46,7 @@ in the original and reformatted content, e.g.::
 
 import logging
 from difflib import SequenceMatcher
-from typing import Dict, List, Tuple
+from typing import Dict, List, Literal, Tuple
 
 from darkgraylib.utils import TextDocument
 
@@ -55,7 +55,7 @@ logger = logging.getLogger(__name__)
 
 def diff_and_get_opcodes(
     src: TextDocument, dst: TextDocument
-) -> List[Tuple[str, int, int, int, int]]:
+) -> List[Tuple[Literal["replace", "delete", "insert", "equal"], int, int, int, int]]:
     """Return opcodes and line numbers for chunks in the diff of two lists of strings
 
     The opcodes are 5-tuples for each chunk with
@@ -79,7 +79,11 @@ def diff_and_get_opcodes(
     return opcodes
 
 
-def validate_opcodes(opcodes: List[Tuple[str, int, int, int, int]]) -> None:
+def validate_opcodes(
+    opcodes: List[
+        Tuple[Literal["replace", "delete", "insert", "equal"], int, int, int, int]
+    ]
+) -> None:
     """Make sure every other opcode is an 'equal' tag"""
     if not all(
         (tag1 == "equal") != (tag2 == "equal")
