@@ -38,7 +38,7 @@ class BaseConfig(TypedDict, total=False):
     revision: str
     stdout: bool
     config: str
-    log_level: int
+    log_level: int | str
     color: bool
     workers: int
 
