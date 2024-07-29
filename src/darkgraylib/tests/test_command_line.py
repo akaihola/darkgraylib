@@ -7,12 +7,56 @@ from unittest.mock import Mock, patch
 import pytest
 import toml
 
-from darkgraylib.command_line import parse_command_line
+from darkgraylib.command_line import make_argument_parser, parse_command_line
 from darkgraylib.config import BaseConfig
 from darkgraylib.testtools.helpers import filter_dict, raises_if_exception
 from darkgraylib.testtools.mock_argument_parser import make_test_argument_parser
+from darkgraylib.version import __version__
 
 pytestmark = pytest.mark.usefixtures("find_project_root_cache_clear")
+
+
+@pytest.mark.parametrize("version", [{}, {"version": "0.123.456"},])
+def test_make_argument_parser_version(version, capsys):
+    """Test that make_argument_parser sets the correct version."""
+    parser = make_argument_parser(
+        require_src=True,
+        application="TestApp",
+        description="Test description",
+        config_help="Test config help",
+        **version,
+    )
+
+    with pytest.raises(SystemExit):
+        parser.parse_args(["--version"])
+
+    captured = capsys.readouterr()
+    expected_version = version.get("version", __version__)
+    assert captured.out.strip() == expected_version
+
+
+@pytest.mark.parametrize("version", [{}, {"version": "0.123.456"}])
+def test_parse_command_line_version(version, capsys):
+    """Test that parse_command_line respects the version from the parser factory."""
+    def factory(require_src):
+        return make_argument_parser(
+            require_src=require_src,
+            application="TestApp",
+            description="Test description",
+            config_help="Test config help",
+            **version,
+        )
+    with pytest.raises(SystemExit):
+        parse_command_line(
+            argument_parser_factory=factory,
+            argv=["--version"],
+            section_name="test",
+            config_type=BaseConfig,
+        )
+
+    captured = capsys.readouterr()
+    expected_version = version.get("version", __version__)
+    assert captured.out.strip() == expected_version
 
 
 @pytest.mark.kwparametrize(
