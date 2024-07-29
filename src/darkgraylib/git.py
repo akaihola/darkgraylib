@@ -140,13 +140,14 @@ class RevisionRange:
     def parse_with_common_ancestor(
         cls, revision_range: str, cwd: Path, stdin_mode: bool
     ) -> "RevisionRange":
-        """Convert a range expression to a ``RevisionRange`` object
+        """Convert a range expression to a ``RevisionRange`` object.
 
         If the expression contains triple dots (e.g. ``master...HEAD``), finds the
         common ancestor of the two revisions and uses that as the first revision.
 
         :param revision_range: The revision range as a string to parse
-        :param cwd: The working directory to use if invoking Git
+        :param cwd: The working directory to use when invoking Git. This has to be
+                    either the root of the working tree, or another directory inside it.
         :param stdin_mode: If `True`, the default for ``rev2`` is ``:STDIN:``
         :return: The range parsed into a `RevisionRange` object
 
@@ -216,7 +217,15 @@ class RevisionRange:
 
     @classmethod
     def _with_common_ancestor(cls, rev1: str, rev2: str, cwd: Path) -> "RevisionRange":
-        """Find common ancestor for revisions and return a ``RevisionRange`` object"""
+        """Find common ancestor for revisions and return a ``RevisionRange`` object.
+
+        :param rev1: The first revision in the range
+        :param rev2: The second revision in the range
+        :param cwd: The working directory to use when invoking Git. This has to be
+                    either the root of the working tree, or another directory inside it.
+        :return: The range parsed into a `RevisionRange` object
+
+        """
         rev2_for_merge_base = "HEAD" if rev2 in [WORKTREE, STDIN] else rev2
         merge_base_cmd = ["merge-base", rev1, rev2_for_merge_base]
         common_ancestor = git_check_output_lines(merge_base_cmd, cwd)[0]
