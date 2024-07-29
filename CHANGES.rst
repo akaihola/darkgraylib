@@ -10,11 +10,16 @@ Fixed
 -----
 
 
-1.3.1_ - 2024-07-29
+1.3.2_ - 2024-07-29
 ===================
 
-Added
+Fixed
 -----
+- Added typing to ``diff`` test helpers to solve Mypy errors in Darker.
+
+
+1.3.1_ - 2024-07-29
+===================
 
 Fixed
 -----
