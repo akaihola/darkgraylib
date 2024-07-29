@@ -5,9 +5,20 @@ These features will be included in the next release:
 
 Added
 -----
+
+Fixed
+-----
+
+
+1.3.0_ - 2024-07-29
+===================
+
+Added
+-----
 - The command ``graylint --config=check-darkgraylib.toml`` now runs Flake8_, Mypy_,
   pydocstyle_, Pylint_ and Ruff_ on modified lines in Python files. Those tools are
   included in the ``[test]`` extra.
+- Make the section name argument for the config dump function mandatory.
 
 Removed
 -------
@@ -19,21 +30,6 @@ Fixed
 - The `~darkgraylib.command_line.make_argument_parser` function now has a ``version``
   argument which defaults to Darkgraylib's own version. This allows Darker and Graylint
   to correctly report their own version when called with the ``--version`` option.
-
-
-1.3.0_ - 2024-mm-dd
-===================
-
-Added
------
-- Make the section name argument for the config dump function mandatory.
-
-  **TODO: include `#61`__ in this release**
-
-__ https://github.com/akaihola/darkgraylib/pull/61
-
-Fixed
------
 
 
 1.2.1_ - 2024-04-21
