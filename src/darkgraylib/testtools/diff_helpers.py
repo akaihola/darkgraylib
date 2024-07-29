@@ -1,6 +1,7 @@
 """Test data for ``diff_helpers.py`` tests."""
 
 from textwrap import dedent
+from typing import List, Literal, Tuple
 
 FUNCTIONS2_PY = dedent(
     """\
@@ -65,7 +66,9 @@ FUNCTIONS2_PY_REFORMATTED = dedent(
         print("Inner defs should breathe a little.")
     """
 )
-EXPECT_OPCODES = [
+EXPECT_OPCODES: List[
+    Tuple[Literal["replace", "delete", "insert", "equal"], int, int, int, int]
+] = [
     ("equal", 0, 1, 0, 1),
     ("replace", 1, 3, 1, 3),
     ("equal", 3, 6, 3, 6),
