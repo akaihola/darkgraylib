@@ -39,7 +39,7 @@ If applicable, add copy/paste the output or attach a screenshots to help explain
  - Python version [e.g. 3.10.4]
  - Git version [e.g. 2.36.0]
  - Darker or Graylint version [e.g. 1.7.3]
- - Darkgraylib version [e.g. 1.3.1]
+ - Darkgraylib version [e.g. 1.3.2]
 
 **Additional context**
 Add any other context about the problem here.
