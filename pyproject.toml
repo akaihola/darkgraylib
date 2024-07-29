@@ -18,6 +18,14 @@ src = [
 ]
 revision = "origin/main..."
 isort = true
+
+[tool.graylint]
+src = [
+    "release_tools",
+    "src",
+    "setup.py",
+]
+revision = "origin/main..."
 lint = [
     "flake8",
     "mypy",
