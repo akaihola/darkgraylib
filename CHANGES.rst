@@ -5,6 +5,9 @@ These features will be included in the next release:
 
 Added
 -----
+- The command ``graylint --config=check-darkgraylib.toml`` now runs Flake8_, Mypy_,
+  pydocstyle_, Pylint_ and Ruff_ on modified lines in Python files. Those tools are
+  included in the ``[test]`` extra.
 
 Removed
 -------
