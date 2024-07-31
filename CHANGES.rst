@@ -6,7 +6,8 @@ These features will be included in the next release:
 Added
 -----
 - Return exit code 3 if command line parsing fails. We want to reserve 2 for file not
-  found errors which will make GitHub actions easier.
+  found errors which will make GitHub actions easier. Also define constants for various
+  exit codes to be used in Darkgraylib and applications which use it.
 
 Fixed
 -----
