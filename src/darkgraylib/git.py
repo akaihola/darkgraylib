@@ -13,8 +13,7 @@ from pathlib import Path
 from subprocess import PIPE, CalledProcessError, check_output  # nosec
 from typing import Dict, Iterator, List, Match, Optional, Tuple, Union, cast, overload
 
-from darkgraylib.utils import GIT_DATEFORMAT, TextDocument
-
+from darkgraylib.utils import GIT_DATEFORMAT, WINDOWS, TextDocument
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +32,12 @@ COMMIT_RANGE_RE = re.compile(r"(.*?)(\.{2,3})(.*)$")
 WORKTREE = ":WORKTREE:"
 STDIN = ":STDIN:"
 PRE_COMMIT_FROM_TO_REFS = ":PRE-COMMIT:"
+
+# These are the environment variables to use when running Git.
+# See:
+# - https://github.com/git/git/blob/39bf06ad/git-compat-util.h#L566-L585
+# - https://github.com/git/git/blob/39bf06ad/compat/mingw.c#L2740-L2858
+GIT_ENV_VARS = {"HOME", "PATH"} if WINDOWS else {"EUID", "PATH", "SUDO_UID"}
 
 
 def git_get_version() -> Tuple[int, ...]:
@@ -235,15 +240,21 @@ class RevisionRange:
 
 @lru_cache(maxsize=1)
 def make_git_env() -> Dict[str, str]:
-    """Create custom minimal environment variables to use when invoking Git
+    """Create custom environment variables to use when invoking Git.
 
-    This makes sure that
+    This makes sure that:
     - Git always runs in English
     - ``$PATH`` is preserved (essential on NixOS)
+    - variables necessary for Git's dubious ownership detection are preserved:
+      - ``$EUID`` and ``$SUDO_UID`` on Unix
+      - ``$HOME`` on Windows
     - the environment is otherwise cleared
 
     """
-    return {"LC_ALL": "C", "PATH": os.environ["PATH"]}
+    return {
+        "LC_ALL": "C",
+        **{name: value for name, value in os.environ.items() if name in GIT_ENV_VARS},
+    }
 
 
 def git_check_output_lines(
