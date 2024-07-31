@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import sys
-from argparse import SUPPRESS, ArgumentError, ArgumentParser, Namespace
+from argparse import SUPPRESS, ArgumentParser, Namespace
 from functools import partial
 from typing import Any, Callable, Protocol, TypeVar
 
