@@ -359,3 +359,15 @@ def test_parse_command_line_load_config_hook_called(tmp_path, monkeypatch):
     )
 
     hook_mock.assert_called_once_with({"revision": "main"})
+
+
+def test_parse_command_line_invalid_arguments(capsys):
+    """Test that parse_command_line exits with code 3 for invalid arguments."""
+    with pytest.raises(SystemExit) as excinfo:
+        parse_command_line(
+            make_test_argument_parser, ["--invalid-option"], "darkgraylib", BaseConfig
+        )
+
+    assert excinfo.value.code == 3
+    captured = capsys.readouterr()
+    assert "error: unrecognized arguments: --invalid-option" in captured.err

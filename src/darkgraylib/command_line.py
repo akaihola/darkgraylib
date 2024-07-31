@@ -25,6 +25,11 @@ from darkgraylib.config import (
 )
 from darkgraylib.version import __version__
 
+EXIT_CODE_FILE_NOT_FOUND = 2
+EXIT_CODE_CMDLINE_ERROR = 3
+EXIT_CODE_DEPENDENCY = 4
+EXIT_CODE_UNKNOWN = 123
+
 
 def make_argument_parser(
     require_src: bool,
@@ -119,6 +124,24 @@ class ArgumentParserFactory(Protocol):  # pylint: disable=too-few-public-methods
         ...
 
 
+def parse_args(parser: ArgumentParser, argv: list[str]) -> Namespace:
+    """Parse command line arguments, exit with exit code 3 on error.
+
+    :param parser: The argument parser object
+    :param argv: Command line to parse
+    :return: The parsed command line arguments
+
+    """
+    try:
+        return parser.parse_args(argv)
+    except SystemExit as exc_info:
+        if exc_info.args == (2,):
+            # Change all exceptions from argparse to exit code 3 (cmdline error)
+            sys.exit(EXIT_CODE_CMDLINE_ERROR)
+        # For other exit codes, exit with the original code
+        raise
+
+
 def parse_command_line(
     argument_parser_factory: ArgumentParserFactory,
     argv: list[str] | None,
@@ -154,7 +177,7 @@ def parse_command_line(
     # 1. Parse the paths of files/directories to process into `args.src`, and the config
     #    file path into `args.config`.
     parser_for_srcs = argument_parser_factory(require_src=False)
-    args = parser_for_srcs.parse_args(argv)
+    args = parse_args(parser_for_srcs, argv)
 
     # 2. Locate `pyproject.toml` based on the `-c`/`--config` command line option, or
     #    if it's not provided, based on the paths to process, or in the current
@@ -172,14 +195,14 @@ def parse_command_line(
     #    based on the configuration file and the command line options for all options
     #    except `src` (the list of files to process).
     parser_for_srcs.set_defaults(**config)
-    args = parser_for_srcs.parse_args(argv)
+    args = parse_args(parser_for_srcs, argv)
 
     # 5. Make sure an error for missing file/directory paths is thrown if we're not
     #    running in stdin mode and no file/directory is configured in `pyproject.toml`.
     if args.stdin_filename is None and not config.get("src"):
         parser = argument_parser_factory(require_src=True)
         parser.set_defaults(**config)
-        args = parser.parse_args(argv)
+        args = parse_args(parser, argv)
 
     # Make sure there aren't invalid option combinations after merging configuration and
     # command line options.
