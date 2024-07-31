@@ -1,3 +1,3 @@
 """The version number for Darkgraylib is governed by this file."""
 
-__version__ = "1.3.2"
+__version__ = "2.0.0"
