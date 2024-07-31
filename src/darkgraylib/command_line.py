@@ -135,8 +135,11 @@ def parse_args(parser: ArgumentParser, argv: list[str]) -> Namespace:
     try:
         return parser.parse_args(argv)
     except SystemExit as exc_info:
-        exit_code, = exc_info.args
-        sys.exit(EXIT_CODE_CMDLINE_ERROR if exit_code == 2 else exit_code)
+        if exc_info.args == (2,):
+            # Change all exceptions from argparse to exit code 3 (cmdline error)
+            sys.exit(EXIT_CODE_CMDLINE_ERROR)
+        # For other exit codes, exit with the original code
+        raise
 
 
 def parse_command_line(
