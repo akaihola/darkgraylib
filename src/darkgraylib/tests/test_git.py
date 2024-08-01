@@ -119,7 +119,7 @@ def git_call(cmd, encoding=None):
         cwd=str(Path("/path")),
         encoding=encoding,
         stderr=PIPE,
-        env={"LC_ALL": "C", "PATH": os.environ["PATH"]},
+        env=ANY,
     )
 
 
@@ -453,3 +453,23 @@ def test_git_get_root_not_found(tmp_path, path):
     root = git.git_get_root(tmp_path / path)
 
     assert root is None
+
+
+def test_git_output_in_english(git_repo, monkeypatch):
+    """Git output is in English despite German language environment."""
+    # Set up German language environment
+    german_env = {
+        "LC_ALL": "de_DE.UTF-8",
+        "LC_CTYPE": "de_DE.UTF-8",
+        "LC_MESSAGES": "de_DE.UTF-8",
+        "LANG": "de_DE.UTF-8",
+    }
+    for key, value in german_env.items():
+        monkeypatch.setenv(key, value)
+
+    # Run a Git command and check its output
+    output = git.git_check_output_lines(["status"], git_repo.root)
+
+    # Verify that the output is in English
+    assert "No commits yet" in output
+    assert "Noch keine Commits" not in output

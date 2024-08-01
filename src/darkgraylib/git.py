@@ -243,18 +243,11 @@ def make_git_env() -> Dict[str, str]:
     """Create custom environment variables to use when invoking Git.
 
     This makes sure that:
-    - Git always runs in English
-    - ``$PATH`` is preserved (essential on NixOS)
-    - variables necessary for Git's dubious ownership detection are preserved:
-      - ``$EUID`` and ``$SUDO_UID`` on Unix
-      - ``$HOME`` on Windows
-    - the environment is otherwise cleared
+    - Git always runs in English (``LC_ALL`` is set to ``C.UTF-8``)
+    - The existing environment is preserved
 
     """
-    return {
-        "LC_ALL": "C",
-        **{name: value for name, value in os.environ.items() if name in GIT_ENV_VARS},
-    }
+    return {"LC_ALL": "C.UTF-8", **os.environ}
 
 
 def git_check_output_lines(
