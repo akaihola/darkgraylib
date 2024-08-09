@@ -15,7 +15,6 @@ from typing import Dict, Iterator, List, Match, Optional, Tuple, Union, cast, ov
 
 from darkgraylib.utils import GIT_DATEFORMAT, TextDocument
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -235,15 +234,14 @@ class RevisionRange:
 
 @lru_cache(maxsize=1)
 def make_git_env() -> Dict[str, str]:
-    """Create custom minimal environment variables to use when invoking Git
+    """Create custom environment variables to use when invoking Git.
 
-    This makes sure that
-    - Git always runs in English
-    - ``$PATH`` is preserved (essential on NixOS)
-    - the environment is otherwise cleared
+    This makes sure that:
+    - Git always runs in English (``LC_ALL`` is set to ``C.UTF-8``)
+    - The existing environment is preserved
 
     """
-    return {"LC_ALL": "C", "PATH": os.environ["PATH"]}
+    return {"LC_ALL": "C.UTF-8", **os.environ}
 
 
 def git_check_output_lines(

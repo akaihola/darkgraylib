@@ -8,6 +8,8 @@ Added
 
 Fixed
 -----
+- When running Git with a clean environment, keep all environment variables and just
+  override the language.
 
 
 2.0.0_ - 2024-07-31
