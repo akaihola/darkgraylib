@@ -8,6 +8,13 @@ Added
 
 Fixed
 -----
+
+
+2.0.1_ - 2024-08-09
+===================
+
+Fixed
+-----
 - When running Git with a clean environment, keep all environment variables and just
   override the language.
 
@@ -201,7 +208,11 @@ For changes before the migration of code from Darker to Darkgraylib, see
 
 __ https://github.com/akaihola/darker/blob/master/CHANGES.rst
 
-.. _Unreleased: https://github.com/akaihola/darkgraylib/compare/v1.3.0...HEAD
+.. _Unreleased: https://github.com/akaihola/darkgraylib/compare/v2.0.1...HEAD
+.. _2.0.1: https://github.com/akaihola/darkgraylib/compare/v2.0.0...v2.0.1
+.. _2.0.0: https://github.com/akaihola/darkgraylib/compare/v1.3.2...v2.0.0
+.. _1.3.2: https://github.com/akaihola/darkgraylib/compare/v1.3.1...v1.3.2
+.. _1.3.1: https://github.com/akaihola/darkgraylib/compare/v1.3.0...v1.3.1
 .. _1.3.0: https://github.com/akaihola/darkgraylib/compare/v1.2.1...v1.3.0
 .. _1.2.1: https://github.com/akaihola/darkgraylib/compare/v1.2.0...v1.2.1
 .. _1.2.0: https://github.com/akaihola/darkgraylib/compare/v1.1.0...v1.2.0
