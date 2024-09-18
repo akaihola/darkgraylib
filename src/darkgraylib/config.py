@@ -33,14 +33,14 @@ class BaseConfig(TypedDict, total=False):
 
     """
 
-    src: list[str]
-    revision: str
-    stdout: bool
+    color: bool
     config: str
     log_level: int | str
-    color: bool
-    workers: int
     quiet: bool
+    revision: str
+    src: list[str]
+    stdout: bool
+    workers: int
 
 
 class ConfigurationError(Exception):
