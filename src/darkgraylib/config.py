@@ -40,6 +40,7 @@ class BaseConfig(TypedDict, total=False):
     log_level: int | str
     color: bool
     workers: int
+    quiet: bool
 
 
 class ConfigurationError(Exception):
