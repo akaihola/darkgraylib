@@ -5,6 +5,7 @@ These features will be included in the next release:
 
 Added
 -----
+- Unit test for ``log_level`` option for `darkgraylib.config.load_config`.
 
 Fixed
 -----
