@@ -94,7 +94,7 @@ def validate_config_keys(
 
 def replace_log_level_name(config: BaseConfig) -> None:
     """Replace numeric log level in configuration with the name of the log level"""
-    if "log_level" in config:
+    if "log_level" in config and isinstance(config["log_level"], int):
         config["log_level"] = logging.getLevelName(config["log_level"])
 
 

@@ -102,7 +102,7 @@ class OriginTrackingConfig(BaseConfig):
     dict(
         srcs=["full_example/full.py"],
         expect={
-            "log_level": 10,
+            "log_level": 'DEBUG',
             "revision": "main",
             "src": ["src", "tests"],
         },
