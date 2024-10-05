@@ -8,6 +8,7 @@ Added
 
 Fixed
 -----
+- Keep Pylint below version 3.3.0 until we drop support for Python 3.8.
 
 
 2.0.1_ - 2024-08-09
