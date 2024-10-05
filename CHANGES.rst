@@ -11,6 +11,7 @@ Fixed
 -----
 - Keep Pylint below version 3.3.0 until we drop support for Python 3.8.
 - Don't convert ``log_level = "<string>"`` in the configuration file to an integer.
+- Add the ``quiet = <bool>`` configuration file option.
 
 
 2.0.1_ - 2024-08-09
