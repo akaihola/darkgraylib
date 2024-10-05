@@ -548,6 +548,8 @@ def test_dump_config(config, expect):
         ("workers = 1", {"workers": 1}),
         ("workers = 42", {"workers": 42}),
         ("invalid_option = 42", ConfigurationError),
+        ("quiet = false", {"quiet": False}),
+        ("quiet = true", {"quiet": True}),
     ],
 )
 def test_load_config(tmp_path, monkeypatch, config, expect):
