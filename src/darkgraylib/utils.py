@@ -28,7 +28,7 @@ class TextDocument:
     DEFAULT_ENCODING = "utf-8"
     DEFAULT_NEWLINE = "\n"
 
-    def __init__(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         string: str = None,
         lines: Iterable[str] = None,

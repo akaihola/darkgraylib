@@ -351,10 +351,9 @@ class OriginTrackingConfig(BaseConfig):
     confpath=None,
     expect={"config": "no_pyp"},
 )
-def test_load_config(
+def test_load_config(  # pylint: disable=too-many-arguments
     tmp_path, monkeypatch, srcs, cwd, confpath, expect
 ):
-    # pylint: disable=too-many-arguments,too-many-positional-arguments
     """``load_config()`` finds and loads configuration based on source file paths"""
     (tmp_path / ".git").mkdir()
     (tmp_path / "pyproject.toml").write_text('[tool.darkgraylib]\nconfig = "no_pyp"\n')
