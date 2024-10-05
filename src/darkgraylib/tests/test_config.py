@@ -6,6 +6,7 @@ from argparse import ArgumentParser, Namespace
 from textwrap import dedent
 
 import pytest
+from toml import TomlDecodeError
 
 from darkgraylib.config import (
     ConfigurationError,
@@ -102,7 +103,7 @@ class OriginTrackingConfig(BaseConfig):
     dict(
         srcs=["full_example/full.py"],
         expect={
-            "log_level": 10,
+            "log_level": 'DEBUG',
             "revision": "main",
             "src": ["src", "tests"],
         },
@@ -351,7 +352,7 @@ class OriginTrackingConfig(BaseConfig):
     confpath=None,
     expect={"config": "no_pyp"},
 )
-def test_load_config(  # pylint: disable=too-many-arguments
+def test_load_config_path(  # pylint: disable=too-many-arguments
     tmp_path, monkeypatch, srcs, cwd, confpath, expect
 ):
     """``load_config()`` finds and loads configuration based on source file paths"""
@@ -513,3 +514,38 @@ def test_dump_config(config, expect):
     result = dump_config(config, "darkgraylib")
 
     assert result == expect
+
+
+@pytest.mark.parametrize(
+    ["config", "expect"],
+    [
+        ("", {}),
+        ("log_level = 0", {"log_level": "NOTSET"}),
+        ("log_level = 'NOTSET'", {"log_level": "NOTSET"}),
+        ("log_level = 1", {"log_level": "Level 1"}),
+        ("log_level = 2", {"log_level": "Level 2"}),
+        ("log_level = 10", {"log_level": "DEBUG"}),
+        ("log_level = 'DEBUG'", {"log_level": "DEBUG"}),
+        ("log_level = DEBUG", TomlDecodeError),
+        ("log_level = 20", {"log_level": "INFO"}),
+        ("log_level = 'INFO'", {"log_level": "INFO"}),
+        ("log_level = 30", {"log_level": "WARNING"}),
+        ("log_level = 'WARNING'", {"log_level": "WARNING"}),
+        ("log_level = 40", {"log_level": "ERROR"}),
+        ("log_level = 'ERROR'", {"log_level": "ERROR"}),
+        ("log_level = 50", {"log_level": "CRITICAL"}),
+        ("log_level = 'CRITICAL'", {"log_level": "CRITICAL"}),
+    ],
+)
+def test_load_config(tmp_path, monkeypatch, config, expect):
+    """`load_config()` can load all supported options"""
+    (tmp_path / "pyproject.toml").write_text(f"[tool.darkgraylib]\n{config}\n")
+    monkeypatch.chdir(tmp_path)
+    with raises_if_exception(expect):
+
+        result = load_config(None, ["."], "darkgraylib", BaseConfig)
+
+        assert result == expect
+        assert {k: type(v) for k, v in result.items()} == {
+            k: type(v) for k, v in expect.items()
+        }
