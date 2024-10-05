@@ -520,6 +520,13 @@ def test_dump_config(config, expect):
     ["config", "expect"],
     [
         ("", {}),
+        ("src = []", {"src": []}),
+        ("src = ['your.py']", {"src": ["your.py"]}),
+        ("revision = 'your-branch'", {"revision": "your-branch"}),
+        ("stdout = false", {"stdout": False}),
+        ("stdout = true", {"stdout": True}),
+        ("stdout = no", TomlDecodeError),
+        ("config = 'your.conf'", {"config": "your.conf"}),
         ("log_level = 0", {"log_level": "NOTSET"}),
         ("log_level = 'NOTSET'", {"log_level": "NOTSET"}),
         ("log_level = 1", {"log_level": "Level 1"}),
@@ -535,6 +542,12 @@ def test_dump_config(config, expect):
         ("log_level = 'ERROR'", {"log_level": "ERROR"}),
         ("log_level = 50", {"log_level": "CRITICAL"}),
         ("log_level = 'CRITICAL'", {"log_level": "CRITICAL"}),
+        ("color = false", {"color": False}),
+        ("color = true", {"color": True}),
+        ("workers = 0", {"workers": 0}),
+        ("workers = 1", {"workers": 1}),
+        ("workers = 42", {"workers": 42}),
+        ("invalid_option = 42", ConfigurationError),
     ],
 )
 def test_load_config(tmp_path, monkeypatch, config, expect):
