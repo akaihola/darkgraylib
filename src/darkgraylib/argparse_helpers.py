@@ -194,7 +194,7 @@ def generate_options_for_readme(parser: ArgumentParser) -> str:
 class LogLevelAction(Action):  # pylint: disable=too-few-public-methods
     """Support for command line actions which increment/decrement the log level"""
 
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(  # pylint: disable=too-many-arguments,too-many-positional-arguments
         self,
         option_strings: List[str],
         dest: str,
