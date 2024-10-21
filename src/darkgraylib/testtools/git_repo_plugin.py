@@ -1,14 +1,19 @@
 """Git repository fixture as a Pytest plugin"""
 
+from __future__ import annotations
+
 import os
 import re
 from pathlib import Path
 from subprocess import check_call  # nosec
-from typing import Dict, Iterable, List, Union
+from typing import TYPE_CHECKING, Dict, Iterable, List, Union
 
 import pytest
 
 from darkgraylib.git import git_check_output_lines, git_get_version
+
+if TYPE_CHECKING:
+    from _pytest.tmpdir import TempPathFactory
 
 
 class GitRepoFixture:
@@ -129,6 +134,22 @@ def git_repo(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> GitRepoFixture:
     # variables for any Git commands run by the fixture, let's explicitly remove
     # `GIT_DIR` in case a test should call Git directly:
     monkeypatch.delenv("GIT_DIR", raising=False)
+
+    return repository
+
+
+@pytest.fixture(scope="module")
+def git_repo_m(
+    tmp_path_factory: TempPathFactory, monkeymodule: pytest.MonkeyPatch
+) -> GitRepoFixture:
+    """Create a temporary module-scope Git repository."""
+    temporary_path = tmp_path_factory.mktemp("git_repo_m")
+    repository = GitRepoFixture.create_repository(temporary_path)
+    monkeymodule.chdir(temporary_path)
+    # While `GitRepoFixture.create_repository()` already deletes `GIT_*` environment
+    # variables for any Git commands run by the fixture, let's explicitly remove
+    # `GIT_DIR` in case a test should call Git directly:
+    monkeymodule.delenv("GIT_DIR", raising=False)
 
     return repository
 
