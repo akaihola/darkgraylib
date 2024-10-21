@@ -259,6 +259,18 @@ def test_git_check_output_lines(
         check(git.git_check_output_lines(cmd, branched_repo.root, exit_on_error))
 
 
+@pytest.fixture(scope="module")
+def two_file_repo(request, tmp_path_factory):
+    """Make a Git repo with two files in the root, and the hash of the first commit."""
+    with GitRepoFixture.context(request, tmp_path_factory) as repo:
+        fixture = SimpleNamespace()
+        repo.add({"file1": "file1"}, commit="Initial commit")
+        fixture.initial = repo.get_hash()[:7]
+        repo.add({"file2": "file2"}, commit="Second commit")
+        fixture.root = repo.root
+        yield fixture
+
+
 @pytest.mark.kwparametrize(
     dict(
         cmd=["show", "{initial}:/.file2"],
@@ -289,32 +301,32 @@ def test_git_check_output_lines(
     expect_log=r"$",
 )
 def test_git_check_output_lines_stderr_and_log(
-    git_repo, capfd, caplog, cmd, exit_on_error, expect_exc, expect_stderr, expect_log
+    two_file_repo,
+    capfd,
+    caplog,
+    cmd,
+    exit_on_error,
+    expect_exc,
+    expect_stderr,
+    expect_log,
 ):
     """Git non-existing file error is logged and suppressed from stderr"""
-    git_repo.add({"file1": "file1"}, commit="Initial commit")
-    initial = git_repo.get_hash()[:7]
-    git_repo.add({"file2": "file2"}, commit="Second commit")
-    capfd.readouterr()  # flush captured stdout and stderr
-    cmdline = [s.format(initial=initial) for s in cmd]
+    cmdline = [s.format(initial=two_file_repo.initial) for s in cmd]
     with pytest.raises(expect_exc):
-        git.git_check_output_lines(cmdline, git_repo.root, exit_on_error)
+        git.git_check_output_lines(cmdline, two_file_repo.root, exit_on_error)
 
     outerr = capfd.readouterr()
     assert outerr.out == ""
     assert outerr.err == expect_stderr
-    expect_log_re = expect_log.format(initial=initial)
+    expect_log_re = expect_log.format(initial=two_file_repo.initial)
     assert re.search(expect_log_re, caplog.text), repr(caplog.text)
 
 
-def test_git_get_content_at_revision_stderr(git_repo, capfd, caplog):
-    """No stderr or log output from ``git_get_content_at_revision`` for missing file"""
-    git_repo.add({"file1": "file1"}, commit="Initial commit")
-    initial = git_repo.get_hash()[:7]
-    git_repo.add({"file2": "file2"}, commit="Second commit")
-    capfd.readouterr()  # flush captured stdout and stderr
-
-    result = git.git_get_content_at_revision(Path("file2"), initial, git_repo.root)
+def test_git_get_content_at_revision_stderr(two_file_repo, capfd, caplog):
+    """No stderr/log output from `git.git_get_content_at_revision` for missing file."""
+    result = git.git_get_content_at_revision(
+        Path("file2"), two_file_repo.initial, two_file_repo.root
+    )
 
     assert result == TextDocument()
     outerr = capfd.readouterr()
