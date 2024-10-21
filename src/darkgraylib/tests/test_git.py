@@ -356,22 +356,32 @@ def test_git_get_content_at_revision_encoding(encodings_repo, commit, encoding, 
     assert result.lines == lines
 
 
+@pytest.fixture(scope="module")
+def git_clone_local_branch_fixture(git_repo_m):
+    """Git repository with three branches and a file with different content in each."""
+    git_repo_m.add({"a.py": "first"}, commit="first")
+    git_repo_m.create_branch("first", "HEAD")
+    git_repo_m.create_branch("second", "HEAD")
+    git_repo_m.add({"a.py": "second"}, commit="second")
+    git_repo_m.create_branch("third", "HEAD")
+    git_repo_m.add({"a.py": "third"}, commit="third")
+    return git_repo_m
+
+
 @pytest.mark.kwparametrize(
     dict(branch="first", expect="first"),
     dict(branch="second", expect="second"),
     dict(branch="third", expect="third"),
     dict(branch="HEAD", expect="third"),
 )
-def test_git_clone_local_branch(git_repo, tmp_path, branch, expect):
-    """``git_clone_local()`` checks out the specified branch"""
-    git_repo.add({"a.py": "first"}, commit="first")
-    git_repo.create_branch("first", "HEAD")
-    git_repo.create_branch("second", "HEAD")
-    git_repo.add({"a.py": "second"}, commit="second")
-    git_repo.create_branch("third", "HEAD")
-    git_repo.add({"a.py": "third"}, commit="third")
+def test_git_clone_local_branch(
+    git_clone_local_branch_fixture, tmp_path, branch, expect
+):
+    """`git_clone_local` checks out the specified branch."""
 
-    with git.git_clone_local(git_repo.root, branch, tmp_path / "clone") as clone:
+    with git.git_clone_local(
+        git_clone_local_branch_fixture.root, branch, tmp_path / "clone"
+    ) as clone:
         assert (clone / "a.py").read_text() == expect
 
 
