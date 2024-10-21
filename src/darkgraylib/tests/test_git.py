@@ -457,6 +457,21 @@ def test_git_clone_local_command(git_clone_local_command_fixture, branch):
     fixture.check_output.assert_has_calls([fixture.post_call])
 
 
+@pytest.fixture(scope="module")
+def git_get_root_repo(request, tmp_path_factory):
+    """Make a Git repository with files in the root and in subdirectories."""
+    with GitRepoFixture.context(request, tmp_path_factory) as repo:
+        repo.add(
+            {
+                "root.py": "root",
+                "subdir/sub.py": "sub",
+                "subdir/subsubdir/subsub.py": "subsub",
+            },
+            commit="Initial commit",
+        )
+        yield repo
+
+
 @pytest.mark.parametrize(
     "path",
     [
@@ -468,20 +483,11 @@ def test_git_clone_local_command(git_clone_local_command_fixture, branch):
         "subdir/subsubdir/subsub.py",
     ],
 )
-def test_git_get_root(git_repo, path):
-    """``git_get_root()`` returns repository root for any file or directory inside"""
-    git_repo.add(
-        {
-            "root.py": "root",
-            "subdir/sub.py": "sub",
-            "subdir/subsubdir/subsub.py": "subsub",
-        },
-        commit="Initial commit",
-    )
+def test_git_get_root(git_get_root_repo, path):
+    """`git.git_get_root` returns repository root for any file or directory inside."""
+    root = git.git_get_root(git_get_root_repo.root / path)
 
-    root = git.git_get_root(git_repo.root / path)
-
-    assert root == git_repo.root
+    assert root == git_get_root_repo.root
 
 
 @pytest.mark.parametrize(
