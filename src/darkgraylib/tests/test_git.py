@@ -79,6 +79,17 @@ def test_git_get_mtime_at_commit():
         assert result == "2020-12-27 21:33:59.000000 +0000"
 
 
+@pytest.fixture(scope="module")
+def git_get_content_at_revision_repo(request, tmp_path_factory):
+    """Return Git repository fixture with a file that changes over time."""
+    with GitRepoFixture.context(request, tmp_path_factory) as repo:
+        repo.add({"my.txt": "original content"}, commit="Initial commit")
+        paths = repo.add({"my.txt": "modified content"}, commit="Second commit")
+        paths["my.txt"].write_bytes(b"new content")
+        os.utime(paths["my.txt"], (1000000000, 1000000000))
+        yield repo
+
+
 @pytest.mark.kwparametrize(
     dict(
         revision=":WORKTREE:",
@@ -97,15 +108,12 @@ def test_git_get_mtime_at_commit():
     ),
     dict(revision="HEAD~2", expect_lines=(), expect_mtime=False),
 )
-def test_git_get_content_at_revision(git_repo, revision, expect_lines, expect_mtime):
-    """darkgraylib.git.git_get_content_at_revision()"""
-    git_repo.add({"my.txt": "original content"}, commit="Initial commit")
-    paths = git_repo.add({"my.txt": "modified content"}, commit="Initial commit")
-    paths["my.txt"].write_bytes(b"new content")
-    os.utime(paths["my.txt"], (1000000000, 1000000000))
-
+def test_git_get_content_at_revision(
+    git_get_content_at_revision_repo, revision, expect_lines, expect_mtime
+):
+    """Test for `git.git_get_content_at_revision`."""
     result = git.git_get_content_at_revision(
-        Path("my.txt"), revision, cwd=Path(git_repo.root)
+        Path("my.txt"), revision, cwd=Path(git_get_content_at_revision_repo.root)
     )
 
     assert result.lines == expect_lines
