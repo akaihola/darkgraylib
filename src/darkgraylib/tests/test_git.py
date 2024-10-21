@@ -9,6 +9,7 @@ import re
 from datetime import datetime, timedelta
 from pathlib import Path
 from subprocess import PIPE, CalledProcessError  # nosec
+from types import SimpleNamespace
 from typing import List, Union
 from unittest.mock import ANY, Mock, call, patch
 
@@ -402,34 +403,58 @@ def test_git_clone_local_branch(git_clone_local_branch_repo, tmp_path, branch, e
         assert (clone / "a.py").read_text() == expect
 
 
+@pytest.fixture(scope="module")
+def git_clone_local_command_fixture(request, tmp_path_factory):
+    """Repository and other fixtures for `git.git_clone_local` tests."""
+    with GitRepoFixture.context(request, tmp_path_factory) as repo:
+        fixture = SimpleNamespace()
+        fixture.root = repo.root
+        repo.add({"a.py": "first"}, commit="first")
+        repo.create_branch("mybranch", "HEAD")
+        fixture.check_output = Mock(
+            wraps=git.check_output  # type: ignore[attr-defined]
+        )
+        temporary_path = tmp_path_factory.mktemp("git_clone_local_command")
+        fixture.clone = temporary_path / "clone"
+        fixture.check_output_opts = dict(
+            cwd=str(repo.root), encoding=None, stderr=PIPE, env=ANY
+        )
+        fixture.post_call = call(
+            ["git", "worktree", "remove", "--force", "--force", str(fixture.clone)],
+            **fixture.check_output_opts,
+        )
+        yield fixture
+
+
 @pytest.mark.kwparametrize(
     dict(branch="HEAD"),
     dict(branch="mybranch"),
 )
-def test_git_clone_local_command(git_repo, tmp_path, branch):
-    """``git_clone_local()`` issues the correct Git command and options"""
-    git_repo.add({"a.py": "first"}, commit="first")
-    git_repo.create_branch("mybranch", "HEAD")
-    check_output = Mock(wraps=git.check_output)  # type: ignore[attr-defined]
-    clone = tmp_path / "clone"
-    check_output_opts = dict(
-        cwd=str(git_repo.root), encoding=None, stderr=PIPE, env=ANY
-    )
+def test_git_clone_local_command(git_clone_local_command_fixture, branch):
+    """`git.git_clone_local` issues the correct Git command and options."""
+    fixture = git_clone_local_command_fixture
     pre_call = call(
-        ["git", "worktree", "add", "--quiet", "--force", "--force", str(clone), branch],
-        **check_output_opts,
+        [
+            "git",
+            "worktree",
+            "add",
+            "--quiet",
+            "--force",
+            "--force",
+            str(fixture.clone),
+            branch,
+        ],
+        **fixture.check_output_opts,
     )
-    post_call = call(
-        ["git", "worktree", "remove", "--force", "--force", str(clone)],
-        **check_output_opts,
-    )
-    with patch.object(git, "check_output", check_output):
-        with git.git_clone_local(git_repo.root, branch, clone) as result:
-            assert result == clone
+    with patch.object(git, "check_output", fixture.check_output), git.git_clone_local(
+        fixture.root, branch, fixture.clone
+    ) as result:
+        # function called, begin assertions
 
-            check_output.assert_has_calls([pre_call])
-            check_output.reset_mock()
-    check_output.assert_has_calls([post_call])
+        assert result == fixture.clone
+        fixture.check_output.assert_has_calls([pre_call])
+        fixture.check_output.reset_mock()
+    fixture.check_output.assert_has_calls([fixture.post_call])
 
 
 @pytest.mark.parametrize(
