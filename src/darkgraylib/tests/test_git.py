@@ -1,5 +1,6 @@
 """Tests for the `darkgraylib.git` module."""
 
+# pylint: disable=no-member  # context managers misfire Pylint's member-checking
 # pylint: disable=redefined-outer-name  # fixtures misfire Pylint's redefinition checks
 # pylint: disable=use-dict-literal  # dict() ok with kwparametrize
 
@@ -367,22 +368,29 @@ def test_git_get_content_at_revision_encoding(encodings_repo, commit, encoding, 
     assert result.lines == lines
 
 
+@pytest.fixture(scope="module")
+def git_clone_local_branch_repo(request, tmp_path_factory):
+    """Git repository with three branches and a file with different content in each."""
+    with GitRepoFixture.context(request, tmp_path_factory) as repo:
+        repo.add({"a.py": "first"}, commit="first")
+        repo.create_branch("first", "HEAD")
+        repo.create_branch("second", "HEAD")
+        repo.add({"a.py": "second"}, commit="second")
+        repo.create_branch("third", "HEAD")
+        repo.add({"a.py": "third"}, commit="third")
+        yield repo
+
+
 @pytest.mark.kwparametrize(
     dict(branch="first", expect="first"),
     dict(branch="second", expect="second"),
     dict(branch="third", expect="third"),
     dict(branch="HEAD", expect="third"),
 )
-def test_git_clone_local_branch(git_repo, tmp_path, branch, expect):
-    """``git_clone_local()`` checks out the specified branch"""
-    git_repo.add({"a.py": "first"}, commit="first")
-    git_repo.create_branch("first", "HEAD")
-    git_repo.create_branch("second", "HEAD")
-    git_repo.add({"a.py": "second"}, commit="second")
-    git_repo.create_branch("third", "HEAD")
-    git_repo.add({"a.py": "third"}, commit="third")
-
-    with git.git_clone_local(git_repo.root, branch, tmp_path / "clone") as clone:
+def test_git_clone_local_branch(git_clone_local_branch_repo, tmp_path, branch, expect):
+    """`git_clone_local` checks out the specified branch."""
+    repo = git_clone_local_branch_repo
+    with git.git_clone_local(repo.root, branch, tmp_path / "clone") as clone:
         assert (clone / "a.py").read_text() == expect
 
 
