@@ -1,3 +1,8 @@
+"""Tests for the `darkgraylib.git` module."""
+
+# pylint: disable=redefined-outer-name  # fixtures misfire Pylint's redefinition checks
+# pylint: disable=use-dict-literal  # dict() ok with kwparametrize
+
 import os
 import re
 from datetime import datetime, timedelta
@@ -9,7 +14,7 @@ from unittest.mock import ANY, Mock, call, patch
 import pytest
 
 from darkgraylib import git
-from darkgraylib.testtools.git_repo_plugin import GitRepoFixture
+from darkgraylib.testtools.git_repo_plugin import GitRepoFixture, branched_repo
 from darkgraylib.testtools.helpers import raises_or_matches
 from darkgraylib.utils import GIT_DATEFORMAT, TextDocument
 
@@ -177,6 +182,9 @@ def test_git_get_content_at_revision_obtain_file_content(
         assert text_document_class.method_calls == expect_textdocument_calls
 
 
+git_check_output_lines_repo = pytest.fixture(scope="module")(branched_repo)
+
+
 @pytest.mark.kwparametrize(
     dict(cmd=[], exit_on_error=True, expect_template=CalledProcessError(1, "")),
     dict(
@@ -227,8 +235,11 @@ def test_git_get_content_at_revision_obtain_file_content(
         expect_template=CalledProcessError(128, ""),
     ),
 )
-def test_git_check_output_lines(branched_repo, cmd, exit_on_error, expect_template):
+def test_git_check_output_lines(
+    git_check_output_lines_repo, cmd, exit_on_error, expect_template
+):
     """Unit test for :func:`git_check_output_lines`"""
+    branched_repo = git_check_output_lines_repo
     if isinstance(expect_template, BaseException):
         expect: Union[List[str], BaseException] = expect_template
     else:
