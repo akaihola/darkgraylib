@@ -10,7 +10,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from shutil import rmtree
 from subprocess import check_call  # nosec
-from typing import Dict, Generator, Iterable, List, Union
+from typing import Generator, Iterable
 
 import pytest
 from _pytest.tmpdir import _mk_tmp
@@ -21,7 +21,7 @@ from darkgraylib.git import git_check_output_lines, git_get_version
 class GitRepoFixture:
     """Fixture for managing temporary Git repositories"""
 
-    def __init__(self, root: Path, env: Dict[str, str]):
+    def __init__(self, root: Path, env: dict[str, str]) -> None:
         self.root = root
         self.env = env
 
@@ -67,7 +67,7 @@ class GitRepoFixture:
         yield from cls.tmp_repo(request, tmp_path_factory)
 
     @classmethod
-    def create_repository(cls, root: Path) -> "GitRepoFixture":
+    def create_repository(cls, root: Path) -> GitRepoFixture:
         """Fixture method for creating a Git repository in the given directory"""
         # For testing, ignore ~/.gitconfig settings like templateDir and defaultBranch.
         # Also, this makes sure GIT_DIR or other GIT_* variables are not set, and that
@@ -92,8 +92,10 @@ class GitRepoFixture:
         return git_check_output_lines(list(args), Path(self.root))[0]
 
     def add(
-        self, paths_and_contents: Dict[str, Union[str, bytes, None]], commit: str = None
-    ) -> Dict[str, Path]:
+        self,
+        paths_and_contents: dict[str, str | bytes | None],
+        commit: str | None = None,
+    ) -> dict[str, Path]:
         """Add/remove/modify files and optionally commit the changes
 
         :param paths_and_contents: Paths of the files relative to repository root, and
@@ -148,7 +150,7 @@ class GitRepoFixture:
         """Fixture method to create and check out new branch at given starting point"""
         self._run("checkout", "-b", new_branch, start_point)
 
-    def expand_root(self, lines: Iterable[str]) -> List[str]:
+    def expand_root(self, lines: Iterable[str]) -> list[str]:
         """Replace "{root/<path>}" in strings with the path in the temporary Git repo
 
         This is used to generate expected strings corresponding to locations of files in
