@@ -22,6 +22,7 @@ class GitRepoFixture:
     """Fixture for managing temporary Git repositories"""
 
     def __init__(self, root: Path, env: dict[str, str]) -> None:
+        """Use given environment, and directory as the root of the Git repository."""
         self.root = root
         self.env = env
 
