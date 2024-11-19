@@ -5,6 +5,16 @@ These features will be included in the next release:
 
 Added
 -----
+
+Fixed
+-----
+
+
+2.1.0_ - 2024-11-19
+===================
+
+Added
+-----
 - Tools for easy creation of differently scoped Git repository fixtures for tests.
   Helps speed up parameterized tests that need a Git repository, especially on Windows
   where Git process forks are comically expensive. The ``test_git.py`` test module now
@@ -216,7 +226,8 @@ For changes before the migration of code from Darker to Darkgraylib, see
 
 __ https://github.com/akaihola/darker/blob/master/CHANGES.rst
 
-.. _Unreleased: https://github.com/akaihola/darkgraylib/compare/v2.0.1...HEAD
+.. _Unreleased: https://github.com/akaihola/darkgraylib/compare/v2.1.0...HEAD
+.. _2.1.0: https://github.com/akaihola/darkgraylib/compare/v2.0.1...v2.1.0
 .. _2.0.1: https://github.com/akaihola/darkgraylib/compare/v2.0.0...v2.0.1
 .. _2.0.0: https://github.com/akaihola/darkgraylib/compare/v1.3.2...v2.0.0
 .. _1.3.2: https://github.com/akaihola/darkgraylib/compare/v1.3.1...v1.3.2
