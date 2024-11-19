@@ -1,15 +1,22 @@
+"""Tests for the `darkgraylib.git` module."""
+
+# pylint: disable=no-member  # context managers misfire Pylint's member-checking
+# pylint: disable=redefined-outer-name  # fixtures misfire Pylint's redefinition checks
+# pylint: disable=use-dict-literal  # dict() ok with kwparametrize
+
 import os
 import re
 from datetime import datetime, timedelta
 from pathlib import Path
 from subprocess import PIPE, CalledProcessError  # nosec
+from types import SimpleNamespace
 from typing import List, Union
 from unittest.mock import ANY, Mock, call, patch
 
 import pytest
 
 from darkgraylib import git
-from darkgraylib.testtools.git_repo_plugin import GitRepoFixture
+from darkgraylib.testtools.git_repo_plugin import GitRepoFixture, branched_repo
 from darkgraylib.testtools.helpers import raises_or_matches
 from darkgraylib.utils import GIT_DATEFORMAT, TextDocument
 
@@ -73,6 +80,17 @@ def test_git_get_mtime_at_commit():
         assert result == "2020-12-27 21:33:59.000000 +0000"
 
 
+@pytest.fixture(scope="module")
+def git_get_content_at_revision_repo(request, tmp_path_factory):
+    """Return Git repository fixture with a file that changes over time."""
+    with GitRepoFixture.context(request, tmp_path_factory) as repo:
+        repo.add({"my.txt": "original content"}, commit="Initial commit")
+        paths = repo.add({"my.txt": "modified content"}, commit="Second commit")
+        paths["my.txt"].write_bytes(b"new content")
+        os.utime(paths["my.txt"], (1000000000, 1000000000))
+        yield repo
+
+
 @pytest.mark.kwparametrize(
     dict(
         revision=":WORKTREE:",
@@ -91,15 +109,12 @@ def test_git_get_mtime_at_commit():
     ),
     dict(revision="HEAD~2", expect_lines=(), expect_mtime=False),
 )
-def test_git_get_content_at_revision(git_repo, revision, expect_lines, expect_mtime):
-    """darkgraylib.git.git_get_content_at_revision()"""
-    git_repo.add({"my.txt": "original content"}, commit="Initial commit")
-    paths = git_repo.add({"my.txt": "modified content"}, commit="Initial commit")
-    paths["my.txt"].write_bytes(b"new content")
-    os.utime(paths["my.txt"], (1000000000, 1000000000))
-
+def test_git_get_content_at_revision(
+    git_get_content_at_revision_repo, revision, expect_lines, expect_mtime
+):
+    """Test for `git.git_get_content_at_revision`."""
     result = git.git_get_content_at_revision(
-        Path("my.txt"), revision, cwd=Path(git_repo.root)
+        Path("my.txt"), revision, cwd=Path(git_get_content_at_revision_repo.root)
     )
 
     assert result.lines == expect_lines
@@ -177,6 +192,9 @@ def test_git_get_content_at_revision_obtain_file_content(
         assert text_document_class.method_calls == expect_textdocument_calls
 
 
+git_check_output_lines_repo = pytest.fixture(scope="module")(branched_repo)
+
+
 @pytest.mark.kwparametrize(
     dict(cmd=[], exit_on_error=True, expect_template=CalledProcessError(1, "")),
     dict(
@@ -227,8 +245,11 @@ def test_git_get_content_at_revision_obtain_file_content(
         expect_template=CalledProcessError(128, ""),
     ),
 )
-def test_git_check_output_lines(branched_repo, cmd, exit_on_error, expect_template):
+def test_git_check_output_lines(
+    git_check_output_lines_repo, cmd, exit_on_error, expect_template
+):
     """Unit test for :func:`git_check_output_lines`"""
+    branched_repo = git_check_output_lines_repo
     if isinstance(expect_template, BaseException):
         expect: Union[List[str], BaseException] = expect_template
     else:
@@ -236,6 +257,18 @@ def test_git_check_output_lines(branched_repo, cmd, exit_on_error, expect_templa
         expect = [replacements.get(line, line) for line in expect_template]
     with raises_or_matches(expect, ["returncode", "code"]) as check:
         check(git.git_check_output_lines(cmd, branched_repo.root, exit_on_error))
+
+
+@pytest.fixture(scope="module")
+def two_file_repo(request, tmp_path_factory):
+    """Make a Git repo with two files in the root, and the hash of the first commit."""
+    with GitRepoFixture.context(request, tmp_path_factory) as repo:
+        fixture = SimpleNamespace()
+        repo.add({"file1": "file1"}, commit="Initial commit")
+        fixture.initial = repo.get_hash()[:7]
+        repo.add({"file2": "file2"}, commit="Second commit")
+        fixture.root = repo.root
+        yield fixture
 
 
 @pytest.mark.kwparametrize(
@@ -268,32 +301,32 @@ def test_git_check_output_lines(branched_repo, cmd, exit_on_error, expect_templa
     expect_log=r"$",
 )
 def test_git_check_output_lines_stderr_and_log(
-    git_repo, capfd, caplog, cmd, exit_on_error, expect_exc, expect_stderr, expect_log
+    two_file_repo,
+    capfd,
+    caplog,
+    cmd,
+    exit_on_error,
+    expect_exc,
+    expect_stderr,
+    expect_log,
 ):
     """Git non-existing file error is logged and suppressed from stderr"""
-    git_repo.add({"file1": "file1"}, commit="Initial commit")
-    initial = git_repo.get_hash()[:7]
-    git_repo.add({"file2": "file2"}, commit="Second commit")
-    capfd.readouterr()  # flush captured stdout and stderr
-    cmdline = [s.format(initial=initial) for s in cmd]
+    cmdline = [s.format(initial=two_file_repo.initial) for s in cmd]
     with pytest.raises(expect_exc):
-        git.git_check_output_lines(cmdline, git_repo.root, exit_on_error)
+        git.git_check_output_lines(cmdline, two_file_repo.root, exit_on_error)
 
     outerr = capfd.readouterr()
     assert outerr.out == ""
     assert outerr.err == expect_stderr
-    expect_log_re = expect_log.format(initial=initial)
+    expect_log_re = expect_log.format(initial=two_file_repo.initial)
     assert re.search(expect_log_re, caplog.text), repr(caplog.text)
 
 
-def test_git_get_content_at_revision_stderr(git_repo, capfd, caplog):
-    """No stderr or log output from ``git_get_content_at_revision`` for missing file"""
-    git_repo.add({"file1": "file1"}, commit="Initial commit")
-    initial = git_repo.get_hash()[:7]
-    git_repo.add({"file2": "file2"}, commit="Second commit")
-    capfd.readouterr()  # flush captured stdout and stderr
-
-    result = git.git_get_content_at_revision(Path("file2"), initial, git_repo.root)
+def test_git_get_content_at_revision_stderr(two_file_repo, capfd, caplog):
+    """No stderr/log output from `git.git_get_content_at_revision` for missing file."""
+    result = git.git_get_content_at_revision(
+        Path("file2"), two_file_repo.initial, two_file_repo.root
+    )
 
     assert result == TextDocument()
     outerr = capfd.readouterr()
@@ -356,53 +389,99 @@ def test_git_get_content_at_revision_encoding(encodings_repo, commit, encoding, 
     assert result.lines == lines
 
 
+@pytest.fixture(scope="module")
+def git_clone_local_branch_repo(request, tmp_path_factory):
+    """Git repository with three branches and a file with different content in each."""
+    with GitRepoFixture.context(request, tmp_path_factory) as repo:
+        repo.add({"a.py": "first"}, commit="first")
+        repo.create_branch("first", "HEAD")
+        repo.create_branch("second", "HEAD")
+        repo.add({"a.py": "second"}, commit="second")
+        repo.create_branch("third", "HEAD")
+        repo.add({"a.py": "third"}, commit="third")
+        yield repo
+
+
 @pytest.mark.kwparametrize(
     dict(branch="first", expect="first"),
     dict(branch="second", expect="second"),
     dict(branch="third", expect="third"),
     dict(branch="HEAD", expect="third"),
 )
-def test_git_clone_local_branch(git_repo, tmp_path, branch, expect):
-    """``git_clone_local()`` checks out the specified branch"""
-    git_repo.add({"a.py": "first"}, commit="first")
-    git_repo.create_branch("first", "HEAD")
-    git_repo.create_branch("second", "HEAD")
-    git_repo.add({"a.py": "second"}, commit="second")
-    git_repo.create_branch("third", "HEAD")
-    git_repo.add({"a.py": "third"}, commit="third")
-
-    with git.git_clone_local(git_repo.root, branch, tmp_path / "clone") as clone:
+def test_git_clone_local_branch(git_clone_local_branch_repo, tmp_path, branch, expect):
+    """`git_clone_local` checks out the specified branch."""
+    repo = git_clone_local_branch_repo
+    with git.git_clone_local(repo.root, branch, tmp_path / "clone") as clone:
         assert (clone / "a.py").read_text() == expect
+
+
+@pytest.fixture(scope="module")
+def git_clone_local_command_fixture(request, tmp_path_factory):
+    """Repository and other fixtures for `git.git_clone_local` tests."""
+    with GitRepoFixture.context(request, tmp_path_factory) as repo:
+        fixture = SimpleNamespace()
+        fixture.root = repo.root
+        repo.add({"a.py": "first"}, commit="first")
+        repo.create_branch("mybranch", "HEAD")
+        fixture.check_output = Mock(
+            wraps=git.check_output  # type: ignore[attr-defined]
+        )
+        temporary_path = tmp_path_factory.mktemp("git_clone_local_command")
+        fixture.clone = temporary_path / "clone"
+        fixture.check_output_opts = dict(
+            cwd=str(repo.root), encoding=None, stderr=PIPE, env=ANY
+        )
+        fixture.post_call = call(
+            ["git", "worktree", "remove", "--force", "--force", str(fixture.clone)],
+            **fixture.check_output_opts,
+        )
+        yield fixture
 
 
 @pytest.mark.kwparametrize(
     dict(branch="HEAD"),
     dict(branch="mybranch"),
 )
-def test_git_clone_local_command(git_repo, tmp_path, branch):
-    """``git_clone_local()`` issues the correct Git command and options"""
-    git_repo.add({"a.py": "first"}, commit="first")
-    git_repo.create_branch("mybranch", "HEAD")
-    check_output = Mock(wraps=git.check_output)  # type: ignore[attr-defined]
-    clone = tmp_path / "clone"
-    check_output_opts = dict(
-        cwd=str(git_repo.root), encoding=None, stderr=PIPE, env=ANY
-    )
+def test_git_clone_local_command(git_clone_local_command_fixture, branch):
+    """`git.git_clone_local` issues the correct Git command and options."""
+    fixture = git_clone_local_command_fixture
     pre_call = call(
-        ["git", "worktree", "add", "--quiet", "--force", "--force", str(clone), branch],
-        **check_output_opts,
+        [
+            "git",
+            "worktree",
+            "add",
+            "--quiet",
+            "--force",
+            "--force",
+            str(fixture.clone),
+            branch,
+        ],
+        **fixture.check_output_opts,
     )
-    post_call = call(
-        ["git", "worktree", "remove", "--force", "--force", str(clone)],
-        **check_output_opts,
-    )
-    with patch.object(git, "check_output", check_output):
-        with git.git_clone_local(git_repo.root, branch, clone) as result:
-            assert result == clone
+    with patch.object(git, "check_output", fixture.check_output), git.git_clone_local(
+        fixture.root, branch, fixture.clone
+    ) as result:
+        # function called, begin assertions
 
-            check_output.assert_has_calls([pre_call])
-            check_output.reset_mock()
-    check_output.assert_has_calls([post_call])
+        assert result == fixture.clone
+        fixture.check_output.assert_has_calls([pre_call])
+        fixture.check_output.reset_mock()
+    fixture.check_output.assert_has_calls([fixture.post_call])
+
+
+@pytest.fixture(scope="module")
+def git_get_root_repo(request, tmp_path_factory):
+    """Make a Git repository with files in the root and in subdirectories."""
+    with GitRepoFixture.context(request, tmp_path_factory) as repo:
+        repo.add(
+            {
+                "root.py": "root",
+                "subdir/sub.py": "sub",
+                "subdir/subsubdir/subsub.py": "subsub",
+            },
+            commit="Initial commit",
+        )
+        yield repo
 
 
 @pytest.mark.parametrize(
@@ -416,20 +495,11 @@ def test_git_clone_local_command(git_repo, tmp_path, branch):
         "subdir/subsubdir/subsub.py",
     ],
 )
-def test_git_get_root(git_repo, path):
-    """``git_get_root()`` returns repository root for any file or directory inside"""
-    git_repo.add(
-        {
-            "root.py": "root",
-            "subdir/sub.py": "sub",
-            "subdir/subsubdir/subsub.py": "subsub",
-        },
-        commit="Initial commit",
-    )
+def test_git_get_root(git_get_root_repo, path):
+    """`git.git_get_root` returns repository root for any file or directory inside."""
+    root = git.git_get_root(git_get_root_repo.root / path)
 
-    root = git.git_get_root(git_repo.root / path)
-
-    assert root == git_repo.root
+    assert root == git_get_root_repo.root
 
 
 @pytest.mark.parametrize(

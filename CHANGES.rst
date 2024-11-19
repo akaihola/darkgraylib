@@ -5,6 +5,10 @@ These features will be included in the next release:
 
 Added
 -----
+- Tools for easy creation of differently scoped Git repository fixtures for tests.
+  Helps speed up parameterized tests that need a Git repository, especially on Windows
+  where Git process forks are comically expensive. The ``test_git.py`` test module now
+  makes use of this and runs in 9s instead of 18s on one Windows laptop.
 - Unit tests of configuration file options for `darkgraylib.config.load_config`.
 
 Fixed

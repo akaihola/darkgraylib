@@ -1,12 +1,19 @@
 """Git repository fixture as a Pytest plugin"""
 
+# pylint: disable=no-member  # context managers misfire Pylint's member-checking
+
+from __future__ import annotations
+
 import os
 import re
+from contextlib import contextmanager
 from pathlib import Path
+from shutil import rmtree
 from subprocess import check_call  # nosec
-from typing import Dict, Iterable, List, Union
+from typing import Generator, Iterable
 
 import pytest
+from _pytest.tmpdir import _mk_tmp
 
 from darkgraylib.git import git_check_output_lines, git_get_version
 
@@ -14,12 +21,54 @@ from darkgraylib.git import git_check_output_lines, git_get_version
 class GitRepoFixture:
     """Fixture for managing temporary Git repositories"""
 
-    def __init__(self, root: Path, env: Dict[str, str]):
+    def __init__(self, root: Path, env: dict[str, str]) -> None:
+        """Use given environment, and directory as the root of the Git repository."""
         self.root = root
         self.env = env
 
     @classmethod
-    def create_repository(cls, root: Path) -> "GitRepoFixture":
+    def tmp_repo(
+        cls, request: pytest.FixtureRequest, tmp_path_factory: pytest.TempPathFactory
+    ) -> Generator[GitRepoFixture]:
+        """Create temporary Git repository and change current working directory into it.
+
+        This raw function needs to be turned into a fixture using `pytest.fixture` or a
+        context manager using `contextmanager`.
+        Examples::
+
+            git_repo = pytest.fixture(scope="module")(GitRepoFixture._tmp_repo)
+            def test_something(git_repo):
+                assert git_repo.root.is_dir()
+
+            my_fixture = contextmanager(GitRepoFixture._tmp_repo)
+            def test_something_else(request, tmp_path_factory):
+                with my_fixture(request, tmp_path_factory) as git_repo:
+                    assert git_repo.root.is_dir()
+
+        """
+        path = _mk_tmp(request, tmp_path_factory)
+        try:
+            with pytest.MonkeyPatch.context() as mp:
+                repository = cls.create_repository(path)
+                mp.chdir(repository.root)
+                # While `GitRepoFixture.create_repository()` already deletes `GIT_*`
+                # environment variables for any Git commands run by the fixture, let's
+                # explicitly remove `GIT_DIR` in case a test should call Git directly:
+                mp.delenv("GIT_DIR", raising=False)
+                yield repository
+        finally:
+            rmtree(path, ignore_errors=True)
+
+    @classmethod
+    @contextmanager
+    def context(
+        cls, request: pytest.FixtureRequest, tmp_path_factory: pytest.TempPathFactory
+    ) -> Generator[GitRepoFixture]:
+        """Return a context manager for creating a temporary Git repository."""
+        yield from cls.tmp_repo(request, tmp_path_factory)
+
+    @classmethod
+    def create_repository(cls, root: Path) -> GitRepoFixture:
         """Fixture method for creating a Git repository in the given directory"""
         # For testing, ignore ~/.gitconfig settings like templateDir and defaultBranch.
         # Also, this makes sure GIT_DIR or other GIT_* variables are not set, and that
@@ -44,8 +93,10 @@ class GitRepoFixture:
         return git_check_output_lines(list(args), Path(self.root))[0]
 
     def add(
-        self, paths_and_contents: Dict[str, Union[str, bytes, None]], commit: str = None
-    ) -> Dict[str, Path]:
+        self,
+        paths_and_contents: dict[str, str | bytes | None],
+        commit: str | None = None,
+    ) -> dict[str, Path]:
         """Add/remove/modify files and optionally commit the changes
 
         :param paths_and_contents: Paths of the files relative to repository root, and
@@ -100,7 +151,7 @@ class GitRepoFixture:
         """Fixture method to create and check out new branch at given starting point"""
         self._run("checkout", "-b", new_branch, start_point)
 
-    def expand_root(self, lines: Iterable[str]) -> List[str]:
+    def expand_root(self, lines: Iterable[str]) -> list[str]:
         """Replace "{root/<path>}" in strings with the path in the temporary Git repo
 
         This is used to generate expected strings corresponding to locations of files in
@@ -120,22 +171,16 @@ class GitRepoFixture:
         ]
 
 
-@pytest.fixture
-def git_repo(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> GitRepoFixture:
-    """Create a temporary Git repository and change current working directory into it"""
-    repository = GitRepoFixture.create_repository(tmp_path)
-    monkeypatch.chdir(tmp_path)
-    # While `GitRepoFixture.create_repository()` already deletes `GIT_*` environment
-    # variables for any Git commands run by the fixture, let's explicitly remove
-    # `GIT_DIR` in case a test should call Git directly:
-    monkeypatch.delenv("GIT_DIR", raising=False)
-
-    return repository
+git_repo = pytest.fixture(GitRepoFixture.tmp_repo)
+git_repo_m = pytest.fixture(scope="module")(GitRepoFixture.tmp_repo)
 
 
-@pytest.fixture(scope="module")
-def branched_repo(tmp_path_factory: pytest.TempPathFactory) -> GitRepoFixture:
-    """Create an example Git repository with a master branch and a feature branch
+def branched_repo(
+    request: pytest.FixtureRequest, tmp_path_factory: pytest.TempPathFactory
+) -> Generator[GitRepoFixture]:
+    """Create an example Git repository with a master branch and a feature branch.
+
+    This raw function needs to be turned into a fixture using `pytest.fixture`.
 
     The history created is::
 
@@ -147,47 +192,46 @@ def branched_repo(tmp_path_factory: pytest.TempPathFactory) -> GitRepoFixture:
         * Initial commit
 
     """
-    tmpdir = tmp_path_factory.mktemp("branched_repo")
-    repo = GitRepoFixture.create_repository(tmpdir)
-    repo.add(
-        {
-            "del_master.py": "original",
-            "del_branch.py": "original",
-            "del_index.py": "original",
-            "del_worktree.py": "original",
-            "mod_master.py": "original",
-            "mod_branch.py": "original",
-            "mod_both.py": "original",
-            "mod_same.py": "original",
-            "keep.py": "original",
-        },
-        commit="Initial commit",
-    )
-    branch_point = repo.get_hash()
-    repo.add(
-        {
-            "del_master.py": None,
-            "add_master.py": "master",
-            "mod_master.py": "master",
-            "mod_both.py": "master",
-            "mod_same.py": "same",
-        },
-        commit="master",
-    )
-    repo.create_branch("branch", branch_point)
-    repo.add(
-        {
-            "del_branch.py": None,
-            "mod_branch.py": "branch",
-            "mod_both.py": "branch",
-            "mod_same.py": "same",
-        },
-        commit="branch",
-    )
-    repo.add(
-        {"del_index.py": None, "add_index.py": "index", "mod_index.py": "index"}
-    )
-    (repo.root / "del_worktree.py").unlink()
-    (repo.root / "add_worktree.py").write_bytes(b"worktree")
-    (repo.root / "mod_worktree.py").write_bytes(b"worktree")
-    return repo
+    with GitRepoFixture.context(request, tmp_path_factory) as repo:
+        repo.add(
+            {
+                "del_master.py": "original",
+                "del_branch.py": "original",
+                "del_index.py": "original",
+                "del_worktree.py": "original",
+                "mod_master.py": "original",
+                "mod_branch.py": "original",
+                "mod_both.py": "original",
+                "mod_same.py": "original",
+                "keep.py": "original",
+            },
+            commit="Initial commit",
+        )
+        branch_point = repo.get_hash()
+        repo.add(
+            {
+                "del_master.py": None,
+                "add_master.py": "master",
+                "mod_master.py": "master",
+                "mod_both.py": "master",
+                "mod_same.py": "same",
+            },
+            commit="master",
+        )
+        repo.create_branch("branch", branch_point)
+        repo.add(
+            {
+                "del_branch.py": None,
+                "mod_branch.py": "branch",
+                "mod_both.py": "branch",
+                "mod_same.py": "same",
+            },
+            commit="branch",
+        )
+        repo.add(
+            {"del_index.py": None, "add_index.py": "index", "mod_index.py": "index"}
+        )
+        (repo.root / "del_worktree.py").unlink()
+        (repo.root / "add_worktree.py").write_bytes(b"worktree")
+        (repo.root / "mod_worktree.py").write_bytes(b"worktree")
+        yield repo
