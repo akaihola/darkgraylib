@@ -22,6 +22,22 @@ def detect_newline(string: str) -> str:
     return "\n"
 
 
+def normalize_newlines(string: str) -> str:
+    """Normalize newlines in a string to LF"""
+    return io.IncrementalNewlineDecoder(None, True).decode(string)
+
+
+def splitlines(string: str) -> list[str]:
+    """Split a string into lines at universal newlines."""
+    if not string:
+        return []
+    return (
+        normalize_newlines(string)  # Normalize newlines to LF
+        .rstrip("\n")  # Remove trailing newline
+        .split("\n")  # Split into lines
+    )
+
+
 class TextDocument:
     """Store & handle a multi-line text document, either as a string or list of lines"""
 
@@ -65,7 +81,7 @@ class TextDocument:
     def lines(self) -> TextLines:
         """Return the document as a list of lines converting and caching if necessary"""
         if self._lines is None:
-            self._lines = tuple((self._string or "").splitlines())
+            self._lines = tuple(splitlines(self._string or ""))
         return self._lines
 
     @property
