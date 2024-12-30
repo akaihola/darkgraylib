@@ -1,5 +1,8 @@
 """Unit tests for `darkgraylib.command_line` and `darkgraylib.main`."""
 
+# pylint: disable=too-many-arguments,too-many-positional-arguments,too-many-locals
+# pylint: disable=use-dict-literal
+
 import os
 from pathlib import Path
 from unittest.mock import Mock, patch
@@ -350,7 +353,7 @@ def test_parse_command_line(
 def test_parse_command_line_load_config_hook_called(tmp_path, monkeypatch):
     """The load configuration hook is called correctly."""
     monkeypatch.chdir(tmp_path)
-    with Path("pyproject.toml").open("w") as pyproject:
+    with Path("pyproject.toml").open("w", encoding="utf-8") as pyproject:
         toml.dump({"tool": {"darkgraylib": {"revision": "main"}}}, pyproject)
     hook_mock = Mock()
 

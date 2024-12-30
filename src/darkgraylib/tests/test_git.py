@@ -3,6 +3,7 @@
 # pylint: disable=no-member  # context managers misfire Pylint's member-checking
 # pylint: disable=redefined-outer-name  # fixtures misfire Pylint's redefinition checks
 # pylint: disable=use-dict-literal  # dict() ok with kwparametrize
+# pylint: disable=too-many-arguments,too-many-positional-arguments
 
 import os
 import re

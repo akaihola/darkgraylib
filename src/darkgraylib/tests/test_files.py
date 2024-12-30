@@ -1,5 +1,7 @@
 """Tests for the `darkgraylib.files` module."""
 
+# pylint: disable=redefined-outer-name
+
 import os
 from contextlib import contextmanager
 from pathlib import Path

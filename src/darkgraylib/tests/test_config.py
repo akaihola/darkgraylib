@@ -1,5 +1,7 @@
 """Tests for `darkgraylib.config`"""
 
+# pylint: disable=too-many-arguments,too-many-positional-arguments,use-dict-literal
+
 import os
 import re
 from argparse import ArgumentParser, Namespace
@@ -62,7 +64,7 @@ class OriginTrackingConfig(BaseConfig):
 
 
 @pytest.mark.kwparametrize(
-    dict(),  # pylint: disable=use-dict-literal
+    dict(),
     dict(cwd="lvl1"),
     dict(cwd="lvl1/lvl2"),
     dict(cwd="has_git", expect={}),
@@ -352,7 +354,7 @@ class OriginTrackingConfig(BaseConfig):
     confpath=None,
     expect={"config": "no_pyp"},
 )
-def test_load_config_path(  # pylint: disable=too-many-arguments
+def test_load_config_path(
     tmp_path, monkeypatch, srcs, cwd, confpath, expect
 ):
     """``load_config()`` finds and loads configuration based on source file paths"""
