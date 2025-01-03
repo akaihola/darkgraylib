@@ -13,6 +13,8 @@ Removed
 
 Fixed
 -----
+- Only split input files at Python's universal newlines (LF, CRLF, CR), not on more
+  exotic newline sequences. This fixes some edge cases in Darker.
 
 
 2.1.0_ - 2024-11-19
