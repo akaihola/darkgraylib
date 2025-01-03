@@ -6,6 +6,10 @@ These features will be included in the next release:
 Added
 -----
 
+Removed
+-------
+- Drop support for Python 3.8.
+
 Fixed
 -----
 
