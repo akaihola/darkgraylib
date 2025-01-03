@@ -72,6 +72,6 @@ def test_resolve_paths(
     paths, root = resolve_paths(stdin_filename, src)
 
     assert paths == {Path(p) for p in expect_paths}
-    if WINDOWS and sys.version_info[:2] in [(3, 8), (3, 9)]:
+    if WINDOWS and sys.version_info[:2] == (3, 9):
         root = root.resolve().absolute()
     assert root == Path(expect_root.format(cwd=Path.cwd()))
