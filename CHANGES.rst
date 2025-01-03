@@ -5,6 +5,7 @@ These features will be included in the next release:
 
 Added
 -----
+- Update to Pylint 3.3.0+ and adjust disabled messages accordingly.
 
 Removed
 -------
