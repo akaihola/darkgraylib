@@ -1,7 +1,7 @@
 """Unit tests for :mod:`darkgraylib.highlighting`"""
 
-# pylint: disable=too-many-arguments,redefined-outer-name,unused-argument
-# pylint: disable=protected-access
+# pylint: disable=protected-access,redefined-outer-name
+# pylint: disable=too-many-arguments,too-many-positional-arguments,unused-argument
 
 import os
 import sys

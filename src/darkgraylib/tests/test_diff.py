@@ -1,5 +1,7 @@
 """Unit tests for `darkgraylib.diff`"""
 
+# pylint: disable=use-dict-literal
+
 import pytest
 
 from darkgraylib.diff import diff_and_get_opcodes, map_unmodified_lines

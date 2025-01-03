@@ -15,7 +15,7 @@ jobs:
           pip install -U \
             defusedxml \
             pygments \
-            "pylint<3.3.0" \
+            "pylint>=3.3.0" \
             "pytest>=6.2.0" \
             requests \
             requests-cache \

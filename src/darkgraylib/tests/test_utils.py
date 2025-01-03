@@ -1,5 +1,7 @@
 """Unit tests for `darkgraylib.utils`."""
 
+# pylint: disable=redefined-outer-name,use-dict-literal
+
 import os
 from pathlib import Path
 
@@ -25,6 +27,7 @@ def textdocument_factory(request):
     which it creates a temporary file) and the ``TextDocument.from_bytes()``
     classmethods.
     """
+    # pylint: disable=comparison-with-callable
     if request.param == TextDocument.from_file:
 
         def factory(content):

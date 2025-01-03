@@ -1,5 +1,7 @@
 """Unit tests for the `darkgraylib.main` module."""
 
+# pylint: disable=too-many-arguments,too-many-positional-arguments,use-dict-literal
+
 import sys
 from pathlib import Path
 
