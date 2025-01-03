@@ -138,6 +138,12 @@ def test_textdocument_encoded_string(encoding, newline, expect):
     dict(
         doc=TextDocument(string="zéro\r\nun\r\n", newline="\r\n"), expect=("zéro", "un")
     ),
+    dict(
+        doc=TextDocument(
+            string="# coding: iso-8859-5\n# б\x85б\x86\n", encoding="iso-8859-5"
+        ),
+        expect=("# coding: iso-8859-5", "# б\x85б\x86"),
+    ),
 )
 def test_textdocument_lines(doc, expect):
     """TextDocument.lines is correct after parsing a string with different newlines"""
