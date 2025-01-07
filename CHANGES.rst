@@ -5,6 +5,16 @@ These features will be included in the next release:
 
 Added
 -----
+
+Fixed
+-----
+
+
+2.2.0_ - 2025-01-07
+===================
+
+Added
+-----
 - Update to Pylint 3.3.0+ and adjust disabled messages accordingly.
 - Add support for Python 3.13.
 - Test on development version of Python 3.14.
