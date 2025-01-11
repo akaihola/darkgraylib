@@ -38,5 +38,5 @@ def get_plugin_class(entry_point_group: str, name: str) -> Type:
     return plugin_class
 
 
-def create_plugin(entry_point_group: str, name: str) -> Type:
-    return get_plugin_class(entry_point_group, name)()
+def create_plugin(entry_point_group: str, name: str, *args, **kwargs) -> Type:
+    return get_plugin_class(entry_point_group, name)(*args, **kwargs)
