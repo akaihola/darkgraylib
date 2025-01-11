@@ -36,7 +36,12 @@ def get_plugin_class(entry_point_group: str, name: str) -> type:
     return cast("type", plugin_class)
 
 
-def create_plugin(entry_point_group: str, name: str) -> type:
+def create_plugin(  # type: ignore[explicit-any]
+    entry_point_group: str,
+    name: str,
+    *args: Any,  # noqa: ANN401
+    **kwargs: Any,  # noqa: ANN401
+) -> type:
     """Create a plugin instance by entry point group and plugin name."""
-    plugin_class = get_plugin_class(entry_point_group, name)()
+    plugin_class = get_plugin_class(entry_point_group, name)(*args, **kwargs)
     return cast("type", plugin_class)
