@@ -1,6 +1,72 @@
 [build-system]
 # Minimum requirements for the build system to execute.
-requires = ["setuptools", "wheel"]  # PEP 508 specifications.
+requires = ["setuptools>=67.8.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "darkgraylib"
+version = "2.2.0"  # Will be dynamic after full migration
+authors = [{name = "Antti Kaihola", email = "13725+akaihola@users.noreply.github.com"}]
+license = {text = "BSD-3-Clause"}
+description = "Common supporting code for Darker and Graylint"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+dependencies = [
+    "toml>=0.10.0",
+]
+dynamic = ["readme"]
+
+[tool.setuptools.package-data]
+darkgraylib = ["py.typed"]
+
+[project.urls]
+Homepage = "https://github.com/akaihola/darkgraylib"
+"Source Code" = "https://github.com/akaihola/darkgraylib"
+"Change Log" = "https://github.com/akaihola/darkgraylib/blob/main/CHANGES.rst"
+News = "https://github.com/akaihola/darkgraylib/discussions/categories/announcements"
+
+[project.optional-dependencies]
+color = ["Pygments>=2.4.0"]
+
+[dependency-groups]
+dev = [
+    "click>=8.0.0",
+    "cryptography>=3.3.2",  # through twine, fixes CVE-2020-36242
+    "darkgray-dev-tools~=0.1.1",
+    "defusedxml>=0.7.1",
+    "flake8",
+    "mypy",
+    "Pygments>=2.4.0",
+    "pydocstyle",
+    "pylint>=3.3.0",
+    "pytest>=6.2.0",
+    "pytest-kwparametrize>=0.0.3",
+    "requests_cache>=0.7",
+    "ruamel.yaml>=0.17.21",
+    "ruff>=0.0.292",
+    "twine>=2.0.0",
+    "types-requests>=2.27.9",
+    "types-toml>=0.10.4",
+    "urllib3>=1.25.9",  # through requests-cache and twine, fixes CVE-2020-26137
+    "wheel>=0.21.0",
+]
+
+[project.entry-points."pygments.lexers"]
+lint_location = "darkgraylib.highlighting.lexers:LocationLexer"
+lint_description = "darkgraylib.highlighting.lexers:DescriptionLexer"
+
+[project.entry-points."pytest11"]
+pytest_git_repo = "darkgraylib.testtools.git_repo_plugin"
+pytest_clear_black_cache = "darkgraylib.testtools.clear_black_cache_plugin"
+pytest_temp_copy = "darkgraylib.testtools.temp_copy"
+pytest_patching = "darkgraylib.testtools.patching"
 
 [tool.black]
 skip-string-normalization = false
@@ -12,7 +78,6 @@ known_third_party = ["pytest"]
 
 [tool.darker]
 src = [
-    "release_tools",
     "src",
     "setup.py",
 ]
@@ -21,7 +86,6 @@ isort = true
 
 [tool.graylint]
 src = [
-    "release_tools",
     "src",
     "setup.py",
 ]
@@ -40,7 +104,6 @@ target-version = "py39"
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
-    "ANN101",  # Missing type annotation for `self` in method
     "COM812",  # Trailing comma missing
     "D203",  # One blank line required before class docstring
     "D213",  # Multi-line docstring summary should start at the second line
