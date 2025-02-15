@@ -28,7 +28,8 @@ jobs:
         # in `README.rst`.
         run: |
           uvx \
-            --from=darkgray-dev-tools darkgray_bump_version \
+            --from=git+https://github.com/akaihola/darkgray-dev-tools \
+            darkgray_bump_version \
             --minor \
             --dry-run \
             --token=${{ secrets.GITHUB_TOKEN }}
