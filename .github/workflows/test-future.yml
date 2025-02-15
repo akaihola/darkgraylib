@@ -28,7 +28,7 @@ jobs:
             --constraint=constraints-future.txt \
             --upgrade \
             --upgrade-strategy=eager \
-            -e '.[test]' packaging setuptools
+            -e '.[dev]' packaging setuptools
       - name: Test with pytest
         run: |
           pytest

@@ -10,6 +10,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            **/setup.cfg
+            **/pyproject.toml
 
       - name: Make sure that `darkgray_bump_version` still finds all version strings
               and that there's a future milestone on GitHub Issues.
@@ -19,10 +26,15 @@ jobs:
         # in the GitHub repository with a future version number as its name.
         # This is used to update the call for reviewing pull requests
         # in `README.rst`.
+        #
+        # Remove the `--with` option after
+        # https://github.com/repo-helper/pyproject-parser/pull/78 has been merged and
+        # released.
         run: |
-          pip install \
-            https://github.com/akaihola/darkgray-dev-tools/archive/refs/heads/main.zip
-          darkgray_bump_version \
+          uvx \
+            --with='git+https://github.com/akaihola/pyproject-parser@4c54fc2[cli]' \
+            --from=git+https://github.com/akaihola/darkgray-dev-tools \
+            darkgray_bump_version \
             --minor \
             --dry-run \
             --token=${{ secrets.GITHUB_TOKEN }}
