@@ -67,7 +67,7 @@ jobs:
             --run '
               python -m venv venv
               source venv/bin/activate
-              pip install "${{needs.build-wheel.outputs.wheel-path}}[test]"
+              pip install "${{needs.build-wheel.outputs.wheel-path}}[dev]"
               PY_IGNORE_IMPORTMISMATCH=1 pytest
             ' \
             ./default.nix
@@ -116,7 +116,7 @@ jobs:
       - name: Download wheel uploaded by the build-wheel job
         uses: actions/download-artifact@v4
       - name: Install darkgraylib and dependencies from wheel built earlier
-        run: pip install "${{needs.build-wheel.outputs.wheel-path}}[test]"
+        run: pip install "${{needs.build-wheel.outputs.wheel-path}}[dev]"
                          ${{ matrix.upgrade }} ${{ matrix.constraints }}
       - name: Upgrade dependencies from GitHub if future constraints are used
         # This can't be done in the same Pip invocation as installing

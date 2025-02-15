@@ -100,7 +100,7 @@ system::
     python -m venv .venv-darkgraylib
     source .venv-darkgraylib/bin/activate
     cd darkgraylib
-    pip install -e '.[test]' darker flake8 mypy pydocstyle pylint ruff
+    pip install -e '.[dev]' darker flake8 mypy pydocstyle pylint ruff
     git checkout -b my-feature-branch
     # modify code
     git commit -m "My feature"
