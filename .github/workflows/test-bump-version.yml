@@ -33,7 +33,8 @@ jobs:
         run: |
           uvx \
             --with='git+https://github.com/akaihola/pyproject-parser@4c54fc2[cli]' \
-            --from=darkgray-dev-tools darkgray_bump_version \
+            --from=git+https://github.com/akaihola/darkgray-dev-tools \
+            darkgray_bump_version \
             --minor \
             --dry-run \
             --token=${{ secrets.GITHUB_TOKEN }}

@@ -39,7 +39,7 @@ color = ["Pygments>=2.4.0"]
 dev = [
     "click>=8.0.0",
     "cryptography>=3.3.2",  # through twine, fixes CVE-2020-36242
-    "darkgray-dev-tools~=0.1.1",
+    "darkgray-dev-tools @ git+https://github.com/akaihola/darkgray-dev-tools",
     "defusedxml>=0.7.1",
     "flake8",
     "mypy",
