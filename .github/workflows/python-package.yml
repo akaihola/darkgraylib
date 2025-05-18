@@ -65,10 +65,12 @@ jobs:
           nix-shell \
             --pure \
             --run '
-              python -m venv venv
-              source venv/bin/activate
-              pip install "${{needs.build-wheel.outputs.wheel-path}}[test]"
-              PY_IGNORE_IMPORTMISMATCH=1 pytest
+              cert_file=/nix/var/nix/profiles/default/etc/ssl/certs/ca-bundle.crt
+              export NIX_SSL_CERT_FILE=$cert_file
+              uv venv
+              uv pip install "${{needs.build-wheel.outputs.wheel-path}}"
+              uv export --only-group=dev | uv pip install --requirements=-
+              PY_IGNORE_IMPORTMISMATCH=1 uv run pytest
             ' \
             ./default.nix
 
@@ -88,7 +90,7 @@ jobs:
           - '3.12'
           - '3.13'
           - '3.14-dev'
-        constraints: ['']
+        resolution: ['']
         post_install: ['']
         exclude:
           # C extension builds failing.
@@ -100,32 +102,32 @@ jobs:
         include:
           - os: ubuntu-latest
             python-version: '3.9'
-            constraints: '--constraint constraints-oldest.txt'
+            resolution: --resolution lowest-direct
           - os: ubuntu-latest
             python-version: '3.13'
-            post_install: pip install -r constraints-future.txt
-                                      --upgrade --upgrade-strategy=eager
+            post_install: uv sync --upgrade
     needs:
       - build-wheel
     steps:
       - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
       - name: Download wheel uploaded by the build-wheel job
         uses: actions/download-artifact@v4
+      - name: Create virtual environment
+        run: uv venv
       - name: Install darkgraylib and dependencies from wheel built earlier
-        run: pip install "${{needs.build-wheel.outputs.wheel-path}}[test]"
-                         ${{ matrix.upgrade }} ${{ matrix.constraints }}
-      - name: Upgrade dependencies from GitHub if future constraints are used
-        # This can't be done in the same Pip invocation as installing
-        # Darkgraylib since Darkgraylib might place an upper limit on dependencies
-        # during compatibility fixing periods.
-        if: matrix.post_install
-        run: ${{ matrix.post_install }}
+        run: uv pip install "${{needs.build-wheel.outputs.wheel-path}}"
+                            ${{ matrix.resolution }}
+      - name: Install test dependencies
+        run: uv export --only-group=dev ${{ matrix.resolution }}
+             | uv pip install --requirements=-
       - name: Run Pytest
-        run: pytest
+        run: uv run pytest
 
   build-sdist-validate-dists:
     runs-on: ubuntu-latest
@@ -133,12 +135,12 @@ jobs:
       - build-wheel
     steps:
       - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
       - uses: actions/setup-python@v5
-      - name: Install twine
-        run: python -m pip install twine
       - name: Download wheel uploaded by the build-wheel job
         uses: actions/download-artifact@v4
       - name: Build source distribution
-        run: python setup.py sdist
+        run: uv build --sdist
       - name: Validate distributions
-        run: twine check dist/*
+        run: uvx twine check dist/*
