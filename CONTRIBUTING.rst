@@ -96,11 +96,22 @@ To set up an isolated virtualenv for Darkgraylib, Darker and/or Graylint develop
 modify code in your own branch, run the test suite and lint modified code on a Unix-like
 system::
 
-    git clone git@github.com:akaihola/darkgraylib.git
-    python -m venv .venv-darkgraylib
-    source .venv-darkgraylib/bin/activate
+    # clone the repositories
+    for i in darkgraylib darker graylint; do git clone git@github.com:akaihola/$i; done
+
+    # prepare the virtualenv either using uv...
+    uv venv
+    source .venv/bin/activate
+    uv pip install -e ./darkgraylib -e ./darker -e ./graylint
+
+    # ...or using good old pip:
+    python -m venv --upgrade-deps .venv  # upgrades to pip >=25.1
+    source .venv/bin/activate
+    pip install -e ./darkgraylib -e ./darker -e ./graylint
+    pip install --group=darkgraylib/pyproject.toml:dev
+
+    # work on a feature
     cd darkgraylib
-    pip install -e '.[dev]' darker flake8 mypy pydocstyle pylint ruff
     git checkout -b my-feature-branch
     # modify code
     git commit -m "My feature"
