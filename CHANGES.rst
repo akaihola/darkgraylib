@@ -9,6 +9,18 @@ Added
 Fixed
 -----
 
+Internal
+-------
+- Switch to `pyproject.toml` for project definition, from `setup.cfg`.
+- Prefer `uv` as the package management tool for the codebase and CI workflows.
+- Remove `constraints-oldest.txt` in favor of uv's `--resolution lowest-direct`.
+- For development tools, use dependency groups instead of extras.
+- Update development setup guide in contributing documentation.
+- Use consistent Python 3.9+ tooling across all configurations.
+- Add `run-lint.sh` and `run-tests.sh` scripts for quick linting and running tests.
+- Don't lint the `release_tools` directory.
+- Remove obsolete `ANN101` rule from ruff configuration.
+
 
 2.2.0_ - 2025-01-07
 ===================
