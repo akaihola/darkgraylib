@@ -5,6 +5,7 @@ These features will be included in the next release:
 
 Added
 -----
+- Helpers for handling setuptools entry point plugins.
 
 Fixed
 -----
@@ -257,7 +258,8 @@ For changes before the migration of code from Darker to Darkgraylib, see
 
 __ https://github.com/akaihola/darker/blob/master/CHANGES.rst
 
-.. _Unreleased: https://github.com/akaihola/darkgraylib/compare/v2.1.0...HEAD
+.. _Unreleased: https://github.com/akaihola/darkgraylib/compare/v2.2.0...HEAD
+.. _2.2.0: https://github.com/akaihola/darkgraylib/compare/v2.1.0...v2.2.0
 .. _2.1.0: https://github.com/akaihola/darkgraylib/compare/v2.0.1...v2.1.0
 .. _2.0.1: https://github.com/akaihola/darkgraylib/compare/v2.0.0...v2.0.1
 .. _2.0.0: https://github.com/akaihola/darkgraylib/compare/v1.3.2...v2.0.0
