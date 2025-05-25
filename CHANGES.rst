@@ -5,22 +5,30 @@ These features will be included in the next release:
 
 Added
 -----
-- Helpers for handling setuptools entry point plugins.
 
 Fixed
 -----
 
+
+2.3.0_ - 2025-05-25
+===================
+
+Added
+-----
+- Helpers for handling setuptools entry point plugins.
+
 Internal
 -------
-- Switch to `pyproject.toml` for project definition, from `setup.cfg`.
-- Prefer `uv` as the package management tool for the codebase and CI workflows.
-- Remove `constraints-oldest.txt` in favor of uv's `--resolution lowest-direct`.
-- For development tools, use dependency groups instead of extras.
+- Switch to pyproject.toml_ for project definition, from setup.cfg_.
+- Prefer uv_ as the package management tool for the codebase and CI workflows.
+- Remove `constraints-oldest.txt` in favor of uv's `--resolution lowest-direct`
+  `resolution strategy`_
+- For development tools, use `dependency groups`_ instead of extras.
 - Update development setup guide in contributing documentation.
 - Use consistent Python 3.9+ tooling across all configurations.
 - Add `run-lint.sh` and `run-tests.sh` scripts for quick linting and running tests.
 - Don't lint the `release_tools` directory.
-- Remove obsolete `ANN101` rule from ruff configuration.
+- Remove obsolete ANN101_ rule from ruff configuration.
 
 
 2.2.0_ - 2025-01-07
@@ -271,3 +279,10 @@ __ https://github.com/akaihola/darker/blob/master/CHANGES.rst
 .. _1.1.1: https://github.com/akaihola/darkgraylib/compare/v1.1.0...v1.1.1
 .. _1.1.0: https://github.com/akaihola/darkgraylib/compare/v1.0.0...v1.1.0
 .. _1.0.0: https://github.com/akaihola/darkgraylib/compare/1.7.0...v1.0.0
+
+.. _uv: https://docs.astral.sh/uv/
+.. _pyproject.toml: https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#writing-pyproject-toml
+.. _setup.cfg: https://setuptools.pypa.io/en/latest/userguide/declarative_config.html
+.. _resolution strategy: https://docs.astral.sh/uv/concepts/resolution/#resolution-strategy
+.. _dependency groups: https://packaging.python.org/en/latest/specifications/dependency-groups/
+.. _ANN101: https://docs.astral.sh/ruff/rules/missing-type-self/
