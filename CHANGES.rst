@@ -36,7 +36,6 @@ Internal
 
 Added
 -----
-- Update to Pylint 3.3.0+ and adjust disabled messages accordingly.
 - Add support for Python 3.13.
 - Test on development version of Python 3.14.
 
@@ -49,23 +48,27 @@ Fixed
 - Only split input files at Python's universal newlines (LF, CRLF, CR), not on more
   exotic newline sequences. This fixes some edge cases in Darker.
 
+Internal
+--------
+- Update to Pylint 3.3.0+ and adjust disabled messages accordingly.
+
 
 2.1.0_ - 2024-11-19
 ===================
 
-Added
+Fixed
 -----
+- Don't convert ``log_level = "<string>"`` in the configuration file to an integer.
+- Add the ``quiet = <bool>`` configuration file option.
+
+Internal
+--------
 - Tools for easy creation of differently scoped Git repository fixtures for tests.
   Helps speed up parameterized tests that need a Git repository, especially on Windows
   where Git process forks are comically expensive. The ``test_git.py`` test module now
   makes use of this and runs in 9s instead of 18s on one Windows laptop.
 - Unit tests of configuration file options for `darkgraylib.config.load_config`.
-
-Fixed
------
 - Keep Pylint below version 3.3.0 until we drop support for Python 3.8.
-- Don't convert ``log_level = "<string>"`` in the configuration file to an integer.
-- Add the ``quiet = <bool>`` configuration file option.
 
 
 2.0.1_ - 2024-08-09
@@ -90,8 +93,8 @@ Added
 1.3.2_ - 2024-07-29
 ===================
 
-Fixed
------
+Internal
+--------
 - Added typing to ``diff`` test helpers to solve Mypy errors in Darker.
 
 
@@ -108,9 +111,6 @@ Fixed
 
 Added
 -----
-- The command ``graylint --config=check-darkgraylib.toml`` now runs Flake8_, Mypy_,
-  pydocstyle_, Pylint_ and Ruff_ on modified lines in Python files. Those tools are
-  included in the ``[test]`` extra.
 - Make the section name argument for the config dump function mandatory.
 
 Removed
@@ -119,10 +119,16 @@ Removed
 
 Fixed
 -----
-- Update ``darkgray-dev-tools`` for Pip >= 24.1 compatibility.
 - The `~darkgraylib.command_line.make_argument_parser` function now has a ``version``
   argument which defaults to Darkgraylib's own version. This allows Darker and Graylint
   to correctly report their own version when called with the ``--version`` option.
+
+Internal
+--------
+- The command ``graylint --config=check-darkgraylib.toml`` now runs Flake8_, Mypy_,
+  pydocstyle_, Pylint_ and Ruff_ on modified lines in Python files. Those tools are
+  included in the ``[test]`` extra.
+- Update ``darkgray-dev-tools`` for Pip >= 24.1 compatibility.
 
 
 1.2.1_ - 2024-04-21
@@ -147,13 +153,10 @@ Added
 - An optional hook to be called after loading the configuration file. Used by Darker to
   show deprecation warnings for configuration options.
 
-Removed
--------
+Internal
+--------
 - The ``release_tools/update_contributors.py`` script was moved to the
   ``darkgray-dev-tools`` repository.
-
-Fixed
------
 - Badge links in the README on GitHub.
 - Replace calls to the deprecated `datetime.datetime.utcfromtimestamp` method with
   `datetime.datetime.fromtimestamp`, passing it the timezone `datetime.timezone.utc`.
@@ -165,22 +168,25 @@ Fixed
 Added
 -----
 - Support for Python 3.12 in the package metadata and the CI build.
-- Run unit tests with the newest Black release, not a fixed version.
-- In the future test, upgrade ``toml`` and ``Pygments`` to repository ``master``.
-- Messages from future test are now generic, not Black-specific.
-- Require ``click`` when running tests.
 
 Removed
 -------
 - Dependency on Black, flynt, isort and regex.
-- Obsolete Mypy configuration options.
-- Skip tests on Python 3.13-dev in Windows and macOS. C extension builds are failing,
-  this exclusion is to be removed when Python 3.13 has been removed.
 
 Fixed
 -----
 - In the ``--update-readme`` command, escape pipe symbols (``|``) in the help output
   placed in the ``README.rst`` file.
+
+Internal
+--------
+- Run unit tests with the newest Black release, not a fixed version.
+- In the future test, upgrade ``toml`` and ``Pygments`` to repository ``master``.
+- Messages from future test are now generic, not Black-specific.
+- Require ``click`` when running tests.
+- Obsolete Mypy configuration options.
+- Skip tests on Python 3.13-dev in Windows and macOS. C extension builds are failing,
+  this exclusion is to be removed when Python 3.13 has been removed.
 
 
 1.1.0_ - 2024-03-15
