@@ -9,9 +9,16 @@ Added
 Fixed
 -----
 
+
+2.4.0_ - 2025-06-10
+===================
+
+Fixed
+-----
+- Make test helper compatible with Pytest_ 8.4+.
+
 Internal
 --------
-- Make test helper compatible with Pytest_ 8.4+.
 - Use uv_ to test compatibility with future dependency versions.
 
 
