@@ -9,6 +9,11 @@ Added
 Fixed
 -----
 
+Internal
+--------
+- Make test helper compatible with Pytest_ 8.4+.
+- Use uv_ to test compatibility with future dependency versions.
+
 
 2.3.0_ - 2025-05-25
 ===================
@@ -288,6 +293,7 @@ __ https://github.com/akaihola/darker/blob/master/CHANGES.rst
 
 .. _uv: https://docs.astral.sh/uv/
 .. _pyproject.toml: https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#writing-pyproject-toml
+.. _Pytest: https://docs.pytest.org/
 .. _setup.cfg: https://setuptools.pypa.io/en/latest/userguide/declarative_config.html
 .. _resolution strategy: https://docs.astral.sh/uv/concepts/resolution/#resolution-strategy
 .. _dependency groups: https://packaging.python.org/en/latest/specifications/dependency-groups/
