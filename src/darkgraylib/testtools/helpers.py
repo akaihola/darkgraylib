@@ -1,14 +1,27 @@
 """Helper functions for unit tests"""
 
+from __future__ import annotations
+
 import re
-from contextlib import contextmanager, nullcontext
-from typing import Any, Callable, ContextManager, Dict, Iterator, Sequence, Union
+from contextlib import AbstractContextManager, contextmanager, nullcontext
+from typing import TYPE_CHECKING, Any, Callable
 
 import pytest
-from _pytest.python_api import RaisesContext
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator, Sequence
+
+    try:  # Pytest 8.4+
+        from _pytest.raises import (  # type: ignore[import-not-found,unused-ignore]
+            RaisesExc,
+        )
+    except ImportError:  # Pytest < 8.4
+        from _pytest.python_api import (  # type: ignore[no-redef,attr-defined,unused-ignore]
+            RaisesContext as RaisesExc,
+        )
 
 
-def matching_attrs(obj: BaseException, attrs: Sequence[str]) -> Dict[str, int]:
+def matching_attrs(obj: BaseException, attrs: Sequence[str]) -> dict[str, int]:
     """Return object attributes whose name matches one in the given list"""
     return {attname: getattr(obj, attname) for attname in dir(obj) if attname in attrs}
 
@@ -71,12 +84,14 @@ def raises_or_matches(  # type: ignore[misc]
         yield check
 
 
-def filter_dict(dct: Dict[str, Any], filter_key: str) -> Dict[str, Any]:
+def filter_dict(dct: dict[str, Any], filter_key: str) -> dict[str, Any]:
     """Return only given keys with their values from a dictionary"""
     return {key: value for key, value in dct.items() if key == filter_key}
 
 
-def raises_if_exception(expect: Any) -> Union[RaisesContext[Any], ContextManager[None]]:
+def raises_if_exception(  # type: ignore[no-any-unimported,unused-ignore]
+    expect: Any,  # noqa: ANN401
+) -> RaisesExc[Any] | AbstractContextManager[None]:
     """Return a ``pytest.raises`` context manager only if expecting an exception
 
     If the expected value is not an exception, return a dummy context manager.
