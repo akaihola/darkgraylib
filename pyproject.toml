@@ -98,6 +98,9 @@ lint = [
     "ruff check",
 ]
 
+[tool.pylint."messages control"]
+disable = ["line-too-long"]  # checked by Ruff
+
 [tool.ruff]
 target-version = "py39"
 
