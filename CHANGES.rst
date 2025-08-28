@@ -20,6 +20,7 @@ Internal
 - ``--config=check-darkgraylib.toml`` can now be used with ``darker`` to run
   ``ruff format`` and ``isort``, and with ``graylint`` to run Flake8, Mypy,
   Pydocstyle, Pylint and ``ruff check`` on modified parts of Darkgraylib code.
+- Provide minimum versions for all dependencies in ``pyproject.toml``.
 
 
 2.4.0_ - 2025-06-10
