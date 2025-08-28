@@ -1,0 +1,40 @@
+# This is the Darker and Graylint configuration file for running all the code
+# formatters and linters on the Darkgraylib code base. To use it, run:
+#   $ darker --config=check-darkgraylib.toml
+#   $ graylint ---config=check-darkgraylib.toml
+
+[tool.black]
+# Darker makes Black read its configuration from the file indicated by the `--config`
+# option, so we need to mirror the same configuration here and in `pyproject.toml`.
+skip-string-normalization = false
+target-version = ["py39", "py310", "py311", "py312", "py313"]
+
+[tool.isort]
+# Darker makes isort read its configuration from the file indicated by the `--config`
+# option, so we need to mirror the same configuration here and in `pyproject.toml`.
+profile = "black"
+known_first_party = ["darkgraylib", "graylint"]
+known_third_party = ["pytest"]
+
+[tool.darker]
+src = [
+    "src",
+    "setup.py",
+]
+formatter = "ruff"
+revision = "origin/main..."
+isort = true
+
+[tool.graylint]
+src = [
+    "src",
+    "setup.py",
+]
+revision = "origin/main..."
+lint = [
+    "flake8",
+    "mypy",
+    "pydocstyle",
+    "pylint",
+    "ruff check",
+]
