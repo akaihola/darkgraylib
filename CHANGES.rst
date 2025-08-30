@@ -9,6 +9,16 @@ Added
 Fixed
 -----
 
+
+2.4.1_ - 2025-08-30
+===================
+
+Added
+-----
+
+Fixed
+-----
+
 Internal
 --------
 - Switch from old defunct Bandit action to ``brunohaf/action-bandit``.
@@ -295,7 +305,10 @@ For changes before the migration of code from Darker to Darkgraylib, see
 
 __ https://github.com/akaihola/darker/blob/master/CHANGES.rst
 
-.. _Unreleased: https://github.com/akaihola/darkgraylib/compare/v2.2.0...HEAD
+.. _Unreleased: https://github.com/akaihola/darkgraylib/compare/v2.4.1...HEAD
+.. _2.4.1: https://github.com/akaihola/darkgraylib/compare/v2.4.0...v2.4.1
+.. _2.4.0: https://github.com/akaihola/darkgraylib/compare/v2.3.0...v2.4.0
+.. _2.3.0: https://github.com/akaihola/darkgraylib/compare/v2.2.0...v2.3.0
 .. _2.2.0: https://github.com/akaihola/darkgraylib/compare/v2.1.0...v2.2.0
 .. _2.1.0: https://github.com/akaihola/darkgraylib/compare/v2.0.1...v2.1.0
 .. _2.0.1: https://github.com/akaihola/darkgraylib/compare/v2.0.0...v2.0.1
