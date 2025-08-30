@@ -38,7 +38,7 @@ Homepage = "https://github.com/akaihola/darkgraylib"
 News = "https://github.com/akaihola/darkgraylib/discussions/categories/announcements"
 
 [project.optional-dependencies]
-color = ["Pygments>=2.4.0"]
+color = ["Pygments>=2.15.0"]
 
 [dependency-groups]
 dev = [
@@ -46,10 +46,10 @@ dev = [
     "cryptography>=3.3.2",  # through twine, fixes CVE-2020-36242
     "darkgray-dev-tools @ git+https://github.com/akaihola/darkgray-dev-tools",
     "defusedxml>=0.7.1",
-    "flake8",
-    "mypy",
-    "Pygments>=2.4.0",
-    "pydocstyle",
+    "flake8>=3.8.0",
+    "mypy>=1.15.0",
+    "Pygments>=2.15.0",
+    "pydocstyle>=2.0.0",
     "pylint>=3.3.0",
     "pytest>=6.2.0",
     "pytest-kwparametrize>=0.0.3",
