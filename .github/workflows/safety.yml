@@ -9,9 +9,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-      - run: pip install -U pip-tools
-      - run: pip-compile setup.cfg
-      - run: pip install -U safety
-      - name: Check dependencies for known security vulnerabilities using Safety
-        run: safety check --file requirements.txt
+      - name: Run Safety CLI to check for vulnerabilities
+        uses: pyupio/safety-action@v1
+        with:
+          api-key: ${{ secrets.SAFETY_API_KEY }}

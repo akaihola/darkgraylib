@@ -26,6 +26,11 @@ dynamic = ["readme"]
 [tool.setuptools.package-data]
 darkgraylib = ["py.typed"]
 
+[[tool.uv.index]]
+name = "safety"
+url = "https://pkgs.safetycli.com/repository/ambitone-oy/project/darkgraylib/pypi/simple/"
+default = false
+
 [project.urls]
 Homepage = "https://github.com/akaihola/darkgraylib"
 "Source Code" = "https://github.com/akaihola/darkgraylib"
