@@ -14,13 +14,11 @@ Internal
 - Switch from old defunct Bandit action to ``brunohaf/action-bandit``.
 - Update Nix action to v31 – fixes the build error.
 - Use Safety GitHub action and configure Safety according to its documentation.
-
-Internal
---------
 - ``--config=check-darkgraylib.toml`` can now be used with ``darker`` to run
   ``ruff format`` and ``isort``, and with ``graylint`` to run Flake8, Mypy,
   Pydocstyle, Pylint and ``ruff check`` on modified parts of Darkgraylib code.
 - Provide minimum versions for all dependencies in ``pyproject.toml``.
+- Update Pygments to address two CVEs reported by Safety.
 
 
 2.4.0_ - 2025-06-10
