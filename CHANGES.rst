@@ -8,6 +8,7 @@ Added
 
 Fixed
 -----
+- Update Nix action to v31 – fixes the build error.
 
 Internal
 --------
