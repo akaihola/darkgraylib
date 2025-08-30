@@ -8,6 +8,18 @@ Added
 
 Fixed
 -----
+
+
+2.4.1_ - 2025-11-02
+===================
+
+Added
+-----
+- Add support for Python 3.14.
+- Test on development version of Python 3.15.
+
+Fixed
+-----
 - Original and highlighted output now always have identical number of trailing newlines.
 
 Internal
@@ -21,6 +33,7 @@ Internal
 - Provide minimum versions for all dependencies in ``pyproject.toml``.
 - Update Pygments to address two CVEs reported by Safety.
 - Run baseline Mypy in the CI build using Graylint.
+- Use exit code constant instead of an integer literal.
 
 
 2.4.0_ - 2025-06-10
@@ -297,7 +310,10 @@ For changes before the migration of code from Darker to Darkgraylib, see
 
 __ https://github.com/akaihola/darker/blob/master/CHANGES.rst
 
-.. _Unreleased: https://github.com/akaihola/darkgraylib/compare/v2.2.0...HEAD
+.. _Unreleased: https://github.com/akaihola/darkgraylib/compare/v2.4.1...HEAD
+.. _2.4.1: https://github.com/akaihola/darkgraylib/compare/v2.4.0...v2.4.1
+.. _2.4.0: https://github.com/akaihola/darkgraylib/compare/v2.3.0...v2.4.0
+.. _2.3.0: https://github.com/akaihola/darkgraylib/compare/v2.2.0...v2.3.0
 .. _2.2.0: https://github.com/akaihola/darkgraylib/compare/v2.1.0...v2.2.0
 .. _2.1.0: https://github.com/akaihola/darkgraylib/compare/v2.0.1...v2.1.0
 .. _2.0.1: https://github.com/akaihola/darkgraylib/compare/v2.0.0...v2.0.1

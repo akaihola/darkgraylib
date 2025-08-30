@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "darkgraylib"
-version = "2.4.0"  # Will be dynamic after full migration
+version = "2.4.1"  # Will be dynamic after full migration
 authors = [{name = "Antti Kaihola", email = "13725+akaihola@users.noreply.github.com"}]
 license = {text = "BSD-3-Clause"}
 description = "Common supporting code for Darker and Graylint"
