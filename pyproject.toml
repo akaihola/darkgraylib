@@ -82,7 +82,6 @@ src = [
     "setup.py",
 ]
 revision = "origin/main..."
-isort = true
 
 [tool.graylint]
 src = [
@@ -90,13 +89,6 @@ src = [
     "setup.py",
 ]
 revision = "origin/main..."
-lint = [
-    "flake8",
-    "mypy",
-    "pydocstyle",
-    "pylint",
-    "ruff check",
-]
 
 [tool.pylint."messages control"]
 disable = ["line-too-long"]  # checked by Ruff

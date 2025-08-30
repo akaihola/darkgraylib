@@ -14,6 +14,12 @@ Internal
 --------
 - Switch from old defunct Bandit action to ``brunohaf/action-bandit``.
 
+Internal
+--------
+- ``--config=check-darkgraylib.toml`` can now be used with ``darker`` to run
+  ``ruff format`` and ``isort``, and with ``graylint`` to run Flake8, Mypy,
+  Pydocstyle, Pylint and ``ruff check`` on modified parts of Darkgraylib code.
+
 
 2.4.0_ - 2025-06-10
 ===================
