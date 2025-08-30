@@ -8,11 +8,12 @@ Added
 
 Fixed
 -----
-- Update Nix action to v31 – fixes the build error.
 
 Internal
 --------
 - Switch from old defunct Bandit action to ``brunohaf/action-bandit``.
+- Update Nix action to v31 – fixes the build error.
+- Use Safety GitHub action and configure Safety according to its documentation.
 
 Internal
 --------
