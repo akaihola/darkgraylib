@@ -38,7 +38,7 @@ Homepage = "https://github.com/akaihola/darkgraylib"
 News = "https://github.com/akaihola/darkgraylib/discussions/categories/announcements"
 
 [project.optional-dependencies]
-color = ["Pygments>=2.4.0"]
+color = ["Pygments>=2.7.4"]
 
 [dependency-groups]
 dev = [
@@ -48,7 +48,7 @@ dev = [
     "defusedxml>=0.7.1",
     "flake8>=3.8.0",
     "mypy>=1.15.0",
-    "Pygments>=2.4.0",
+    "Pygments>=2.7.4",
     "pydocstyle>=2.0.0",
     "pylint>=3.3.0",
     "pytest>=6.2.0",
