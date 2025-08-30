@@ -9,6 +9,10 @@ Added
 Fixed
 -----
 
+Internal
+--------
+- Switch from old defunct Bandit action to ``brunohaf/action-bandit``.
+
 
 2.4.0_ - 2025-06-10
 ===================
