@@ -3,7 +3,7 @@
 # pylint: disable=import-outside-toplevel,unused-import
 
 import sys
-from typing import Optional, cast
+from typing import Optional
 
 
 def should_use_color(config_color: Optional[bool]) -> bool:
@@ -48,8 +48,9 @@ def colorize(output: str, lexer_name: str, use_color: bool) -> str:
     from pygments.lexers import get_lexer_by_name
 
     lexer = get_lexer_by_name(lexer_name)
-    highlighted = highlight(output, lexer, TerminalFormatter())
-    if "\n" not in output:
-        # see https://github.com/pygments/pygments/issues/1107
-        highlighted = highlighted.rstrip("\n")
-    return cast(str, highlighted)
+    # Ensure identical number of trailing newlines in highlighted output
+    # see https://github.com/pygments/pygments/issues/1107
+    trailing_newlines = (len(output) - len(output.rstrip("\n"))) * "\n"
+    formatter: TerminalFormatter[str] = TerminalFormatter()
+    highlighted = highlight(output, lexer, formatter).rstrip("\n") + trailing_newlines
+    return highlighted

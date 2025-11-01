@@ -22,7 +22,6 @@ from darkgraylib.testtools.highlighting_helpers import (
     BR_RED,
     CYAN,
     GREEN,
-    RED,
     RESET,
     WHITE,
 )
@@ -411,55 +410,56 @@ def test_colorize_with_no_color():
             "except RuntimeError:",
             "python",
             True,
-            {
-                # Pygments <2.14.0:
-                f"{BLUE}except{RESET} {CYAN}RuntimeError{RESET}:",
-                # Pygments 2.14.0:
-                f"{BLUE}except{RESET} {CYAN}RuntimeError{RESET}:{WHITE}{RESET}",
-            },
+            f"{BLUE}except{RESET} {CYAN}RuntimeError{RESET}:{WHITE}{RESET}",
         ),
-        ("except RuntimeError:", "python", False, {"except RuntimeError:"}),
+        ("except RuntimeError:", "python", False, "except RuntimeError:"),
         (
             "a = 1",
             "python",
             True,
-            {
-                # Pygments <2.14.0:
-                f"a = {BLUE}1{RESET}",
-                # Pygments 2.14.0:
-                f"a = {BLUE}1{RESET}{WHITE}{RESET}",
-            },
+            f"a = {BLUE}1{RESET}{WHITE}{RESET}",
         ),
         (
             "a = 1\n",
             "python",
             True,
-            {
-                # Pygments <2.14.0:
-                f"a = {BLUE}1{RESET}\n",
-                # Pygments 2.14.0:
-                f"a = {BLUE}1{RESET}{WHITE}{RESET}\n",
-            },
+            f"a = {BLUE}1{RESET}{WHITE}{RESET}\n",
+        ),
+        (
+            "a = 1\n\n",
+            "python",
+            True,
+            f"a = {BLUE}1{RESET}{WHITE}{RESET}\n\n",
+        ),
+        (
+            "a = 1\nb = 2",
+            "python",
+            True,
+            f"a = {BLUE}1{RESET}{WHITE}{RESET}\nb = {BLUE}2{RESET}{WHITE}{RESET}",
+        ),
+        (
+            "a = 1\nb = 2\n",
+            "python",
+            True,
+            f"a = {BLUE}1{RESET}{WHITE}{RESET}\nb = {BLUE}2{RESET}{WHITE}{RESET}\n",
+        ),
+        (
+            "a = 1\nb = 2\n\n",
+            "python",
+            True,
+            f"a = {BLUE}1{RESET}{WHITE}{RESET}\nb = {BLUE}2{RESET}{WHITE}{RESET}\n\n",
         ),
         (
             "- a\n+ b\n",
             "diff",
             True,
-            {
-                # Pygments 2.4.0:
-                f"{RED}- a{RESET}\n{GREEN}+ b{RESET}\n",
-                # Pygments 2.10.0:
-                f"{BR_RED}- a{RESET}\n{GREEN}+ b{RESET}\n",
-                # Pygments 2.11.2:
-                f"{BR_RED}- a{RESET}{WHITE}{RESET}\n"
-                f"{GREEN}+ b{RESET}{WHITE}{RESET}\n",
-            },
+            f"{BR_RED}- a{RESET}{WHITE}{RESET}\n{GREEN}+ b{RESET}{WHITE}{RESET}\n",
         ),
         (
             "- a\n+ b\n",
             "diff",
             False,
-            {"- a\n+ b\n"},
+            "- a\n+ b\n",
         ),
     ],
 )
@@ -467,7 +467,7 @@ def test_colorize(text, lexer, use_color, expect):
     """``colorize()`` produces correct highlighted terminal output"""
     result = colorize(text, lexer, use_color)
 
-    assert result in expect
+    assert result == expect
 
 
 @pytest.mark.parametrize(
