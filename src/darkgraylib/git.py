@@ -13,6 +13,7 @@ from pathlib import Path
 from subprocess import PIPE, CalledProcessError, check_output  # nosec
 from typing import Dict, Iterator, List, Match, Optional, Tuple, Union, cast, overload
 
+from darkgraylib.command_line import EXIT_CODE_UNKNOWN
 from darkgraylib.utils import GIT_DATEFORMAT, TextDocument
 
 logger = logging.getLogger(__name__)
@@ -301,7 +302,7 @@ def _git_check_output(
         # error status 123.
         for error_line in exc_info.stderr.splitlines():
             logger.error(error_line)
-        sys.exit(123)
+        sys.exit(EXIT_CODE_UNKNOWN)
 
 
 @contextmanager
