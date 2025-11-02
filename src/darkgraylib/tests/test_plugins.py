@@ -9,7 +9,6 @@ to discover and load plugins dynamically.
 
 from __future__ import annotations
 
-import sys
 from typing import TYPE_CHECKING
 from unittest import mock
 
@@ -46,7 +45,7 @@ class DummyPlugin:
 
 @pytest.fixture
 def mock_entry_points() -> Generator[mock.MagicMock, None, None]:
-    """Mock entry_points with version-specific behavior.
+    """Mock entry_points
 
     :return: Mock object that simulates the entry_points function.
     """
@@ -60,26 +59,20 @@ def mock_entry_points() -> Generator[mock.MagicMock, None, None]:
         ep2.name = "plugin2"
         ep2.load.return_value = DummyPlugin
 
-        # Configure based on Python version
-        if sys.version_info < (3, 10):
-            # For Python < 3.10, entry_points() returns a dict
-            mock_eps.return_value = {TEST_GROUP: [ep1, ep2]}
-        else:
-            # For Python >= 3.10, entry_points() takes parameters
-            def side_effect(
-                group: str | None = None, name: str | None = None
-            ) -> list[mock.Mock]:
-                if group != TEST_GROUP:
-                    return []
-                if name:
-                    if name == "plugin1":
-                        return [ep1]
-                    if name == "plugin2":
-                        return [ep2]
-                    return []
-                return [ep1, ep2]
+        def side_effect(
+            group: str | None = None, name: str | None = None
+        ) -> list[mock.Mock]:
+            if group != TEST_GROUP:
+                return []
+            if name:
+                if name == "plugin1":
+                    return [ep1]
+                if name == "plugin2":
+                    return [ep2]
+                return []
+            return [ep1, ep2]
 
-            mock_eps.side_effect = side_effect
+        mock_eps.side_effect = side_effect
 
         yield mock_eps
 

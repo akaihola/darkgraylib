@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import sys
 from importlib.metadata import EntryPoint, entry_points
 from typing import Any, cast
 
@@ -11,12 +10,6 @@ def get_entry_points_for_group(
     entry_point_group: str, name: str | None = None
 ) -> tuple[EntryPoint, ...]:
     """Get the entry points of plugins for the given group."""
-    if sys.version_info < (3, 10):
-        return tuple(
-            entry_point
-            for entry_point in entry_points()[entry_point_group]
-            if not name or entry_point.name == name
-        )
     if name:
         result = entry_points(group=entry_point_group, name=name)
     else:

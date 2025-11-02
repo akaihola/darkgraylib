@@ -2,13 +2,11 @@
 
 # pylint: disable=too-many-arguments,too-many-positional-arguments,use-dict-literal
 
-import sys
 from pathlib import Path
 
 import pytest
 
 from darkgraylib.main import resolve_paths
-from darkgraylib.utils import WINDOWS
 
 
 @pytest.mark.kwparametrize(
@@ -74,6 +72,4 @@ def test_resolve_paths(
     paths, root = resolve_paths(stdin_filename, src)
 
     assert paths == {Path(p) for p in expect_paths}
-    if WINDOWS and sys.version_info[:2] == (3, 9):
-        root = root.resolve().absolute()
     assert root == Path(expect_root.format(cwd=Path.cwd()))
