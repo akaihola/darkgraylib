@@ -8,6 +8,7 @@ Added
 
 Fixed
 -----
+- Original and highlighted output now always have identical number of trailing newlines.
 
 Internal
 --------
