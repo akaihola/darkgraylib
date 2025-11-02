@@ -19,6 +19,7 @@ Internal
   Pydocstyle, Pylint and ``ruff check`` on modified parts of Darkgraylib code.
 - Provide minimum versions for all dependencies in ``pyproject.toml``.
 - Update Pygments to address two CVEs reported by Safety.
+- Run baseline Mypy in the CI build using Graylint.
 
 
 2.4.0_ - 2025-06-10
