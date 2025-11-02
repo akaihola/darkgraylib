@@ -77,7 +77,7 @@ pytest_patching = "darkgraylib.testtools.patching"
 
 [tool.black]
 skip-string-normalization = false
-target-version = ["py39", "py310", "py311", "py312", "py313"]
+target-version = ["py39", "py310", "py311", "py312", "py313", "py314"]
 
 [tool.isort]
 profile = "black"
