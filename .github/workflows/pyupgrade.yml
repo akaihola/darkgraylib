@@ -26,4 +26,4 @@ jobs:
           uvx \
             --with pyupgrade \
             --from 'darker@git+https://github.com/akaihola/darker' \
-            darker --formatter=pyupgrade --target-version=py39 --diff
+            darker --formatter=pyupgrade --target-version=py310 --diff

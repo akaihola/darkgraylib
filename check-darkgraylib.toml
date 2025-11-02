@@ -7,7 +7,7 @@
 # Darker makes Black read its configuration from the file indicated by the `--config`
 # option, so we need to mirror the same configuration here and in `pyproject.toml`.
 skip-string-normalization = false
-target-version = ["py39", "py310", "py311", "py312", "py313"]
+target-version = ["py310", "py311", "py312", "py313"]
 
 [tool.isort]
 # Darker makes isort read its configuration from the file indicated by the `--config`
